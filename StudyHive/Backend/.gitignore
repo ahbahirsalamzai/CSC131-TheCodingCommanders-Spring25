@@ -11,3 +11,5 @@ node_modules/
 # Build files
 dist/
 build/
+#misc
+.DS_Store
