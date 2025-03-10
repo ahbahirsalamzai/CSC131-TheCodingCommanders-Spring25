@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -10,12 +11,15 @@ import Sessions from './pages/Sessions';
 import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 
+
 function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
+        {/* Header */}
+        <Header/>
         {/* Navbar */}
-        <Navbar />
+        <Navbar/>
 
         {/* Main Content */}
         <main className="flex-grow container mx-auto p-4">
