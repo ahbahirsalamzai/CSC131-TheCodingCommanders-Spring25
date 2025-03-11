@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Contact() {
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 text-center">
+    <div className="max-w-2xl mx-auto py-12 px-4 text-center">
       {/* Section for user inquiries */}
       <h2 className="text-3xl font-bold mb-6">GET IN TOUCH</h2>
       <form className="space-y-4">
@@ -25,7 +25,7 @@ export default function Contact() {
           className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
         ></textarea>
         {/* Submit button */}
-        <button className="bg-green-500 text-white px-6 py-3 rounded-md w-full font-bold hover:bg-green-600">
+        <button className="bg-[#275e49] text-white px-6 py-3 rounded-md w-full font-bold hover:bg-green-800">
           Send
         </button>
       </form>
@@ -35,11 +35,13 @@ export default function Contact() {
       <div className="mt-6 flex flex-col md:flex-row items-center md:justify-center gap-8">
         {/* Embedded Google Map for location visualization */}
         <iframe
-          className="w-full md:w-1/2 h-64 rounded-lg shadow-md"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.8354345093666!2d144.95373531531886!3d-37.81627997975148!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDQ4JzU4LjYiUyAxNDTCsDU3JzEzLjQiRQ!5e0!3m2!1sen!2sus!4v1631706343040!5m2!1sen!2sus"
-          allowFullScreen=""
-          loading="lazy"
+            className="w-full md:w-1/2 h-64 rounded-lg shadow-md"
+            src="https://www.google.com/maps/embed?... (VALID URL)"
+            title="Google Maps Location"
+            allowFullScreen
+            loading="lazy"
         ></iframe>
+
 
         {/* Contact information section */}
         <div className="text-left space-y-4 text-gray-700">

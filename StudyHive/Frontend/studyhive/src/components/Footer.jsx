@@ -7,7 +7,7 @@ export default function Footer() {
         
         {/* Left Section - StudyHive Info */}
         <div className="md:w-1/3">
-          <h2 className="text-xl font-bold">Study<span className="text-green-600">Hive</span></h2>
+          <h2 className="text-xl font-bold">Study<span className="text-[#1F4D39]">Hive</span></h2>
           <p className="mt-2 text-gray-400">Qualified and experienced educators dedicated to student success.</p>
           {/* Social Media Icons Placeholder */}
           <div className="mt-4 flex space-x-4 text-gray-500">
