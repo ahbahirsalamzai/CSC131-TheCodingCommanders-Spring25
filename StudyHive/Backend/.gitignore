@@ -2,7 +2,7 @@
 node_modules/
 
 # Environment variables
-.env
+.env*
 .env.local
 .env.development
 .env.production
@@ -13,3 +13,5 @@ dist/
 build/
 #misc
 .DS_Store
+Thumbs.db
+
