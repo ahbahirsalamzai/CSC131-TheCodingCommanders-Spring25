@@ -8,48 +8,56 @@ const navLinks = [
     href: "/#Home",
     label: "Home",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
   {
     href: "/#About Us",
     label: "About Us",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
   {
     href: "/#FAQs",
     label: "FAQs",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
   {
     href: "/Contact",
     label: "Contact Us",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
 ];
 
 const Navbar = () => {
-  // State to track if the user has scrolled down
   const [isScrolled, setIsScrolled] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
 
   useEffect(() => {
-    // Function to check if page is scrolled past 50px
+    let lastScrollTop = 0;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScroll = window.scrollY;
+      const isHeaderVisible = currentScroll <= lastScrollTop;
+      
+      // Update header visibility state
+      setHeaderVisible(isHeaderVisible);
+      
+      // Update navbar shadow state
+      setIsScrolled(currentScroll > 50);
+      
+      lastScrollTop = currentScroll;
     };
 
-    // Add scroll event listener
     window.addEventListener("scroll", handleScroll);
-    
-    // Cleanup event listener when component unmounts
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <nav
-      className={`bg-white shadow-md w-full fixed top-0 z-50 transition-all ${
+      className={`bg-white shadow-md w-full fixed ${
+        headerVisible ? "top-9" : "top-0"
+      } z-[999] transition-all duration-300 ${
         isScrolled ? "shadow-lg" : ""
       }`}
     >

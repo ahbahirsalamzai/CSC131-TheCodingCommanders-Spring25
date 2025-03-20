@@ -6,221 +6,222 @@ import User1 from "../assets/girlpink.jpeg";
 import User2 from "../assets/girlred.jpeg";
 import User3 from "../assets/guyblue.jpeg";
 import User4 from "../assets/lightblueguy.jpeg";
+import LargeImage from "../assets/libhall.jpg"; 
+import SmallImage from "../assets/studybook.jpg";
+import Brain from "../assets/brain.webp";
 
 
 export default function Home() {
   return (
-    <div className="w-full">
-      {/* Hero Section - Now Positioned Correctly Below Navbar */}
-      <section className="relative w-full h-screen flex items-center justify-center text-white">
+    <div className="w-full overflow-x-hidden">
+    {/* Hero Section */}
+<section className="relative w-full min-h-[90vh] md:min-h-screen flex items-center justify-center text-white px-4 sm:px-6 lg:px-8 pt-16">
+  <div className="relative w-full max-w-6xl lg:h-[643px] rounded-3xl shadow-lg border border-black overflow-hidden mx-auto">
+    <img src={FallCampusSign} alt="StudyHive Campus" className="w-full h-full object-cover" />
+    <div className="absolute inset-0 bg-black/45"></div>
 
-        
-        {/* Image Container */}
-        <div className="relative w-[1283px] h-[643px] rounded-[30px] shadow-lg border border-black overflow-hidden">
-          
-          {/* Background Image */}
-          <img src={FallCampusSign} alt="StudyHive Campus" className="w-full h-full object-cover" />
-          
-          {/* Overlay */}
-          <div className="absolute top-0 left-0 w-full h-full bg-black/45"></div> 
-
-          {/* Text Content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-            
-            {/* Welcome Message */}
-            <div className="w-[942px] text-center justify-center text-white text-sm font-bold uppercase tracking-[3px] mb-4">
-              Welcome to StudyHive
-            </div>
-
-            {/* Main Heading */}
-            <h1 className="w-[942px] text-center justify-center text-white text-6xl font-normal capitalize leading-[74px] mt-4">
-              Empowering Students, One Session at a Time
-            </h1>
-
-            {/* Profile Images */}
-            <div className="flex items-center space-x-[-10px] mt-6">
-              <img className="w-12 h-12 relative rounded-full border-2 border-white" src={User1} alt="User 1" />
-              <img className="w-12 h-12 relative rounded-full border-2 border-white" src={User2} alt="User 2" />
-              <img className="w-12 h-12 relative rounded-full border-2 border-white" src={User3} alt="User 3" />
-              <img className="w-12 h-12 relative rounded-full border-2 border-white" src={User4} alt="User 4" />
-            </div>
-
-            {/* Subtext */}
-            <p className="mt-4 text-lg font-light">
-              More than 1000 active users who are very satisfied with our courses.
-            </p>
-
-            {/* Call-to-Action Button */}
-            <Link to="/signup">
-              <button className="mt-8 px-5 py-2 text-sm bg-transparent text-white font-semibold border border-white rounded-lg transition duration-300 hover:bg-white hover:text-black">
-                Get Started
-              </button>
-            </Link>
-              
-          </div>
-        </div>
-      </section>
-
-      <div className="w-full">
-      {/* About Section - Bri
-      ef Introduction to StudyHive */}
-      <section className="w-full bg-[#E1EADF] flex justify-center items-center gap-16 py-28">
+    <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 sm:px-6">
+      {/* Welcome text - hidden on mobile */}
+      <div className="text-sm font-bold uppercase tracking-widest mb-4 hidden sm:block">
+        Welcome to StudyHive
+      </div>
       
-      {/* Image Container (Relative for Layering) */}
-      <div className="relative w-[554px] h-[615px]">
-        
-        {/* Green Box Positioned Behind Image */}
-        <div className="absolute w-96 h-96 bg-green-900 rounded-lg -left-6 top-6 z-0" />
-
-        {/* Main Image */}
-        <img 
-          className="w-[554px] h-[615px] rounded-2xl shadow-lg relative z-10"
-          src={GradRateImage} 
-          alt="StudyHive Students"
-        />
+      <h1 className="text-3xl md:text-4xl lg:text-5xl font-normal capitalize leading-snug px-4">
+        Empowering Students, One Session at a Time
+      </h1>
+      
+      <div className="flex items-center space-x-[-10px] mt-6">
+        {[User1, User2, User3, User4].map((user, index) => (
+          <img key={index} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white" 
+              src={user} alt={`User ${index + 1}`} />
+        ))}
       </div>
 
-      {/* Text Content */}
-      <div className="w-[596px] flex flex-col justify-start items-start gap-6">
-        
-        {/* Title Section */}
-        <div className="self-stretch flex flex-col justify-start items-start gap-6">
-          <div className="w-[566px] flex flex-col justify-start items-start gap-4">
-            
-            {/* Title Icon */}
-            <div className="inline-flex justify-start items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-green-900 rounded-full" />
-              <div className="text-green-900 text-2xl font-bold font-['Montserrat'] leading-loose">
-                About STUDYHIVE
-              </div>
-            </div>
-
-            {/* Main Heading */}
-            <div className="self-stretch text-black text-4xl font-semibold font-['Montserrat'] leading-10">
-              Shaping Brighter Futures Through Quality Education
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="w-[587px] text-zinc-700 text-lg font-normal font-['Montserrat'] leading-relaxed">
-            Our tutoring center is dedicated to providing personalized and effective learning experiences for students of all ages.
-          </div>
-        </div>
-
-        {/* Mission & Values Section */}
-        <div className="self-stretch flex flex-col justify-start items-start gap-2">
-          {/* List Items */}
-          {[
-            "Our mission is to empower students with the knowledge and skills they need to succeed academically and beyond.",
-            "We believe in quality education, individualized attention, and a supportive learning environment.",
-            "Emotional well-being, creating a safe space for new beginnings."
-          ].map((text, index) => (
-            <div key={index} className="self-stretch pb-2 inline-flex justify-start items-start gap-4">
-              <div className="w-2.5 h-1.5 bg-black/70 outline outline-1 outline-offset-[-0.5px] outline-white" />
-              <div className="w-[530px] text-zinc-700 text-lg font-normal font-['Montserrat'] leading-relaxed">
-                {text}
-              </div>
-            </div>
-          ))}
-        </div>
-
-      </div>
-    </section>
-    </div>
-
-
-    <section className="w-full bg-white py-16 flex flex-col items-center text-center">
-  {/* Section Title */}
-  <div className="mb-10">
-    <div className="flex justify-center items-center gap-2">
-      <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
-      <h2 className="text-green-900 text-2xl font-bold font-['Montserrat'] leading-loose">
-        What We Offer
-      </h2>
-    </div>
-    <h3 className="text-black text-4xl font-semibold font-['Commissioner'] leading-10 mt-2">
-      Our Services For Interactive Learning & Growth
-    </h3>
-    <p className="w-[900px] mx-auto text-zinc-700 text-lg font-normal font-['Montserrat'] leading-relaxed mt-4">
-      Our tutoring center is dedicated to providing personalized and effective learning experiences for students of all ages.
-    </p>
-  </div>
-
-  {/* Services Cards Section */}
-  <div className="flex justify-center items-center gap-8 mb-20">
-    {/* Service 1 - 1-on-1 Tutoring */}
-    <div className="relative w-96">
-      <div className="w-full h-72 bg-stone-300 rounded-[10.22px] rotate-[-4.80deg] absolute top-4 left-4"></div>
-      <div className="w-full p-8 bg-green-900 rounded-[10.22px] relative z-10">
-        <img className="w-14 h-14 mb-2" src="https://placehold.co/55x55" alt="Tutoring" />
-        <h3 className="text-white text-3xl font-normal font-['Commissioner'] leading-10">
-          1-on-1 Tutoring
-        </h3>
-        <p className="text-white text-2xl font-light font-['Montserrat'] leading-9">
-          Personalized attention tailored to individual learning styles and needs.
-        </p>
-      </div>
-    </div>
-
-    {/* Service 2 - Test Preparation */}
-    <div className="relative w-96">
-      <div className="w-full h-72 bg-stone-300 rounded-[10.22px] rotate-[-4.80deg] absolute top-4 left-4"></div>
-      <div className="w-full p-8 bg-green-900 rounded-[10.22px] relative z-10">
-        <img className="w-14 h-14 mb-2" src="https://placehold.co/55x55" alt="Test Prep" />
-        <h3 className="text-white text-3xl font-normal font-['Commissioner'] leading-10">
-          Test Preparation
-        </h3>
-        <p className="text-white text-2xl font-light font-['Montserrat'] leading-9">
-          Personalized attention tailored to individual learning styles and needs.
-        </p>
-      </div>
-    </div>
-
-    {/* Service 3 - Homework Help */}
-    <div className="relative w-96">
-      <div className="w-full h-72 bg-stone-300 rounded-[10.22px] rotate-[-4.80deg] absolute top-4 left-4"></div>
-      <div className="w-full p-8 bg-green-900 rounded-[10.22px] relative z-10">
-        <img className="w-14 h-14 mb-2" src="https://placehold.co/55x55" alt="Homework Help" />
-        <h3 className="text-white text-3xl font-normal font-['Commissioner'] leading-10">
-          Homework Help
-        </h3>
-        <p className="text-white text-2xl font-light font-['Montserrat'] leading-9">
-          Personalized attention tailored to individual learning styles and needs.
-        </p>
-      </div>
+      {/* Added text with responsive visibility */}
+      <p className="mt-4 hidden md:block text-lg font-light max-w-md">
+        More than 1000+ active users who are very satisfied with our courses.
+      </p>
+      
+      {/* Modified button with adjusted spacing */}
+      <Link to="/signup" className="mt-4 md:mt-6">
+        <button className="px-4 py-2 md:px-6 md:py-3 text-xs md:text-sm bg-transparent text-white font-semibold border border-white rounded-lg hover:bg-white hover:text-black transition-colors">
+          Get Started
+        </button>
+      </Link>
     </div>
   </div>
 </section>
 
+      {/* About Section */}
+      <section className="w-full bg-[#E1EADF] py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-16">
+          <div className="relative w-full max-w-xl">
+            <div className="hidden lg:block absolute w-4/5 h-4/5 bg-green-900 rounded-lg -left-6 top-20"></div>
+            <img className="w-full rounded-2xl shadow-lg relative z-10" 
+                src={GradRateImage} alt="StudyHive Students" />
+          </div>
 
-
-      {/* Why Choose StudyHive - Highlights the benefits of the service */}
-      <section className="py-16 bg-[#E1EADF]">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-green-700">Why Choose StudyHive?</h2>
-          <p className="mt-4 text-lg">Qualified and experienced educators with flexible scheduling and proven results.</p>
-          <button className="mt-6 px-6 py-3 bg-[#1F4D39] hover:bg-green-700 rounded-lg">Contact Us</button>
+          <div className="max-w-2xl flex flex-col gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
+              <h2 className="text-green-900 text-2xl font-bold">About StudyHive</h2>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-semibold">
+              Shaping Brighter Futures Through Quality Education
+            </h2>
+            <p className="text-lg leading-relaxed">
+              Our tutoring center is dedicated to providing personalized and effective learning experiences for students of all ages.
+            </p>
+            <ul className="space-y-4">
+              {[
+                "Our mission is to empower students with the knowledge and skills they need to succeed academically and beyond.",
+                "We believe in quality education, individualized attention, and a supportive learning environment.",
+                "Emotional well-being, creating a safe space for new beginnings."
+              ].map((text, index) => (
+                <li key={index} className="flex items-start gap-3">
+                  <div className="w-2.5 h-2.5 bg-black rounded-full mt-1.5"></div>
+                  <p className="text-lg">{text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
-      {/* Testimonial Section - Displays a positive review from a student */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-green-700">What Our Students Say</h2>
-          <blockquote className="mt-6 text-lg italic">"StudyHive transformed my child’s learning experience — their grades and confidence have soared!"</blockquote>
+      {/* Services Section */}
+      <section className="w-full bg-white py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="mb-12">
+            <div className="flex justify-center items-center gap-2">
+              <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
+              <h2 className="text-green-900 text-2xl font-bold">What We Offer</h2>
+            </div>
+            <h3 className="text-3xl md:text-4xl font-semibold mt-4">
+              Our Services For Interactive Learning & Growth
+            </h3>
+            <p className="mx-auto max-w-2xl text-lg mt-4">
+              Our tutoring center is dedicated to providing personalized and effective learning experiences for students of all ages.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="relative group">
+                <div className="absolute inset-0 bg-[#E1EADF] rounded-lg transform -rotate-3 transition-transform group-hover:rotate-0"></div>
+                <div className="relative p-8 bg-green-900 rounded-lg text-white hover:bg-green-800 transition-colors">
+                  <img className="w-14 h-14 mb-4 mx-auto" 
+                      src={Brain} alt="Service" />
+                  <h3 className="text-2xl font-semibold mb-4">
+                    {['1-on-1 Tutoring', 'Test Preparation', 'Homework Help'][item-1]}
+                  </h3>
+                  <p className="text-lg font-light">
+                    Personalized attention tailored to individual learning styles and needs.
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* FAQs Section - Expandable list of frequently asked questions */}
-      <section className="py-16 bg-[#E1EADF]">
-        <div className="continer mx-auto text-center">
-          <h2 className="text-3xl font-bold text-green-700">Frequently Asked Questions</h2>
-          <div className="mt-8 space-y-4">
-            {/* Rendering questions dynamically */}
-            {["How do I sign up?", "What subjects do you offer?", "How do I become a tutor?", "What are the costs?"].map((question, index) => (
-              <details key={index} className="p-4 bg-white rounded-lg shadow-md cursor-pointer">
-                <summary className="text-lg font-bold">{question}</summary>
-                <p className="mt-2 text-gray-600">This is the answer to the question.</p>
+      {/* Why Choose Us Section */}
+      <section className="w-full bg-[#E1EADF] py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start gap-12">
+          <div className="w-full lg:w-1/2 grid grid-cols-2 gap-6">
+            <img src={LargeImage} alt="StudyHive Students" 
+                className="w-full h-96 object-cover rounded-lg shadow-lg" />
+            <img src={SmallImage} alt="Classroom Scene" 
+                className="w-full h-48 mt-24 object-cover rounded-lg shadow-md" />
+          </div>
+
+          <div className="w-full lg:w-1/2 flex flex-col gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
+              <h2 className="text-green-900 text-2xl font-bold">Why Choose StudyHive</h2>
+            </div>
+            <h3 className="text-3xl md:text-4xl font-bold">
+              Qualified and experienced educators
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                {['Expert Tutors', 'Interactive Learning'].map((text) => (
+                  <div key={text} className="flex items-center gap-3">
+                    <div className="w-2.5 h-1.5 bg-green-900"></div>
+                    <p className="text-lg">{text}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-4">
+                {['Flexible Scheduling', 'Proven Results'].map((text) => (
+                  <div key={text} className="flex items-center gap-3">
+                    <div className="w-2.5 h-1.5 bg-green-900"></div>
+                    <p className="text-lg">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-lg">
+              Engaging methods that make learning fun and effective. Personalized attention tailored to individual learning styles and needs.
+            </p>
+            <button className="mt-4 px-8 py-3 bg-green-900 text-white rounded-lg hover:bg-green-700 w-fit">
+              Contact us
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section className="w-full bg-white py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-12">
+            What Our Students and Parents Say?
+          </h2>
+          <figure>
+            <blockquote className="text-xl italic text-gray-700">
+              “Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo expedita voluptas culpa sapiente alias
+              molestiae. Numquam corrupti in laborum sed rerum et corporis.”
+            </blockquote>
+            <figcaption className="mt-8 flex items-center justify-center gap-4">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330" 
+                  alt="Judith Black" 
+                  className="w-16 h-16 rounded-full" />
+              <div className="text-left">
+                <p className="font-semibold">Jacob Lake</p>
+                <p className="text-gray-600">STUDENT</p>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="w-full bg-[#E1EADF] py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-12">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
+              <h2 className="text-green-900 text-2xl font-bold">Any Question?</h2>
+            </div>
+            <h3 className="text-3xl md:text-4xl font-bold mt-4">
+              Frequently Asked Questions
+            </h3>
+          </div>
+
+          <div className="space-y-4 text-left">
+            {[
+              "How do I sign up?",
+              "What subjects do you offer?",
+              "How do I become a tutor?",
+              "What are the costs?"
+            ].map((question, index) => (
+              <details key={index} className="p-6 bg-white rounded-lg shadow-md cursor-pointer">
+                <summary className="font-semibold text-lg flex justify-between items-center">
+                  {question}
+                  <span className="text-green-900">▼</span>
+                </summary>
+                <p className="mt-4 text-gray-600">This is the answer to the question.</p>
               </details>
             ))}
           </div>
