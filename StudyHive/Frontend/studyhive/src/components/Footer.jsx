@@ -3,25 +3,22 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-black text-white">
+    <footer id="footer" className="w-full bg-black text-white py-12">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-24">
           {/* Left Section - StudyHive Info */}
-          <div className="relative pl-2">
-            <div className="absolute left-0 top-0 h-full w-px bg-white bg-opacity-10" />
-            <div className="flex flex-col gap-8">
-              <div>
-                <h2 className="text-3xl font-semibold">Study<span className="text-[#1F4D39]">Hive</span></h2>
-                <p className="mt-3.5 text-lg font-light">
-                  Qualified and experienced educators dedicated to student success.
-                </p>
-              </div>
-              <div className="flex gap-3.5 text-sm font-semibold text-gray-400">
-                {['FB', 'TW', 'LN', 'IG'].map((item, index) => (
-                  <span key={index}>{item}</span>
-                ))}
-              </div>
+          <div className="flex flex-col gap-8">
+            <div>
+              <h2 className="text-3xl font-semibold text-white">StudyHive</h2>
+              <p className="mt-3.5 text-lg font-light">
+                Qualified and experienced educators dedicated to student success.
+              </p>
+            </div>
+            <div className="flex gap-3.5 text-sm font-semibold text-gray-400">
+              {['FB', 'TW', 'LN', 'IG'].map((item, index) => (
+                <span key={index}>{item}</span>
+              ))}
             </div>
           </div>
 
@@ -34,13 +31,9 @@ export default function Footer() {
                 { label: 'Our Services', target: '#services' },
                 { label: 'Contact', target: '#contact' }
               ].map((item, index) => (
-                <a 
-                  key={index}
-                  href={item.target}
-                  className="text-lg font-light hover:text-[#1F4D39] transition-colors"
-                >
+                <Link key={index} to={item.target} className="text-lg font-light hover:text-gray-400">
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
