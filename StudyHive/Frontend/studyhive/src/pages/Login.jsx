@@ -1,11 +1,11 @@
 import React from "react";
 import union from "../assets/union.png";
 
-export default function SignUp() {
+export default function LoginUI() {
   return (
     <div className="min-h-screen flex items-center justify-center ">
       <div className="w-full max-w-[1440px] mb-[100px] flex justify-center items-center">
-        {/* Image Section - Hidden on screens smaller than 1400px */}
+        {/* Image Section - Hidden on screens smaller than 1300px */}
         <div className="hidden xxl:block w-[600px] h-[800px] overflow-hidden rounded-[31px] mr-12">
           <img 
             className="w-full h-full object-cover" 
