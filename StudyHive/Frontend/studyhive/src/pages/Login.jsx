@@ -7,7 +7,7 @@ export default function SignUp() {
     <div className="min-h-screen flex items-center justify-center ">
       <div className="w-full max-w-[1440px] flex justify-center items-center">
         {/* Image Section - Hidden on screens smaller than 1400px */}
-        <div className="hidden xxl:block w-[630px] h-[847px] overflow-hidden rounded-[31px] mr-12">
+        <div className="hidden xl:block w-[600px] h-[800px] mb-[100px] mt-10 overflow-hidden rounded-[31px] mr-12">
           <img 
             className="w-full h-full object-cover" 
             src={union} 
@@ -16,7 +16,7 @@ export default function SignUp() {
         </div>
 
         {/* Form Section */}
-        <div className="w-full max-w-[471px] ml-[50px] mr-[50px] bg-white  rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
+        <div className="w-full max-w-[471px] mt-[-100px] ml-[50px] mr-[50px] bg-white  rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
         <div className="text-center text-black text-[40px] font-bold font-['Mulish']">Sign In</div>
 
           <div className="flex flex-col gap-6 w-full items-center mt-6">
