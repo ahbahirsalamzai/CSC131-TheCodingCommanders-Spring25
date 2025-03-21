@@ -12,8 +12,8 @@ import Sessions from './pages/Sessions';
 import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 import Contact from './pages/Contact';
-
-
+import OTPPage from './pages/OTPPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   return (
@@ -35,6 +35,8 @@ function App() {
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/payroll" element={<Payroll />} />
+            <Route path="/otp" element={<OTPPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Routes>
         </main>
 
