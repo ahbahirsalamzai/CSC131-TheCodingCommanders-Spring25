@@ -5,17 +5,12 @@ module.exports = {
     "./public/index.html", // Include the HTML file
   ],
   theme: {
-    extend: {
-      screens: {
-        'sm': '640px', // Small screens (default)
-        'md': '768px', // Medium screens (default)
-        'lg': '1024px', // Large screens (default)
-        'xl': '1280px', // Extra large screens (default)
-        '2xl': '1536px', // 2X large screens (default)
-        'xxl': '1300px', // Custom breakpoint for 1400px
-      },
-    },
+      extend: {},
   },
-  plugins: [],
+  plugins: [module.exports = {
+      plugins: {
+        tailwindcss: {},
+        autoprefixer: {},
+      },
+    }],
 };
-// login-ui-30
