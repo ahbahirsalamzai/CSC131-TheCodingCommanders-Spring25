@@ -1,51 +1,71 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white py-10 px-6">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between">
-        
-        {/* Left Section - StudyHive Info */}
-        <div className="md:w-1/3">
-          <h2 className="text-xl font-bold">Study<span className="text-[#1F4D39]">Hive</span></h2>
-          <p className="mt-2 text-gray-400">Qualified and experienced educators dedicated to student success.</p>
-          {/* Social Media Icons Placeholder */}
-          <div className="mt-4 flex space-x-4 text-gray-500">
-            <span>FB.</span>
-            <span>TW.</span>
-            <span>LN.</span>
-            <span>IG</span>
+    <footer id="footer" className="w-full bg-black text-white py-12">
+      {/* Main Footer Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-24">
+          {/* Left Section - StudyHive Info */}
+          <div className="flex flex-col gap-8">
+            <div>
+              <h2 className="text-3xl font-semibold text-white">StudyHive</h2>
+              <p className="mt-3.5 text-lg font-light">
+                Qualified and experienced educators dedicated to student success.
+              </p>
+            </div>
+            <div className="flex gap-3.5 text-sm font-semibold text-gray-400">
+              {['FB', 'TW', 'LN', 'IG'].map((item, index) => (
+                <span key={index}>{item}</span>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Center Section - Company Links */}
-        <div className="md:w-1/3 mt-6 md:mt-0">
-          <h3 className="text-lg font-semibold">Company</h3>
-          <ul className="mt-2 space-y-2 text-gray-400">
-            <li><a href="/about" className="hover:text-white">About Us</a></li>
-            <li><a href="/services" className="hover:text-white">Our Services</a></li>
-            <li><a href="/contact" className="hover:text-white">Contact</a></li>
-          </ul>
-        </div>
+          {/* Center Section - Company Links */}
+          <div className="flex flex-col gap-6">
+            <h3 className="text-2xl font-bold">Company</h3>
+            <div className="flex flex-col gap-2">
+              {[
+                { label: 'About Us', target: '#about' },
+                { label: 'Our Services', target: '#services' },
+                { label: 'Contact', target: '#contact' }
+              ].map((item, index) => (
+                <Link key={index} to={item.target} className="text-lg font-light hover:text-gray-400">
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
 
-        {/* Right Section - Contact Info */}
-        <div className="md:w-1/3 mt-6 md:mt-0">
-          <h3 className="text-lg font-semibold">Contact Us</h3>
-          <p className="mt-2 text-gray-400"><span className="font-semibold">PHONE :</span> (123) 456-7890</p>
-          <p className="text-gray-400"><span className="font-semibold">Address:</span> 123 Learning Lane, Education City, EC 45678</p>
+          {/* Right Section - Contact Info */}
+          <div className="flex flex-col gap-6">
+            <h3 className="text-2xl font-bold">Contact Us</h3>
+            <div className="flex flex-col gap-2">
+              <p className="text-lg font-light">
+                <span className="font-semibold">PHONE:</span> (123) 456-7890
+              </p>
+              <p className="text-lg font-light">
+                <span className="font-semibold">Address:</span> 123 Learning Lane, Education City, EC 45678
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Bottom Section */}
-      <div className="border-t border-gray-700 mt-8 pt-4 text-gray-500 text-sm flex flex-col md:flex-row justify-between items-center">
-        <p>&copy; All Rights Reserved StudyHive</p>
-        <div className="space-x-4">
-          <a href="/terms" className="hover:text-white">Terms & Conditions</a>
-          <span>|</span>
-          <a href="/privacy" className="hover:text-white">Privacy Policy</a>
+      {/* Bottom Copyright Section */}
+      <div className="border-t border-white border-opacity-10 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+          <span className="text-sm font-light">
+            ©All Rights Reserved StudyHive
+          </span>
+          <div className="flex items-center gap-2 mt-2 md:mt-0 text-sm font-light">
+            <span>Terms & Conditions</span>
+            <div className="w-px h-3 bg-white" />
+            <span>Privacy Policy</span>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
-
