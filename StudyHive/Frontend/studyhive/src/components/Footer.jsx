@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -27,13 +26,13 @@ export default function Footer() {
             <h3 className="text-2xl font-bold">Company</h3>
             <div className="flex flex-col gap-2">
               {[
-                { label: 'About Us', target: '#about' },
-                { label: 'Our Services', target: '#services' },
-                { label: 'Contact', target: '#contact' }
+                { label: 'About Us' },
+                { label: 'Our Services' },
+                { label: 'Contact' }
               ].map((item, index) => (
-                <Link key={index} to={item.target} className="text-lg font-light hover:text-gray-400">
+                <span key={index} className="text-lg font-light">
                   {item.label}
-                </Link>
+                </span>
               ))}
             </div>
           </div>

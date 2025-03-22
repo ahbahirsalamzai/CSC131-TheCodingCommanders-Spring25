@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react"; // Import useState
 import { Link } from 'react-router-dom';
 import FallCampusSign from "../assets/fall.jpg";
 import GradRateImage from "../assets/gradrate.jpg";
@@ -7,30 +7,56 @@ import User2 from "../assets/girlred.jpeg";
 import User3 from "../assets/guyblue.jpeg";
 import User4 from "../assets/lightblueguy.jpeg";
 import LargeImage from "../assets/libhall.jpg"; 
-import SmallImage from "../assets/studybook.jpg";
-import Brain from "../assets/brain.webp";
 import CollegeBoy from "../assets/collegeboy.jpeg";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
+
 const scrollToSection = (id) => {
-const element = document.getElementById(id);
-if (element) {
-const offset = 80; // Adjust this value based on your navbar height
-const bodyRect = document.body.getBoundingClientRect().top;
-const elementRect = element.getBoundingClientRect().top;
-const elementPosition = elementRect - bodyRect;
-const offsetPosition = elementPosition - offset;
-window.scrollTo({
-top: offsetPosition,
-behavior: "smooth",
-});
-}
-}
+  const element = document.getElementById(id);
+  if (element) {
+    const offset = 80; // Adjust this value based on your navbar height
+    const bodyRect = document.body.getBoundingClientRect().top;
+    const elementRect = element.getBoundingClientRect().top;
+    const elementPosition = elementRect - bodyRect;
+    const offsetPosition = elementPosition - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
+  }
+};
+
 export default function Home() {
-return (
-<div className="w-full overflow-x-hidden">
+  const [openIndex, setOpenIndex] = useState(null); // State for FAQ open/close
+
+  const faqItems = [
+    {
+      question: "How do I sign up?",
+      answer: "You can sign up by visiting our Sign Up page and filling out the registration form.",
+    },
+    {
+      question: "What subjects do you offer?",
+      answer: "We offer a wide range of subjects, including Math, Science, English, and more.",
+    },
+    {
+      question: "How do I become a tutor?",
+      answer: "To become a tutor, please apply through our Tutor Application page.",
+    },
+    {
+      question: "What are the costs?",
+      answer: "Our pricing varies depending on the service. Please check our Pricing page for details.",
+    },
+  ];
+
+  const toggleFAQ = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+  <div className="w-full overflow-x-hidden">
    {/* Hero Section */}
   <section id="home" className="relative w-full min-h-[90vh] md:min-h-screen flex items-center justify-center text-white pt-16">
       <div className="relative w-full max-w-6xl lg:h-[643px] rounded-3xl shadow-lg border border-black overflow-hidden mx-auto">
@@ -106,45 +132,48 @@ return (
   </section>
    {/* Services Section */}
   <section className="w-full bg-white py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto text-center">
-         {/* Section Header */}
-        <div className="mb-12">
-            <div className="flex justify-center items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
-              <h2 className="text-green-900 text-2xl font-bold">What We Offer</h2>
-            </div>
-            <h3 className="text-3xl md:text-4xl font-semibold mt-4">
-              Our Services For Interactive Learning & Growth
-            </h3>
-            <p className="mx-auto max-w-2xl text-lg mt-4">
-              Our tutoring center is dedicated to providing personalized and effective learning experiences for students of all ages.
-            </p>
-        </div>
-         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-16">
-            {/* Increased gap to 12 */}
-            {[1, 2, 3].map((item) => (
-            <div key={item} className="relative group">
-               {/* Green Background */}
-              <div className="absolute inset-0 bg-[#E1EADF] rounded-lg transform -rotate-6 scale-100 transition-transform group-hover:rotate-0 -left-2 -top-2"></div>
-               {/* Service Card */}
-              <div className="relative p-8 bg-green-900 rounded-lg text-white hover:bg-green-800 transition-colors text-left">
-                  {/* Lightbulb Icon (Smaller Size) */}
-                  <FontAwesomeIcon icon={faLightbulb} className="w-8 h-8 mb-4 text-white" />
-                  {/* Service Title */}
-                  <h3 className="text-2xl font-semibold mb-4">
-                    {['1-on-1 Tutoring', 'Test Preparation', 'Homework Help'][item - 1]}
-                  </h3>
-                  {/* Service Description */}
-                  <p className="text-lg font-light">
-                    Personalized attention tailored to individual learning styles and needs.
-                  </p>
-              </div>
-            </div>
-            ))}
-        </div>
+  <div className="max-w-7xl mx-auto text-center">
+    {/* Section Header */}
+    <div className="mb-12">
+      <div className="flex justify-center items-center gap-2">
+        <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
+        <h2 className="text-green-900 text-2xl font-bold">What We Offer</h2>
       </div>
-  </section>
+      <h3 className="text-3xl md:text-4xl font-semibold mt-4">
+        Our Services For Interactive Learning & Growth
+      </h3>
+      <p className="mx-auto max-w-2xl text-lg mt-4">
+        Our tutoring center is dedicated to providing personalized and effective learning experiences for students of all ages.
+      </p>
+    </div>
+
+    {/* Services Grid */}
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-16">
+      {[1, 2, 3].map((item) => (
+        <div key={item} className="relative">
+          {/* Green Background */}
+          <div className="absolute inset-0 bg-[#E1EADF] rounded-lg -rotate-6 scale-140 -left-2 -top-2"></div>
+          
+          {/* Service Card */}
+          <div className="relative p-8 bg-green-900 rounded-lg text-white text-left">
+            {/* Lightbulb Icon (Smaller Size) */}
+            <FontAwesomeIcon icon={faLightbulb} className="w-8 h-8 mb-4 text-white" />
+            
+            {/* Service Title */}
+            <h3 className="text-2xl font-semibold mb-4">
+              {['1-on-1 Tutoring', 'Test Preparation', 'Homework Help'][item - 1]}
+            </h3>
+            
+            {/* Service Description */}
+            <p className="text-lg font-light">
+              Personalized attention tailored to individual learning styles and needs.
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
    {/* Why Choose Us Section */}
   <section className="w-full bg-[#E1EADF] py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-16">
@@ -234,8 +263,8 @@ return (
   </section>
    {/* FAQ Section */}
   <section id="faq" className="w-full bg-[#E1EADF] py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto text-center">
-        <div className="mb-12">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-12">
             <div className="flex items-center justify-center gap-2">
               <div className="w-2.5 h-2.5 bg-green-900 rounded-full"></div>
               <h2 className="text-green-900 text-2xl font-bold">Any Question?</h2>
@@ -243,25 +272,37 @@ return (
             <h3 className="text-3xl md:text-4xl font-bold mt-4">
               Frequently Asked Questions
             </h3>
-        </div>
-        <div className="space-y-4 text-left">
-            {[
-            "How do I sign up?",
-            "What subjects do you offer?",
-            "How do I become a tutor?",
-            "What are the costs?"
-            ].map((question, index) => (
-            <details key={index} className="p-6 bg-white rounded-lg shadow-md cursor-pointer">
-              <summary className="font-semibold text-lg flex justify-between items-center">
-                  {question}
-                  <FontAwesomeIcon icon={faChevronDown} className="text-green-900" />
-              </summary>
-              <p className="mt-4 text-gray-600">This is the answer to the question.</p>
-            </details>
+          </div>
+          <div className="space-y-4 text-left">
+            {faqItems.map((item, index) => (
+              <div
+                key={index}
+                className="p-6 bg-white rounded-lg shadow-md cursor-pointer transition-all duration-300 ease-in-out"
+                onClick={() => toggleFAQ(index)}
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-lg hover:text-green-900 transition-colors duration-300">
+                    {item.question}
+                  </h3>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`text-green-900 transition-transform duration-300 transform ${
+                      openIndex === index ? "rotate-180" : ""
+                    } hover:scale-110`} // Arrow rotates and pops out on hover
+                  />
+                </div>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    openIndex === index ? "max-h-40 mt-4" : "max-h-0"
+                  }`}
+                >
+                  <p className="text-gray-600">{item.answer}</p>
+                </div>
+              </div>
             ))}
+          </div>
         </div>
-      </div>
-  </section>
-</div>
-);
+      </section>
+    </div>
+  );
 }

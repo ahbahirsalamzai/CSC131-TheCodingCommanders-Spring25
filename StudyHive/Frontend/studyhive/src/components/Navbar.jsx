@@ -6,7 +6,6 @@ import logo from "../assets/logoR.png";
 const scrollToSection = (id) => {
   const element = document.getElementById(id);
   if (element) {
-    // Scroll to the exact top of the section
     const offset = 80; // Adjust this value based on your navbar height
     const bodyRect = document.body.getBoundingClientRect().top;
     const elementRect = element.getBoundingClientRect().top;
@@ -99,14 +98,22 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
         {/* Logo Section - Adjusted to move further left */}
-        <div className="flex items-center -ml-8"> {/* Increased to -ml-8 */}
+        <div className="flex items-center -ml-8">
           <a
             href="/"
             onClick={handleHomeClick}
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer group" // Added 'group' for hover effects
           >
-            <img src={logo} alt="Logo" className="h-8 w-15" />
-            <span className="font-bold text-4xl ml-2">
+            {/* Logo with tilt effect (original tilt to the right) */}
+            <div className="relative">
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-8 w-15 transition-transform duration-300 transform group-hover:rotate-12" // Tilt to the right
+              />
+            </div>
+            {/* Text with subtle pop-out effect */}
+            <span className="font-bold text-4xl ml-2 transition-all duration-300 transform group-hover:scale-105">
               Study<span className="text-[#1F4D39]">Hive</span>
             </span>
           </a>
