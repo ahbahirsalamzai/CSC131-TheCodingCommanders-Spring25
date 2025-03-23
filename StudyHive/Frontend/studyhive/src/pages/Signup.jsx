@@ -1,120 +1,279 @@
-import React from "react";
-import {Link} from "react-router-dom";
-import { useState } from "react";
-
-export function RoleSelector({ role, setRole }) {
-    
-
-    return( 
-        <div className="flex justify-center items-center gap-4">
-
-            {/* Tutor Option */}
-
-            <label className= "flex items-center gap-2 cursor-pointer">
-                <input
-
-                    type="radio"
-                    name="role"
-                    value="Tutor"
-                    checked={role === "Tutor"}
-                    onChange={()=> setRole("Tutor")}
-                    className="hidden"
-
-                />
-
-                <div className={`w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center ${ 
-                    role === "Tutor" ? "border-blue-500" : ""
-                }`}>
-                    { role === "Tutor" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
-                </div>
-                <span className="text-sm font-medium">Tutor</span>
-            </label>
-
-{/* Student Option */}        
-
-            <label className= "flex items-center gap-2 cursor-pointer">
-                <input
-
-                    type="radio"
-                    name="role"
-                    value="Student"
-                    checked={role === "Student"}
-                    onChange={()=> setRole("Student")}
-                    className="hidden"
-
-                />
-
-                <div className={`w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center ${ 
-                    role === "Student" ? "border-blue-500" : ""
-                }`}>
-                    { role === "Student" && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
-                </div>
-                <span className="text-sm font-medium">Student</span>
-            </label>
-
-            </div>
-            
-
-
-        );
-        }
+import React, { useState } from "react";
 
 export default function SignUp() {
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "tutor",
+    acceptTerms: false,
+  });
 
-    const[role, setRole] = useState("");
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-    return (
+  const validateField = (name, value) => {
+    let error = "";
+    if (!value) {
+      error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+    } else {
+      if (name === "email" && !/\S+@\S+\.\S+/.test(value)) {
+        error = "Invalid email format";
+      } else if (name === "password" && value.length < 6) {
+        error = "Password must be at least 6 characters";
+      } else if (name === "confirmPassword" && value !== formData.password) {
+        error = "Passwords do not match";
+      }
+    }
+    return error;
+  };
 
-<div className="max-w-screen-xl w-full min-h-screen bg-slate-50 flex flex-col md:flex-row items-center justify-center px-4 py-10">
-    <div className="flex flex-col items-center gap-10 w-full max-w-lg">
-        <h1 className="text-neutral-800 text-4xl font-bold text-center">Sign Up</h1>
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
-        <div className="flex flex-col items-center gap-6 w-full">
-            <div className="flex flex-col gap-6 w-full">
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
 
-                
-                {/* Role Selection */}
-            <div className="flex flex-col gap-3 w-full">
-                    <label className="text-neutral-800 text-base font-bold">Select Your Role:</label>
-                    <RoleSelector role={role} setRole={setRole}/>
+  const handleRoleChange = (role) => {
+    setFormData((prev) => ({ ...prev, role }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const newErrors = {
+      username: validateField("username", formData.username),
+      email: validateField("email", formData.email),
+      password: validateField("password", formData.password),
+      confirmPassword: validateField("confirmPassword", formData.confirmPassword),
+    };
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).every((error) => !error)) {
+      console.log("Submitting:", formData);
+      // Handle form submission here (e.g., API call)
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        role: "tutor",
+        acceptTerms: false,
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-[1440px] mb-[150px] flex justify-center items-center">
+        {/* Form Section */}
+        <div className="w-full max-w-[500px] mt-[100px]  mt-[150px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
+          <div className="text-center text-black text-[40px] font-bold font-['Mulish']">
+            Sign Up
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full items-center mt-6">
+            {/* Role Selection */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Select Your Role:
+              </label>
+              <div className="flex gap-4 mt-2">
+                <div
+                  className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
+                    formData.role === "tutor"
+                      ? "bg-blue-50 border border-blue-500"
+                      : "bg-white border border-gray-300"
+                  }`}
+                  onClick={() => handleRoleChange("tutor")}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      formData.role === "tutor"
+                        ? "border-blue-500"
+                        : "border-gray-400"
+                    }`}
+                  >
+                    {formData.role === "tutor" && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-neutral-800">Tutor</span>
                 </div>
-
-
-                {/* Input Fields */}
-                {["Username", "Email", "Password", "Confirm Password"].map((field, index) => (
-                    <div key={index} className="flex flex-col gap-2 w-full">
-                        <label className="text-neutral-800 text-base font-bold">{field}</label>
-                        <input
-                            type={field.toLowerCase().includes("password") ? "password" : "text"}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base"
-                            placeholder={`Enter your ${field.toLowerCase()}`}
-                        />
-                    </div>
-                ))}
-
-                {/* Terms & Conditions */}
-                <div className="flex items-center gap-2">
-                    <input type="checkbox" className="w-4 h-4" />
-                    <span className="text-sm">I Accept Terms & Conditions</span>
+                <div
+                  className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
+                    formData.role === "student"
+                      ? "bg-blue-50 border border-blue-500"
+                      : "bg-white border border-gray-300"
+                  }`}
+                  onClick={() => handleRoleChange("student")}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      formData.role === "student"
+                        ? "border-blue-500"
+                        : "border-gray-400"
+                    }`}
+                  >
+                    {formData.role === "student" && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-neutral-800">Student</span>
                 </div>
-
-                {/* Sign Up Button */}
-                <button className="w-full py-4 bg-green-900 text-white font-semibold rounded-lg hover:bg-green-800 transition">
-                    Sign Up
-                </button>
-
-                {/* Already have an account? */}
-                <div className="text-sm">
-                    Already have an account? <Link to ="/login" className="text-blue-700 font-bold">Sign In</Link>
-                </div>
+              </div>
             </div>
+
+            {/* Username */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Enter your username"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.username}
+                aria-describedby="username-error"
+                required
+              />
+              {errors.username && (
+                <p id="username-error" className="text-red-500 text-sm mt-1">
+                  {errors.username}
+                </p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="abc12@gmail.com"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.email}
+                aria-describedby="email-error"
+                required
+              />
+              {errors.email && (
+                <p id="email-error" className="text-red-500 text-sm mt-1">
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="*******"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.password}
+                aria-describedby="password-error"
+                required
+              />
+              {errors.password && (
+                <p id="password-error" className="text-red-500 text-sm mt-1">
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                placeholder="*******"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby="confirmPassword-error"
+                required
+              />
+              {errors.confirmPassword && (
+                <p id="confirmPassword-error" className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.acceptTerms}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, acceptTerms: e.target.checked }))
+                }
+                className="w-4 h-4 border border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label className="text-black text-sm font-medium">
+                I Accept Terms & Conditions
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full px-[30px] py-4 mb-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
+              disabled={
+                !!errors.username ||
+                !!errors.email ||
+                !!errors.password ||
+                !!errors.confirmPassword ||
+                !formData.acceptTerms
+              }
+            >
+              Sign Up
+            </button>
+          </form>
+
+          {/* Sign In Link */}
+          <div className="flex justify-center items-center mt-4">
+            <span className="text-black text-base font-normal">
+              Already have an account?
+            </span>
+            <a href="/signin" className="text-[#1f4d39] text-base font-bold ml-2">
+              Sign In
+            </a>
+          </div>
         </div>
+
+        {/* Image Section */}
+        <div className="hidden xl:block w-[600px] h-[800px] mb-[100px] mt-[150px] overflow-hidden rounded-[31px] ml-12">
+          <img
+            className="w-full h-full object-cover"
+            src="https://placehold.co/500x700"
+            alt="Illustration for sign-up page"
+          />
+        </div>
+      </div>
     </div>
-
-    {/* Right-side Illustration or Background (Optional) */}
-    <div className="hidden md:block w-1/2 bg-black bg-opacity-50 rounded-2xl h-[600px] ml-5 mt-40"></div>
-
-</div>
-
-);
+  );
 }

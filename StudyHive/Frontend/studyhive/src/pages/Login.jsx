@@ -1,34 +1,168 @@
-import React from "react";
+import React, { useState } from "react";
+import union from "../assets/union.png";
 
-export default function Login() {
+export default function SignIn() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const validateField = (name, value) => {
+    let error = "";
+    if (!value) {
+      error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+    } else {
+      if (name === "email" && !/\S+@\S+\.\S+/.test(value)) {
+        error = "Invalid email format";
+      } else if (name === "password" && value.length < 6) {
+        error = "Password must be at least 6 characters";
+      }
+    }
+    return error;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Immediate validation
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const newErrors = {
+      email: validateField("email", formData.email),
+      password: validateField("password", formData.password),
+    };
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).every((error) => !error)) {
+      console.log("Submitting:", formData);
+      // Handle form submission here (e.g., API call)
+      setFormData({ email: "", password: "" });
+    }
+  };
+
   return (
-    <div className="max-w-2xl mx-auto py-12 px-4 text-center">
-      <h2 className="text-3xl font-bold mb-6">SIGN IN</h2>
-      <form className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <div className="flex items-center justify-between">
-          <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox" />
-            <span className="ml-2">Remember me</span>
-          </label>
-          <a href="/forgot-password" className="text-[#275e49] hover:underline">Forgot Password?</a>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-[1440px] flex justify-center items-center">
+        {/* Image Section */}
+        <div className="hidden xl:block w-[500px] h-[700px] mb-[100px] mt-[120px] overflow-hidden rounded-[31px] mr-12">
+          <img
+            className="w-full h-full object-cover"
+            src={union}
+            alt="Illustration for sign-in page"
+          />
         </div>
-        <button className="bg-[#275e49] text-white px-6 py-3 rounded-md w-full font-bold hover:bg-green-800">
-          Sign In
-        </button>
-      </form>
-      <p className="mt-6">
-        Don't have an account? <a href="/signup" className="text-[#275e49] hover:underline">Sign Up</a>
-      </p>
+
+        {/* Form Section */}
+        <div className="w-full max-w-[450px] mt-[100px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
+          <div className="text-center text-black text-[40px] font-bold font-['Mulish']">
+            Sign In
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full items-center mt-6">
+            {/* Email Input */}
+            <div className="flex flex-col w-full">
+              <label htmlFor="email" className="text-black text-base font-bold font-['Mulish']">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="abc12@gmail.com"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.email}
+                aria-describedby="email-error"
+                required
+              />
+              {errors.email && (
+                <p id="email-error" className="text-red-500 text-sm mt-1">
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Password Input */}
+            <div className="flex flex-col w-full relative">
+              <label htmlFor="password" className="text-black text-base font-bold font-['Mulish']">
+                Password
+              </label>
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="*******"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.password}
+                aria-describedby="password-error"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-10 text-sm text-[#1f4d39] font-semibold"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+              {errors.password && (
+                <p id="password-error" className="text-red-500 text-sm mt-1">
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {/* Remember Me and Forgot Password */}
+            <div className="flex justify-between w-full">
+              <label className="flex items-center text-black text-sm font-medium">
+                <input type="checkbox" className="mr-2" /> Remember me
+              </label>
+              <a href="/" className="text-[#1f1f1f] text-sm font-semibold">
+                Forgot Password?
+              </a>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full px-[30px] py-4 mb-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
+              disabled={
+                !!errors.email ||
+                !!errors.password ||
+                !formData.email ||
+                !formData.password
+              }
+            >
+              Sign In
+            </button>
+          </form>
+
+          {/* Sign Up Link */}
+          <div className="flex justify-center items-center mt-4">
+            <span className="text-black text-base font-normal">
+              Don’t have an account?
+            </span>
+            <a href="/" className="text-[#1f4d39] text-base font-bold ml-2">
+              Sign Up
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

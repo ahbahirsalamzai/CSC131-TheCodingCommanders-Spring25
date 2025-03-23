@@ -1,85 +1,213 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
 
-// Array of navigation links with styling for each
+// Function to handle smooth scrolling to sections
+const scrollToSection = (id) => {
+  const element = document.getElementById(id);
+  if (element) {
+    const offset = 80;
+    const bodyRect = document.body.getBoundingClientRect().top;
+    const elementRect = element.getBoundingClientRect().top;
+    const elementPosition = elementRect - bodyRect;
+    const offsetPosition = elementPosition - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
+  }
+};
+
+// Array of navigation links with styling and target IDs
 const navLinks = [
   {
-    href: "/#Home",
+    href: "/#home",
     label: "Home",
+    targetId: "home",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
   {
-    href: "/#About Us",
+    href: "/#about-us",
     label: "About Us",
+    targetId: "about",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
   {
-    href: "/#FAQs",
+    href: "/#faq",
     label: "FAQs",
+    targetId: "faq",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
   {
-    href: "/Contact",
+    href: "/#footer",
     label: "Contact Us",
+    targetId: "footer",
     className:
-      "text-xl sm:text-lg hover:text-[#0082E4] transition duration-300 transform hover:scale-110",
+      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
   },
 ];
 
 const Navbar = () => {
-  // State to track if the user has scrolled down
   const [isScrolled, setIsScrolled] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  // Effect to handle scroll behavior
   useEffect(() => {
-    // Function to check if page is scrolled past 50px
+    let lastScrollTop = 0;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScroll = window.scrollY;
+      const isHeaderVisible = currentScroll <= lastScrollTop;
+      setHeaderVisible(isHeaderVisible);
+      setIsScrolled(currentScroll > 50);
+      lastScrollTop = currentScroll;
     };
-
-    // Add scroll event listener
     window.addEventListener("scroll", handleScroll);
-    
-    // Cleanup event listener when component unmounts
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Function to handle Home link and logo click
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    if (location.pathname !== "/") navigate("/");
+    setTimeout(() => scrollToSection("home"), 100);
+  };
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
   return (
     <nav
-      className={`bg-white shadow-md w-full fixed top-0 z-50 transition-all ${
-        isScrolled ? "shadow-lg" : ""
+      className={`bg-white w-full fixed ${
+        headerVisible ? "top-9" : "top-0"
+      } z-[999] transition-all duration-300 ${
+        isScrolled ? "shadow-lg" : "shadow"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
         {/* Logo Section */}
-        <div className="flex items-center">
-          <img src={logo} alt="Logo" className="h-8 w-15" />
-          <span className="font-bold text-4xl ml-2">
-            Study<span className="text-[#1F4D39]">Hive</span>
-          </span>
+        <div className="flex items-center -ml-8">
+          <a
+            href="/"
+            onClick={handleHomeClick}
+            className="flex items-center cursor-pointer group"
+          >
+            <div className="relative">
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-8 w-15 ml-5 transition-transform duration-300 transform group-hover:rotate-12"
+              />
+            </div>
+            <span className="font-bold text-4xl ml-2 transition-all duration-300 transform group-hover:scale-105">
+              Study<span className="text-[#1F4D39]">Hive</span>
+            </span>
+          </a>
         </div>
 
-        {/* Navigation Links */}
-        <div className="hidden md:flex space-x-6">
+        {/* Desktop Navigation Links */}
+        <div className="hidden lg:flex lg:items-center lg:space-x-6 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] opacity-100 scale-100">
           {navLinks.map((link, index) => (
-            <Link key={index} to={link.href} className={link.className}>
+            <a
+              key={index}
+              href={link.href}
+              onClick={(e) => {
+                e.preventDefault();
+                if (location.pathname !== "/") navigate("/");
+                setTimeout(() => scrollToSection(link.targetId), 100);
+              }}
+              className="text-lg hover:text-[#1F4D39] transition duration-200"
+            >
               {link.label}
-            </Link>
+            </a>
           ))}
         </div>
 
-        {/* Authentication Buttons */}
-        <div className="space-x-4">
-          <Link to="/signup" className="border px-4 py-2 rounded-lg">
+        {/* Desktop Auth Buttons */}
+        <div className="hidden lg:flex space-x-4 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] opacity-100 scale-100">
+          <Link
+            to="/signup"
+            className="border px-4 py-2 rounded-lg transition-colors"
+          >
             Sign Up
           </Link>
-          <Link to="/login" className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg">
+          <Link
+            to="/login"
+            className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition-colors"
+          >
             Login
           </Link>
         </div>
+
+        {/* Hamburger Button */}
+        <div
+          className={`lg:hidden z-[999] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] transform ${
+            isMenuOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-100"
+          }`}
+        >
+          <button onClick={toggleMenu} className="relative w-8 h-8 focus:outline-none">
+            <span
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                isMenuOpen ? "rotate-45 top-3.5" : "top-2"
+              }`}
+            />
+            <span
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"
+              }`}
+            />
+            <span
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`fixed top-0 left-0 w-full h-screen bg-white/95 backdrop-blur-md flex flex-col items-center justify-center space-y-6 z-[998] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          isMenuOpen
+            ? "translate-x-0 opacity-100"
+            : "-translate-x-full opacity-0 pointer-events-none"
+        }`}
+      >
+        {navLinks.map((link, index) => (
+          <a
+            key={index}
+            href={link.href}
+            onClick={(e) => {
+              e.preventDefault();
+              if (location.pathname !== "/") navigate("/");
+              setTimeout(() => scrollToSection(link.targetId), 100);
+              setIsMenuOpen(false);
+            }}
+            className="text-2xl font-medium hover:text-[#1F4D39] transition-transform duration-300 transform hover:scale-105"
+          >
+            {link.label}
+          </a>
+        ))}
+
+        <Link
+          to="/signup"
+          className="border px-6 py-2 rounded-lg"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Sign Up
+        </Link>
+        <Link
+          to="/login"
+          className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a]"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Login
+        </Link>
       </div>
     </nav>
   );
