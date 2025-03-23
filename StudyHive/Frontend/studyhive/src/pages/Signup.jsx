@@ -1,54 +1,279 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function SignUp() {
-    return (
-    <div className="max-w-2xl mx-auto py-12 px-4 text-center">
-        <h2 className="text-3xl font-bold mb-6">SIGN UP</h2>
-        <form className="space-y-4">
-        <div className="text-left">
-            <label className="block text-sm font-medium text-gray-700">Select Your Role:</label>
-            <div className="mt-2">
-            <label className="inline-flex items-center">
-                <input type="radio" name="role" value="tutor" className="form-radio" />
-                <span className="ml-2">Tutor</span>
-            </label>
-            <label className="inline-flex items-center ml-6">
-                <input type="radio" name="role" value="student" className="form-radio" />
-                <span className="ml-2">Student</span>
-            </label>
-            </div>
-        </div>
-        <input
-            type="text"
-            placeholder="Username"
-            className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <input
-            type="email"
-            placeholder="Email"
-            className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <input
-            type="password"
-            placeholder="Confirm Password"
-            className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox" />
-            <span className="ml-2">I Accept Terms & Conditions</span>
-        </label>
-        <button className="bg-[#275e49] text-white px-6 py-3 rounded-md w-full font-bold hover:bg-green-800">
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "tutor",
+    acceptTerms: false,
+  });
+
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const validateField = (name, value) => {
+    let error = "";
+    if (!value) {
+      error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+    } else {
+      if (name === "email" && !/\S+@\S+\.\S+/.test(value)) {
+        error = "Invalid email format";
+      } else if (name === "password" && value.length < 6) {
+        error = "Password must be at least 6 characters";
+      } else if (name === "confirmPassword" && value !== formData.password) {
+        error = "Passwords do not match";
+      }
+    }
+    return error;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handleRoleChange = (role) => {
+    setFormData((prev) => ({ ...prev, role }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const newErrors = {
+      username: validateField("username", formData.username),
+      email: validateField("email", formData.email),
+      password: validateField("password", formData.password),
+      confirmPassword: validateField("confirmPassword", formData.confirmPassword),
+    };
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).every((error) => !error)) {
+      console.log("Submitting:", formData);
+      // Handle form submission here (e.g., API call)
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        role: "tutor",
+        acceptTerms: false,
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-[1440px] mb-[150px] flex justify-center items-center">
+        {/* Form Section */}
+        <div className="w-full max-w-[500px] mt-[100px]  mt-[150px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
+          <div className="text-center text-black text-[40px] font-bold font-['Mulish']">
             Sign Up
-        </button>
-        </form>
-        <p className="mt-6">
-        Already have an account? <a href="/login" className="text-[#275e49] hover:underline">Sign In</a>
-        </p>
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full items-center mt-6">
+            {/* Role Selection */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Select Your Role:
+              </label>
+              <div className="flex gap-4 mt-2">
+                <div
+                  className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
+                    formData.role === "tutor"
+                      ? "bg-blue-50 border border-blue-500"
+                      : "bg-white border border-gray-300"
+                  }`}
+                  onClick={() => handleRoleChange("tutor")}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      formData.role === "tutor"
+                        ? "border-blue-500"
+                        : "border-gray-400"
+                    }`}
+                  >
+                    {formData.role === "tutor" && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-neutral-800">Tutor</span>
+                </div>
+                <div
+                  className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
+                    formData.role === "student"
+                      ? "bg-blue-50 border border-blue-500"
+                      : "bg-white border border-gray-300"
+                  }`}
+                  onClick={() => handleRoleChange("student")}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      formData.role === "student"
+                        ? "border-blue-500"
+                        : "border-gray-400"
+                    }`}
+                  >
+                    {formData.role === "student" && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-neutral-800">Student</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Username */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Enter your username"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.username}
+                aria-describedby="username-error"
+                required
+              />
+              {errors.username && (
+                <p id="username-error" className="text-red-500 text-sm mt-1">
+                  {errors.username}
+                </p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="abc12@gmail.com"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.email}
+                aria-describedby="email-error"
+                required
+              />
+              {errors.email && (
+                <p id="email-error" className="text-red-500 text-sm mt-1">
+                  {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="*******"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.password}
+                aria-describedby="password-error"
+                required
+              />
+              {errors.password && (
+                <p id="password-error" className="text-red-500 text-sm mt-1">
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="flex flex-col w-full">
+              <label className="text-black text-base font-bold font-['Mulish']">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                placeholder="*******"
+                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby="confirmPassword-error"
+                required
+              />
+              {errors.confirmPassword && (
+                <p id="confirmPassword-error" className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.acceptTerms}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, acceptTerms: e.target.checked }))
+                }
+                className="w-4 h-4 border border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label className="text-black text-sm font-medium">
+                I Accept Terms & Conditions
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full px-[30px] py-4 mb-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
+              disabled={
+                !!errors.username ||
+                !!errors.email ||
+                !!errors.password ||
+                !!errors.confirmPassword ||
+                !formData.acceptTerms
+              }
+            >
+              Sign Up
+            </button>
+          </form>
+
+          {/* Sign In Link */}
+          <div className="flex justify-center items-center mt-4">
+            <span className="text-black text-base font-normal">
+              Already have an account?
+            </span>
+            <a href="/signin" className="text-[#1f4d39] text-base font-bold ml-2">
+              Sign In
+            </a>
+          </div>
+        </div>
+
+        {/* Image Section */}
+        <div className="hidden xl:block w-[600px] h-[800px] mb-[100px] mt-[150px] overflow-hidden rounded-[31px] ml-12">
+          <img
+            className="w-full h-full object-cover"
+            src="https://placehold.co/500x700"
+            alt="Illustration for sign-up page"
+          />
+        </div>
+      </div>
     </div>
-);
+  );
 }
