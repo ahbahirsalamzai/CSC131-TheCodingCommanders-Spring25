@@ -6,7 +6,7 @@ import logo from "../assets/logoR.png";
 const scrollToSection = (id) => {
   const element = document.getElementById(id);
   if (element) {
-    const offset = 80; // Adjust this value based on your navbar height
+    const offset = 80;
     const bodyRect = document.body.getBoundingClientRect().top;
     const elementRect = element.getBoundingClientRect().top;
     const elementPosition = elementRect - bodyRect;
@@ -54,8 +54,9 @@ const navLinks = [
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const location = useLocation(); // Get current route location
-  const navigate = useNavigate(); // For programmatic navigation
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Effect to handle scroll behavior
   useEffect(() => {
@@ -63,16 +64,10 @@ const Navbar = () => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
       const isHeaderVisible = currentScroll <= lastScrollTop;
-
-      // Update header visibility state
       setHeaderVisible(isHeaderVisible);
-
-      // Update navbar shadow state
       setIsScrolled(currentScroll > 50);
-
       lastScrollTop = currentScroll;
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -80,69 +75,61 @@ const Navbar = () => {
   // Function to handle Home link and logo click
   const handleHomeClick = (e) => {
     e.preventDefault();
-    if (location.pathname !== "/") {
-      navigate("/"); // Navigate to the home page
-    }
-    setTimeout(() => {
-      scrollToSection("home"); // Scroll to the home section
-    }, 100); // Small delay to ensure the page has loaded
+    if (location.pathname !== "/") navigate("/");
+    setTimeout(() => scrollToSection("home"), 100);
   };
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
     <nav
-      className={`bg-white shadow-md w-full fixed ${
+      className={`bg-white w-full fixed ${
         headerVisible ? "top-9" : "top-0"
       } z-[999] transition-all duration-300 ${
-        isScrolled ? "shadow-lg" : ""
+        isScrolled ? "shadow-lg" : "shadow"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
-        {/* Logo Section - Adjusted to move further left */}
+        {/* Logo Section */}
         <div className="flex items-center -ml-8">
           <a
             href="/"
             onClick={handleHomeClick}
-            className="flex items-center cursor-pointer group" // Added 'group' for hover effects
+            className="flex items-center cursor-pointer group"
           >
-            {/* Logo with tilt effect (original tilt to the right) */}
             <div className="relative">
               <img
                 src={logo}
                 alt="Logo"
-                className="h-8 w-15 transition-transform duration-300 transform group-hover:rotate-12" // Tilt to the right
+                className="h-8 w-15 ml-5 transition-transform duration-300 transform group-hover:rotate-12"
               />
             </div>
-            {/* Text with subtle pop-out effect */}
             <span className="font-bold text-4xl ml-2 transition-all duration-300 transform group-hover:scale-105">
               Study<span className="text-[#1F4D39]">Hive</span>
             </span>
           </a>
         </div>
 
-        {/* Navigation Links */}
-        <div className="hidden md:flex space-x-6">
+        {/* Desktop Navigation Links */}
+        <div className="hidden lg:flex lg:items-center lg:space-x-6 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] opacity-100 scale-100">
           {navLinks.map((link, index) => (
             <a
               key={index}
               href={link.href}
-              className={link.className}
               onClick={(e) => {
                 e.preventDefault();
-                if (location.pathname !== "/") {
-                  navigate("/"); // Navigate to the home page first
-                }
-                setTimeout(() => {
-                  scrollToSection(link.targetId); // Scroll to the section
-                }, 100); // Small delay to ensure the page has loaded
+                if (location.pathname !== "/") navigate("/");
+                setTimeout(() => scrollToSection(link.targetId), 100);
               }}
+              className="text-lg hover:text-[#1F4D39] transition duration-200"
             >
               {link.label}
             </a>
           ))}
         </div>
 
-        {/* Authentication Buttons */}
-        <div className="space-x-4">
+        {/* Desktop Auth Buttons */}
+        <div className="hidden lg:flex space-x-4 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] opacity-100 scale-100">
           <Link
             to="/signup"
             className="border px-4 py-2 rounded-lg transition-colors"
@@ -156,6 +143,71 @@ const Navbar = () => {
             Login
           </Link>
         </div>
+
+        {/* Hamburger Button */}
+        <div
+          className={`lg:hidden z-[999] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] transform ${
+            isMenuOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-100"
+          }`}
+        >
+          <button onClick={toggleMenu} className="relative w-8 h-8 focus:outline-none">
+            <span
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                isMenuOpen ? "rotate-45 top-3.5" : "top-2"
+              }`}
+            />
+            <span
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"
+              }`}
+            />
+            <span
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+                isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`fixed top-0 left-0 w-full h-screen bg-white/95 backdrop-blur-md flex flex-col items-center justify-center space-y-6 z-[998] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          isMenuOpen
+            ? "translate-x-0 opacity-100"
+            : "-translate-x-full opacity-0 pointer-events-none"
+        }`}
+      >
+        {navLinks.map((link, index) => (
+          <a
+            key={index}
+            href={link.href}
+            onClick={(e) => {
+              e.preventDefault();
+              if (location.pathname !== "/") navigate("/");
+              setTimeout(() => scrollToSection(link.targetId), 100);
+              setIsMenuOpen(false);
+            }}
+            className="text-2xl font-medium hover:text-[#1F4D39] transition-transform duration-300 transform hover:scale-105"
+          >
+            {link.label}
+          </a>
+        ))}
+
+        <Link
+          to="/signup"
+          className="border px-6 py-2 rounded-lg"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Sign Up
+        </Link>
+        <Link
+          to="/login"
+          className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a]"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          Login
+        </Link>
       </div>
     </nav>
   );
