@@ -1,34 +1,16 @@
-import React from "react";
+import { useLocation } from 'react-router-dom';
 
 export default function Login() {
+  const location = useLocation();
+  
   return (
-    <div className="max-w-2xl mx-auto py-12 px-4 text-center">
-      <h2 className="text-3xl font-bold mb-6">SIGN IN</h2>
-      <form className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-        />
-        <div className="flex items-center justify-between">
-          <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox" />
-            <span className="ml-2">Remember me</span>
-          </label>
-          <a href="/forgot-password" className="text-[#275e49] hover:underline">Forgot Password?</a>
+    <div>
+      {location.state?.fromSignup && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          Account created successfully! Please login with your email: {location.state.email}
         </div>
-        <button className="bg-[#275e49] text-white px-6 py-3 rounded-md w-full font-bold hover:bg-green-800">
-          Sign In
-        </button>
-      </form>
-      <p className="mt-6">
-        Don't have an account? <a href="/signup" className="text-[#275e49] hover:underline">Sign Up</a>
-      </p>
+      )}
+      {/* Rest of your login form */}
     </div>
   );
 }
