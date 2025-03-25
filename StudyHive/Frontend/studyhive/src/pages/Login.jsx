@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import union from "../assets/union.png";
 
+
 export default function SignIn() {
   const [formData, setFormData] = useState({
     email: "",
@@ -157,7 +158,7 @@ export default function SignIn() {
             <span className="text-black text-base font-normal">
               Don’t have an account?
             </span>
-            <a href="/" className="text-[#1f4d39] text-base font-bold ml-2">
+            <a href="/signup" className="text-[#1f4d39] text-base font-bold ml-2">
               Sign Up
             </a>
           </div>
