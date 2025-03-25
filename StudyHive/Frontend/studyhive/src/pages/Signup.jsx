@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../api/authService";
+import Studs from "../assets/Studentswalk.jpg";
 
 export default function SignUp() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -13,7 +16,7 @@ export default function SignUp() {
   });
 
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -21,20 +24,23 @@ export default function SignUp() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    setError(""); // clear error when typing
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      return setError("Passwords do not match.");
-    }
     if (!formData.acceptedTerms) {
       return setError("You must accept the terms.");
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      return setError("Passwords do not match.");
+    }
+
     try {
+      setIsSubmitting(true);
+
       await signup({
         username: formData.username,
         email: formData.email,
@@ -50,107 +56,142 @@ export default function SignUp() {
       });
     } catch (err) {
       setError(err.message || "Signup failed.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-12 px-4 text-center">
-      <h2 className="text-3xl font-bold mb-6">SIGN UP</h2>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-[1440px] mb-[50px] flex justify-center items-center">
+        {/* Form Section */}
+        <div className="w-full max-w-[500px] mt-[80px] ml-[30px] mr-[30px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
+          <div className="text-center text-black text-[40px] font-bold font-['Mulish'] mb-4">
+            Sign Up
+          </div>
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && (
+            <div className="text-red-600 text-sm font-semibold mb-4 text-center">
+              {error}
+            </div>
+          )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="text-left">
-          <label className="block text-sm font-medium text-gray-700">
-            Select Your Role:
-          </label>
-          <div className="mt-2">
-            <label className="inline-flex items-center">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full items-center mt-2">
+            {/* Role Selection */}
+            <div className="w-full">
+              <label className="block text-black text-base font-bold mb-2">Select Your Role:</label>
+              <div className="flex gap-6">
+                {["tutor", "student"].map((role) => (
+                  <label key={role} className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="role"
+                      value={role}
+                      checked={formData.role === role}
+                      onChange={handleChange}
+                    />
+                    <span className="capitalize">{role}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Username */}
+            <div className="w-full">
+              <label className="block text-black text-base font-bold mb-1">Username</label>
               <input
-                type="radio"
-                name="role"
-                value="tutor"
-                checked={formData.role === "tutor"}
+                type="text"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
+                placeholder="Enter your username"
+                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                required
               />
-              <span className="ml-2">Tutor</span>
-            </label>
-            <label className="inline-flex items-center ml-6">
+            </div>
+
+            {/* Email */}
+            <div className="w-full">
+              <label className="block text-black text-base font-bold mb-1">Email</label>
               <input
-                type="radio"
-                name="role"
-                value="student"
-                checked={formData.role === "student"}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
+                placeholder="email@example.com"
+                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                required
               />
-              <span className="ml-2">Student</span>
+            </div>
+
+            {/* Password */}
+            <div className="w-full">
+              <label className="block text-black text-base font-bold mb-1">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Password"
+                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                required
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div className="w-full">
+              <label className="block text-black text-base font-bold mb-1">Confirm Password</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm Password"
+                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
+                required
+              />
+            </div>
+
+            {/* Terms */}
+            <label className="flex items-center w-full text-sm mt-2">
+              <input
+                type="checkbox"
+                name="acceptedTerms"
+                checked={formData.acceptedTerms}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              I Accept Terms & Conditions
             </label>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full px-6 py-3 mt-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
+            >
+              {isSubmitting ? "Signing up..." : "Sign Up"}
+            </button>
+          </form>
+
+          {/* Sign In Link */}
+          <div className="flex justify-center items-center mt-4">
+            <span className="text-black text-base">Already have an account?</span>
+            <a href="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">
+              Sign In
+            </a>
           </div>
         </div>
 
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          placeholder="Username"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Email"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Password"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-          required
-        />
-        <input
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          placeholder="Confirm Password"
-          className="w-full p-3 rounded-md bg-gray-100 border border-gray-300"
-          required
-        />
-
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            name="acceptedTerms"
-            checked={formData.acceptedTerms}
-            onChange={handleChange}
-            className="form-checkbox"
-            required
+        {/* Image Section */}
+        <div className="hidden xl:block w-[600px] h-[800px] mb-[20px] mt-[100px] overflow-hidden rounded-[31px] ml-12">
+          <img
+            className="w-full h-full object-cover filter brightness-50"
+            src={Studs}
+            alt="Illustration"
           />
-          <span className="ml-2">I Accept Terms & Conditions</span>
-        </label>
-
-        <button
-          type="submit"
-          className="bg-[#275e49] text-white px-6 py-3 rounded-md w-full font-bold hover:bg-green-800"
-        >
-          Sign Up
-        </button>
-      </form>
-
-      <p className="mt-6">
-        Already have an account?{" "}
-        <a href="/login" className="text-[#275e49] hover:underline">
-          Sign In
-        </a>
-      </p>
+        </div>
+      </div>
     </div>
   );
 }
