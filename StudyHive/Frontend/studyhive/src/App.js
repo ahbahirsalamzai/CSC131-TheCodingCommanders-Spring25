@@ -12,8 +12,8 @@ import Sessions from './pages/Sessions';
 import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 import Contact from './pages/Contact';
-import VerifySignUpOTP from './pages/VerifySignUpOTP';
-import TestDB from './pages/TestDB'; // Import the test component
+
+
 
 function App() {
   return (
@@ -35,10 +35,6 @@ function App() {
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/payroll" element={<Payroll />} />
-            <Route path="/VerifySignUpOTP" element={<VerifySignUpOTP />} />
-            
-            {/* Temporary Test Route - Remove before production */}
-            <Route path="/test-db" element={<TestDB />} />
           </Routes>
         </main>
 

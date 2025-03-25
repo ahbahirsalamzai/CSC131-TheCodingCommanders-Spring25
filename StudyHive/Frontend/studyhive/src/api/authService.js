@@ -1,21 +1,11 @@
+import axios from 'axios';
 
-
-import api from '../services/api'; // this points to your axios instance
+const API_URL = process.env.REACT_APP_API_URL;
 
 export const signup = async (userData) => {
-  try {
-    const response = await api.post('/auth/signup', userData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data?.message || 'Registration failed';
-  }
-};
-
-export const login = async (credentials) => {
-  try {
-    const response = await api.post('/auth/login', credentials);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data?.message || 'Login failed';
-  }
+  const response = await axios.post(`${API_URL}/auth/signup`, userData, {
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true,
+  });
+  return response.data;
 };
