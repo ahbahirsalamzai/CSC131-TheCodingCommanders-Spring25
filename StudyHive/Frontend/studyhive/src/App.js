@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link,} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import "./App.css";
 import Header from './components/Header';
 import Navbar from './components/Navbar';
@@ -13,8 +13,7 @@ import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 import Contact from './pages/Contact';
 import ForgotPassword from './pages/ForgotPassword';
-
-
+import VerifySignUpOTP from './pages/VerifySignUpOTP'; // ✅ NEW
 
 function App() {
   return (
@@ -29,14 +28,15 @@ function App() {
         <main className="flex-grow container mx-auto p-4">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/contact" element={<Contact/>}/>
-            <Route path="/login" element={<Login />}/>
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/payroll" element={<Payroll />} />
-            <Route path="/forgot-password" element={<ForgotPassword/>}/>
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/VerifySignUpOTP" element={<VerifySignUpOTP />} /> {/* ✅ HERE */}
           </Routes>
         </main>
 

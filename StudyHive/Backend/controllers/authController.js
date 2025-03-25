@@ -1,19 +1,14 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
 exports.signup = async (req, res) => {
-  const { username, email, password, role } = req.body;
-
-  console.log("Received signup data:", req.body);
-
-  if (!username || !email || !password || !role) {
-    return res.status(400).json({ message: 'All fields are required.' });
-  }
-
   try {
+    const { username, email, password, role } = req.body;
+    console.log("Received signup data:", req.body);
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: 'Email already in use.' });
+      return res.status(409).json({ error: "Email already in use" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,9 +22,9 @@ exports.signup = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully!' });
+    res.status(201).json({ message: "User registered" });
   } catch (error) {
-    console.error("Signup error:", error);
-    res.status(500).json({ message: 'Server error during signup' });
+    console.error("Error saving user:", error);
+    res.status(500).json({ error: "Signup failed" });
   }
 };

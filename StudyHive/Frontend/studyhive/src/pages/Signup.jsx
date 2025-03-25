@@ -48,9 +48,9 @@ export default function SignUp() {
         role: formData.role,
       });
 
-      navigate("/login", {
+      // Redirect to OTP page
+      navigate("/VerifySignUpOTP", {
         state: {
-          registrationSuccess: true,
           email: formData.email,
         },
       });

@@ -1,28 +1,22 @@
-require('dotenv').config();
-const express = require('express');
-const connectDB = require('./config/db');
-const cors = require('cors');
-
-const authRoutes = require('./routes/authRoutes');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./config/db");
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-}));
-app.use(express.json());
-
-// Connect to MongoDB
 connectDB();
 
-// Routes
-app.use('/api/auth', authRoutes);
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('📚 StudyHive Backend is Running');
+app.use("/api/auth", require("./routes/authRoutes"));
+
+app.get("/", (req, res) => {
+  res.send("📚 StudyHive Backend is Running");
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
