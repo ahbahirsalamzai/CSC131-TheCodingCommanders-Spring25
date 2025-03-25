@@ -12,6 +12,7 @@ import Sessions from './pages/Sessions';
 import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 import Contact from './pages/Contact';
+import ForgotPassword from './pages/ForgotPassword';
 
 
 
@@ -35,6 +36,7 @@ function App() {
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/payroll" element={<Payroll />} />
+            <Route path="/forgot-password" element={<ForgotPassword/>}/>
           </Routes>
         </main>
 
