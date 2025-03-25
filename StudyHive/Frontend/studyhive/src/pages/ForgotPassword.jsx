@@ -1,20 +1,15 @@
 import React, { useState } from "react";
-import union from "../assets/union.png";
 import { Link } from "react-router-dom";
+import welcome from "../assets/welcome.png";
 
-
-export default function SignIn() {
+export default function ForgotPassword() {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
   });
 
   const [errors, setErrors] = useState({
     email: "",
-    password: "",
   });
-
-  const [showPassword, setShowPassword] = useState(false);
 
   const validateField = (name, value) => {
     let error = "";
@@ -23,8 +18,6 @@ export default function SignIn() {
     } else {
       if (name === "email" && !/\S+@\S+\.\S+/.test(value)) {
         error = "Invalid email format";
-      } else if (name === "password" && value.length < 6) {
-        error = "Password must be at least 6 characters";
       }
     }
     return error;
@@ -44,7 +37,6 @@ export default function SignIn() {
 
     const newErrors = {
       email: validateField("email", formData.email),
-      password: validateField("password", formData.password),
     };
 
     setErrors(newErrors);
@@ -52,7 +44,7 @@ export default function SignIn() {
     if (Object.values(newErrors).every((error) => !error)) {
       console.log("Submitting:", formData);
       // Handle form submission here (e.g., API call)
-      setFormData({ email: "", password: "" });
+      setFormData({ email: "" });
     }
   };
 
@@ -63,16 +55,21 @@ export default function SignIn() {
         <div className="hidden xl:block w-[500px] h-[700px] mb-[100px] mt-[120px] overflow-hidden rounded-[31px] mr-12">
           <img
             className="w-full h-full object-cover"
-            src={union}
-            alt="Illustration for sign-in page"
+            src={welcome}
+            alt="Illustration for forgot password page"
           />
         </div>
 
         {/* Form Section */}
         <div className="w-full max-w-[450px] mt-[100px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
           <div className="text-center text-black text-[40px] font-bold">
-            Sign In
+            Forgot Your Password?
           </div>
+          <div className="text-center text-neutral-600 text-sm font-normal mt-4">
+            Don’t Worry! Resetting your password is easy. Just type in the email you registered to StudyHive.
+          </div>
+
+          {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full items-center mt-6">
             {/* Email Input */}
             <div className="flex flex-col w-full">
@@ -98,68 +95,24 @@ export default function SignIn() {
               )}
             </div>
 
-            {/* Password Input */}
-            <div className="flex flex-col w-full relative">
-              <label htmlFor="password" className="text-black text-base font-bold">
-                Password
-              </label>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="*******"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
-                aria-invalid={!!errors.password}
-                aria-describedby="password-error"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-10 text-sm text-[#1f4d39] font-semibold"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-              {errors.password && (
-                <p id="password-error" className="text-red-500 text-sm mt-1">
-                  {errors.password}
-                </p>
-              )}
-            </div>
-
-            {/* Remember Me and Forgot Password */}
-            <div className="flex justify-between w-full">
-              <label className="flex items-center text-black text-sm font-medium">
-                <input type="checkbox" className="mr-2" /> Remember me
-              </label>
-              <Link to="/forgot-password" className="text-[#1f1f1f] text-sm font-semibold hover:text-blue-600 transition-colors duration-200">Forgot Password?</Link>
-            </div>
-
-            {/* Submit Button */}
+            {/* Send Button */}
             <button
               type="submit"
               className="w-full px-[30px] py-4 mb-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
-              disabled={
-                !!errors.email ||
-                !!errors.password ||
-                !formData.email ||
-                !formData.password
-              }
+              disabled={!!errors.email || !formData.email}
             >
-              Sign In
+              Send
             </button>
           </form>
 
-          {/* Sign Up Link */}
+          {/* Sign In Link */}
           <div className="flex justify-center items-center mt-4">
             <span className="text-black text-base font-normal">
-              Don’t have an account?
+              Do you remember your password?
             </span>
-            <a href="/signup" className="text-[#1f4d39] text-base font-bold ml-2">
-              Sign Up
-            </a>
+            <Link to="/login" className="text-[#1f1f1f] text-sm font-semibold hover:text-blue-600 transition-colors duration-200 ml-1">
+              Sign In
+            </Link>
           </div>
         </div>
       </div>
