@@ -13,7 +13,7 @@ import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 import Contact from './pages/Contact';
 import ForgotPassword from './pages/ForgotPassword';
-import VerifySignUpOTP from './pages/VerifySignUpOTP'; // ✅ NEW
+import VerifySignUpOTP from './pages/VerifySignUpOTP'; 
 
 function App() {
   return (

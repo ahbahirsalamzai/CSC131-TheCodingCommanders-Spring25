@@ -24,7 +24,7 @@ export default function SignUp() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    setError(""); // clear error when typing
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -48,11 +48,9 @@ export default function SignUp() {
         role: formData.role,
       });
 
-      // Redirect to OTP page
+      // ✅ Redirect to OTP page and pass email along
       navigate("/VerifySignUpOTP", {
-        state: {
-          email: formData.email,
-        },
+        state: { email: formData.email },
       });
     } catch (err) {
       setError(err.message || "Signup failed.");
@@ -77,11 +75,13 @@ export default function SignUp() {
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full items-center mt-2">
-            {/* Role Selection */}
             <div className="w-full">
               <label className="block text-black text-base font-bold mb-2">Select Your Role:</label>
               <div className="flex gap-6">
-                {["tutor", "student"].map((role) => (
+                {[
+                  "tutor",
+                  "student"
+                ].map((role) => (
                   <label key={role} className="flex items-center gap-2">
                     <input
                       type="radio"
@@ -96,7 +96,6 @@ export default function SignUp() {
               </div>
             </div>
 
-            {/* Username */}
             <div className="w-full">
               <label className="block text-black text-base font-bold mb-1">Username</label>
               <input
@@ -110,7 +109,6 @@ export default function SignUp() {
               />
             </div>
 
-            {/* Email */}
             <div className="w-full">
               <label className="block text-black text-base font-bold mb-1">Email</label>
               <input
@@ -124,7 +122,6 @@ export default function SignUp() {
               />
             </div>
 
-            {/* Password */}
             <div className="w-full">
               <label className="block text-black text-base font-bold mb-1">Password</label>
               <input
@@ -138,7 +135,6 @@ export default function SignUp() {
               />
             </div>
 
-            {/* Confirm Password */}
             <div className="w-full">
               <label className="block text-black text-base font-bold mb-1">Confirm Password</label>
               <input
@@ -152,7 +148,6 @@ export default function SignUp() {
               />
             </div>
 
-            {/* Terms */}
             <label className="flex items-center w-full text-sm mt-2">
               <input
                 type="checkbox"
@@ -164,7 +159,6 @@ export default function SignUp() {
               I Accept Terms & Conditions
             </label>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -174,7 +168,6 @@ export default function SignUp() {
             </button>
           </form>
 
-          {/* Sign In Link */}
           <div className="flex justify-center items-center mt-4">
             <span className="text-black text-base">Already have an account?</span>
             <a href="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">
@@ -183,7 +176,6 @@ export default function SignUp() {
           </div>
         </div>
 
-        {/* Image Section */}
         <div className="hidden xl:block w-[600px] h-[800px] mb-[20px] mt-[100px] overflow-hidden rounded-[31px] ml-12">
           <img
             className="w-full h-full object-cover filter brightness-50"
