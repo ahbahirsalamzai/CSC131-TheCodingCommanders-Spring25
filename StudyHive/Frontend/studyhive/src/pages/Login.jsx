@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import union from "../assets/union.png";
-import axios from "axios";
 import { Link } from "react-router-dom";
-
+import { login } from "../api/authService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -38,10 +39,9 @@ export default function Login() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     const error = validateField(name, value);
     setErrors((prev) => ({ ...prev, [name]: error }));
-    setErrorMessage(""); // clear general errors
+    setErrorMessage("");
   };
 
   const handleSubmit = async (e) => {
@@ -56,21 +56,30 @@ export default function Login() {
 
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-        const res = await axios.post(
-          `${process.env.REACT_APP_API_URL}/auth/login`,
-          formData
-        );
+        const res = await login(formData);
 
-        if (res.data.token) {
-          console.log("Login success ✅", res.data);
-          // Save token to localStorage or context if needed
-          navigate("/profile");
+        if (res.token) {
+          localStorage.setItem("token", res.token);
+          localStorage.setItem("otp_email", formData.email);
+
+          toast.success("Login successful!", {
+            position: "top-center",
+            autoClose: 2000,
+          });
+
+          setTimeout(() => {
+            if (res.status === "pending") {
+              navigate("/verify-otp");
+            } else {
+              navigate("/profile");
+            }
+          }, 2000);
         }
       } catch (err) {
-        console.error("Login failed ❌", err.response);
-        setErrorMessage(
-          err.response?.data?.message || "Login failed. Please try again."
-        );
+        setErrorMessage(err.message);
+        toast.error(err.message, {
+          position: "top-center",
+        });
       }
     }
   };
@@ -88,7 +97,7 @@ export default function Login() {
         </div>
 
         {/* Form Section */}
-        <div className="w-full max-w-[450px] mt-[100px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
+        <div className="w-full max-w-[450px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
           <div className="text-center text-black text-[40px] font-bold font-['Mulish']">
             Sign In
           </div>
@@ -99,7 +108,10 @@ export default function Login() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full items-center mt-6">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-6 w-full items-center mt-6"
+          >
             {/* Email Input */}
             <div className="flex flex-col w-full">
               <label htmlFor="email" className="text-black text-base font-bold">
@@ -160,7 +172,12 @@ export default function Login() {
               <label className="flex items-center text-black text-sm font-medium">
                 <input type="checkbox" className="mr-2" /> Remember me
               </label>
-              <Link to="/forgot-password" className="text-[#1f1f1f] text-sm font-semibold hover:text-blue-600 transition-colors duration-200">Forgot Password?</Link>
+              <Link
+                to="/forgot-password"
+                className="text-[#1f1f1f] text-sm font-semibold hover:text-blue-600 transition-colors duration-200"
+              >
+                Forgot Password?
+              </Link>
             </div>
 
             {/* Submit Button */}
@@ -168,7 +185,10 @@ export default function Login() {
               type="submit"
               className="w-full px-[30px] py-4 mb-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
               disabled={
-                !!errors.email || !!errors.password || !formData.email || !formData.password
+                !!errors.email ||
+                !!errors.password ||
+                !formData.email ||
+                !formData.password
               }
             >
               Sign In
@@ -186,6 +206,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

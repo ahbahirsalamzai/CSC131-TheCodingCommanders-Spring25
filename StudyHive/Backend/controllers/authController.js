@@ -16,29 +16,22 @@ exports.signup = async (req, res) => {
     }
 
     if (existingUser && existingUser.status === "pending") {
-      const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
-      existingUser.otp = newOTP;
-      await existingUser.save();
-      await sendOTPEmail(normalizedEmail, newOTP);
-      return res.status(200).json({ message: "OTP resent to your email." });
+      return res.status(400).json({ message: "Account already exists but is not activated. Please log in to receive OTP." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const newUser = new User({
       username,
       email: normalizedEmail,
       password: hashedPassword,
       role,
-      otp,
       status: "pending",
     });
 
     await newUser.save();
-    await sendOTPEmail(normalizedEmail, otp);
 
-    res.status(201).json({ message: "Signup successful. Check your email for the OTP.", email: normalizedEmail });
+    res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ message: "Server error during signup." });
@@ -50,10 +43,13 @@ exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP are required." });
+    }
+
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json({ message: "User not found." });
 
-    // ✅ THIS IS GOOD – KEEP THIS ONE!
     console.log("Verifying OTP:", { provided: otp, expected: user.otp });
 
     if (user.otp !== otp.toString()) {
@@ -71,8 +67,7 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-
-// Send OTP (used after redirect)
+// Send OTP (used only after login if account is pending)
 exports.sendOTP = async (req, res) => {
   const { email } = req.body;
 
@@ -85,9 +80,57 @@ exports.sendOTP = async (req, res) => {
     await user.save();
 
     await sendOTPEmail(email.toLowerCase(), otp);
-    res.status(200).json({ message: "OTP resent to email." });
+    res.status(200).json({ message: "OTP sent to email." });
   } catch (err) {
     console.error("Send OTP error:", err);
     res.status(500).json({ message: "Failed to send OTP." });
+  }
+};
+
+// Login
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const normalizedEmail = email.toLowerCase();
+    console.log("📩 Login attempt for:", normalizedEmail);
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      console.log("❌ User not found.");
+      return res.status(400).json({ message: "Invalid email or password." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("🔐 Password match:", isMatch);
+
+    if (!isMatch) {
+      console.log("❌ Password incorrect.");
+      return res.status(400).json({ message: "Invalid email or password." });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    if (user.status === "pending") {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      user.otp = otp;
+      await user.save();
+      await sendOTPEmail(normalizedEmail, otp);
+    }
+
+    console.log("✅ Login successful. User ID:", user._id);
+
+    res.status(200).json({
+      token,
+      status: user.status,
+      username: user.username,
+      userId: user._id,
+    });
+  } catch (err) {
+    console.error("🔥 Login error:", err);
+    res.status(500).json({ message: "Server error during login." });
   }
 };

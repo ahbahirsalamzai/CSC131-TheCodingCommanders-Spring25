@@ -36,8 +36,8 @@ function App() {
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/payroll" element={<Payroll />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/VerifySignUpOTP" element={<VerifySignUpOTP />} /> {/* ✅ HERE */}
-          </Routes>
+            <Route path="/verify-otp" element={<VerifySignUpOTP />} />
+            </Routes>
         </main>
 
         {/* Footer */}
