@@ -20,12 +20,22 @@ exports.signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+ signup-otp-email-41-local
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+ main
 
     const newUser = new User({
       username,
       email: normalizedEmail,
       password: hashedPassword,
       role,
+ signup-otp-email-41-local
+      otp,
+      otpExpiresAt,
+
+ main
       status: "pending",
     });
 
@@ -49,6 +59,13 @@ exports.verifyOTP = async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json({ message: "User not found." });
+    if (!user.otp || user.otp !== otp.toString()) {
+      return res.status(400).json({ message: "Invalid OTP." });
+    }
+    
+    if (user.otpExpiresAt < new Date()) {
+      return res.status(400).json({ message: "OTP has expired." });
+    }    
 
     console.log("Verifying OTP:", { provided: otp, expected: user.otp });
 
@@ -58,6 +75,7 @@ exports.verifyOTP = async (req, res) => {
 
     user.status = "active";
     user.otp = undefined;
+    user.otpExpiresAt = undefined;
     await user.save();
 
     res.status(200).json({ message: "Account activated successfully." });

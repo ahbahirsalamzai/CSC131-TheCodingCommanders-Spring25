@@ -70,7 +70,35 @@ export default function VerifySignUpOTP() {
       setSuccess("");
     }
   };
+signup-otp-email-41-local
+  const handleResendOTP = async () => {
+    if (!email) {
+      setMessage("Email is missing. Please sign up again.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3001/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("✅ OTP resent to your email.");
+      } else {
+        setMessage("❌ Failed to resend OTP: " + data.message);
+      }
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      setMessage("❌ An error occurred while resending OTP.");
+    }
+  };
+
   
+ main
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -132,6 +160,29 @@ export default function VerifySignUpOTP() {
             >
               Done
             </button>
+signup-otp-email-41-local
+            <button
+              type="button"
+              onClick={handleResendOTP}
+              className="text-[#1f4d39] text-sm font-bold hover:underline mt-2"
+            >
+              Resend OTP
+            </button>
+
+
+            <div className="flex justify-center items-center mt-4">
+              <span className="text-black text-base font-normal font-['Mulish']">
+                Do you remember your password?
+              </span>
+              <a
+                href="/login"
+                className="text-[#1f4d39] text-base font-bold font-['Mulish'] ml-2 hover:underline"
+              >
+                Sign In
+              </a>
+            </div>
+
+main
           </form>
 
           <div className="text-center mt-4 text-sm">
