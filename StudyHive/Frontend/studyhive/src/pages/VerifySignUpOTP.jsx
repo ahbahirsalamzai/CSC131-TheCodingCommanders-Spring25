@@ -1,62 +1,76 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import TransferL from "../assets/transferlife.jpg";
+import { verifyOTP } from "../api/authService";
+import union from "../assets/union.png";
 
 export default function VerifySignUpOTP() {
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [message, setMessage] = useState("");
-  const inputRefs = useRef([]);
-  const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email;
+  const location = useLocation();
+
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const emailFromState = location.state?.email;
+    const emailFromStorage = localStorage.getItem("otp_email");
+
+    if (emailFromState) {
+      setEmail(emailFromState);
+      localStorage.setItem("otp_email", emailFromState); // Save for fallback
+    } else if (emailFromStorage) {
+      setEmail(emailFromStorage);
+    } else {
+      setError("Email is missing. Please sign in again.");
+    }
+  }, [location.state]);
 
   const handleChange = (index, value) => {
-    if (/^\d*$/.test(value) && value.length <= 1) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-      if (value && index < 5) {
-        inputRefs.current[index + 1].focus();
-      }
-    }
-  };
+    if (!/^\d*$/.test(value)) return;
+    const newDigits = [...otpDigits];
+    newDigits[index] = value;
+    setOtpDigits(newDigits);
 
-  const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`).focus();
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const otpCode = otp.join("");
-    setMessage("");
-
-    if (!email) {
-      setMessage("Email is missing. Please sign up again.");
+  
+    // Check if all digits are filled
+    if (otpDigits.some((digit) => digit === "")) {
+      setError("Please enter all 6 digits.");
       return;
     }
-
+  
+    const otp = otpDigits.join(""); // Combine digits into one string
+  
     try {
-      const response = await fetch("http://localhost:3001/api/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otpCode }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage("✅ Account verified successfully. You can now log in.");
-        setTimeout(() => navigate("/login"), 2000);
-      } else {
-        setMessage("❌ Verification failed: " + data.message);
+      // Make sure email exists
+      if (!email) {
+        setError("Email is missing. Please log in again.");
+        return;
       }
+  
+      // Call verifyOTP from authService
+      const res = await verifyOTP(email, otp);
+  
+      setSuccess("Account activated successfully!");
+      setError("");
+      localStorage.removeItem("otp_email");
+  
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1500);
     } catch (err) {
-      console.error("OTP verification error:", err);
-      setMessage("❌ An error occurred during verification.");
+      setError(err.message || "OTP verification failed.");
+      setSuccess("");
     }
   };
+signup-otp-email-41-local
   const handleResendOTP = async () => {
     if (!email) {
       setMessage("Email is missing. Please sign up again.");
@@ -83,69 +97,70 @@ export default function VerifySignUpOTP() {
     }
   };
 
+  
+ main
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-[1440px] flex justify-center items-center">
-        {/* Image Section */}
-        <div className="hidden xl:block w-[500px] h-[700px] mb-[100px] mt-[120px] overflow-hidden rounded-[31px] mr-12 relative">
+        {/* Left Image Section */}
+        <div className="hidden xl:block w-[600px] h-[800px] overflow-hidden rounded-[31px] mr-12 mt-[80px]">
           <img
             className="w-full h-full object-cover"
-            src={TransferL}
-            alt="Illustration for OTP page"
+            src={union}
+            alt="OTP Verification"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-30 rounded-[31px]" />
         </div>
 
         {/* OTP Form Section */}
-        <div className="w-full max-w-[450px] mt-[100px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
-          <div className="text-center text-black text-[40px] font-bold font-['Mulish']">
+        <div className="w-full max-w-[450px] bg-white mt-[80px] ml-[30px] mr-[30px] rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
+          <div className="text-center text-black text-[32px] font-bold mb-4">
             OTP Code
           </div>
 
-          {message && (
-            <div className="text-center text-sm font-medium text-red-600 mt-2">
-              {message}
-            </div>
+          {error && (
+            <p className="text-red-600 text-center text-sm font-semibold mb-2">
+              {error}
+            </p>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full items-center mt-6">
-            <div className="flex flex-col w-full items-center">
-              <p className="text-black text-sm font-normal font-['Mulish'] text-center">
-                A 6 digit OTP Code has been sent to your email<br />
-                <strong>{email || "(missing email)"}</strong>
-              </p>
+          {success && (
+            <p className="text-green-600 text-center text-sm font-semibold mb-2">
+              {success}
+            </p>
+          )}
 
-              <div className="flex gap-4 mt-6">
-                {otp.map((digit, index) => (
-                  <div key={index} className="flex flex-col items-center gap-2 relative">
-                    {!digit && (
-                      <div className="absolute text-neutral-300 text-xl font-normal font-['Mulish'] leading-loose top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        0
-                      </div>
-                    )}
-                    <input
-                      type="text"
-                      value={digit}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(index, e)}
-                      ref={(el) => (inputRefs.current[index] = el)}
-                      className="w-12 h-12 text-center text-xl font-['Mulish'] border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1f4d39] bg-transparent relative z-10"
-                      maxLength={1}
-                      inputMode="numeric"
-                    />
-                    <div className="w-11 h-0 outline outline-[1.33px] outline-offset-[-0.67px] outline-neutral-300"></div>
-                  </div>
-                ))}
-              </div>
+          <p className="text-center text-black text-sm mb-4">
+            A 6 digit OTP Code has been sent to your email
+            <br />
+            <span className="font-semibold">
+              ({email || "missing email"})
+            </span>
+          </p>
+
+          <form onSubmit={handleSubmit} className="flex flex-col items-center">
+            <div className="flex gap-2 mb-4">
+              {otpDigits.map((digit, index) => (
+                <input
+                  key={index}
+                  id={`otp-${index}`}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength="1"
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  className="w-10 h-10 text-center text-lg border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+                />
+              ))}
             </div>
 
             <button
               type="submit"
-              className="w-full px-[30px] py-4 mb-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold font-['Mulish'] hover:bg-[#163a2b] transition"
-              disabled={otp.some((digit) => !digit)}
+              className="w-full px-6 py-3 bg-[#1f4d39] text-white rounded-lg text-base font-semibold hover:bg-[#163a2b] transition"
             >
               Done
             </button>
+signup-otp-email-41-local
             <button
               type="button"
               onClick={handleResendOTP}
@@ -166,7 +181,19 @@ export default function VerifySignUpOTP() {
                 Sign In
               </a>
             </div>
+
+main
           </form>
+
+          <div className="text-center mt-4 text-sm">
+            Do you remember your password?{" "}
+            <a
+              href="/login"
+              className="text-[#1f4d39] font-semibold hover:underline"
+            >
+              Sign In
+            </a>
+          </div>
         </div>
       </div>
     </div>
