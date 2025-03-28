@@ -1,19 +1,33 @@
-// Backend/utils/emailSender.js
 const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+let transporter;
+
+async function setupTransporter() {
+  if (!transporter) {
+    const testAccount = await nodemailer.createTestAccount();
+
+    transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+
+    console.log("🧪 Ethereal test account created:");
+    console.log("   User:", testAccount.user);
+    console.log("   Pass:", testAccount.pass);
+  }
+
+  return transporter;
+}
 
 async function sendOTPEmail(to, otp) {
+  const transporter = await setupTransporter();
+
   const mailOptions = {
-    from: `"StudyHive" <${process.env.EMAIL_USER}>`,
+    from: `"StudyHive" <no-reply@studyhive.com>`,
     to,
     subject: "StudyHive OTP Verification",
     html: `
@@ -24,7 +38,8 @@ async function sendOTPEmail(to, otp) {
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+  console.log("📨 Preview URL:", nodemailer.getTestMessageUrl(info));
 }
 
 module.exports = sendOTPEmail;

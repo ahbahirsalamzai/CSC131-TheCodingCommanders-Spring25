@@ -1,3 +1,4 @@
+console.log("DEBUG: MONGODB_URI =", process.env.MONGODB_URI);
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
