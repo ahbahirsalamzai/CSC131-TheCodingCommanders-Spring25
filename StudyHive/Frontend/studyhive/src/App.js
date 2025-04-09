@@ -16,10 +16,17 @@ import Sessions from './pages/Sessions';
 import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 import Contact from './pages/Contact';
+ Updated upstream
 import ForgotPassword from './pages/ForgotPassword';
 import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
+
+import AdminAccounts from './pages/AdminAccounts';
+
+
+
+Stashed changes
 
 function App() {
   return (
@@ -42,12 +49,16 @@ function App() {
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/payroll" element={<Payroll />} />
+ Updated upstream
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifySignUpOTP />} />
 
             {/* Forgot Password Flow */}
             <Route path="/otp" element={<OTPPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+
+            <Route path="/admin/accounts" element={<AdminAccounts />} />
+ Stashed changes
           </Routes>
         </main>
 
