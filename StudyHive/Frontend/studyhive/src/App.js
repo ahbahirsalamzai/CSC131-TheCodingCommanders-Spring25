@@ -1,6 +1,7 @@
+// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import "./App.css";
+import './App.css';
 
 // Components
 import Header from './components/Header';
@@ -20,6 +21,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
+import StudentDashboard from './pages/StudentDashboard';
+import ScheduleSession from './pages/ScheduleSession'; // Make sure this exists
 
 function App() {
   return (
@@ -44,10 +47,12 @@ function App() {
             <Route path="/payroll" element={<Payroll />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifySignUpOTP />} />
-
-            {/* Forgot Password Flow */}
             <Route path="/otp" element={<OTPPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* Dashboards */}
+            <Route path="/student-dashboard" element={<StudentDashboard />} />
+            <Route path="/schedule-session" element={<ScheduleSession />} />
           </Routes>
         </main>
 
