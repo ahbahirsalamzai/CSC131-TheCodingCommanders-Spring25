@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import "./App.css";
 
 // Components
@@ -16,56 +16,43 @@ import Sessions from './pages/Sessions';
 import Attendance from './pages/Attendance';
 import Payroll from './pages/Payroll';
 import Contact from './pages/Contact';
- Updated upstream
 import ForgotPassword from './pages/ForgotPassword';
 import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
-
 import AdminAccounts from './pages/AdminAccounts';
 
-
-
-Stashed changes
-
 function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
-    <Router>
-      <div className="flex flex-col min-h-screen">
-        {/* Header */}
-        <Header />
+    <div className="flex flex-col min-h-screen">
+      {/* Hide Header + Navbar on admin pages */}
+      {!isAdminRoute && <Header />}
+      {!isAdminRoute && <Navbar />}
 
-        {/* Navbar */}
-        <Navbar />
+      <main className="flex-grow container mx-auto p-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/sessions" element={<Sessions />} />
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/payroll" element={<Payroll />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifySignUpOTP />} />
+          <Route path="/otp" element={<OTPPage />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/admin/accounts" element={<AdminAccounts />} />
+        </Routes>
+      </main>
 
-        {/* Main Content */}
-        <main className="flex-grow container mx-auto p-4">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/sessions" element={<Sessions />} />
-            <Route path="/attendance" element={<Attendance />} />
-            <Route path="/payroll" element={<Payroll />} />
- Updated upstream
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verify-otp" element={<VerifySignUpOTP />} />
-
-            {/* Forgot Password Flow */}
-            <Route path="/otp" element={<OTPPage />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-
-            <Route path="/admin/accounts" element={<AdminAccounts />} />
- Stashed changes
-          </Routes>
-        </main>
-
-        {/* Footer */}
-        <Footer />
-      </div>
-    </Router>
+      {/* Hide Footer on admin pages */}
+      {!isAdminRoute && <Footer />}
+    </div>
   );
 }
 
