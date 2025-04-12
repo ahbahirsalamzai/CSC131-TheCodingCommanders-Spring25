@@ -24,6 +24,9 @@ import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
 import ScheduleSession from './pages/ScheduleSession'; // Make sure this exists
 
+
+import TutorProfilePage from './pages/TutorProfilePage'; // New: Tutor Profile Page
+
 function App() {
   return (
     <Router>
@@ -52,7 +55,10 @@ function App() {
 
             {/* Dashboards */}
             <Route path="/student-dashboard" element={<StudentDashboard />} />
-            <Route path="/schedule-session" element={<ScheduleSession />} />
+            <Route path="/tutor-schedule-session" element={<ScheduleSession />} />
+
+            {/* Tutor Profile */}
+            <Route path="/tutor-profile" element={<TutorProfilePage />} />
           </Routes>
         </main>
 
