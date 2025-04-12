@@ -20,25 +20,28 @@ const AdminNavbar = () => {
       </div>
 
       {/* Main navbar */}
-      <nav className="bg-white w-full border-b px-10 py-4 flex justify-between items-center shadow-sm">
+      <nav className="bg-white w-full border-b px-10 py-4 flex justify-between items-center shadow">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <img src={logo} alt="StudyHive Logo" className="h-8 w-auto" />
-          <h1 className="text-[34px] font-extrabold">
-            <span className="text-black">Study</span>
-            <span className="text-[#1F4D39]">Hive</span>
+        <div className="flex items-center gap-2 -ml-6">
+          <img
+            src={logo}
+            alt="StudyHive Logo"
+            className="h-8 w-auto transition-transform duration-300 transform hover:rotate-12"
+          />
+          <h1 className="text-4xl font-bold ml-1 hover:scale-105 transition-transform duration-300">
+            Study<span className="text-[#1F4D39]">Hive</span>
           </h1>
         </div>
 
         {/* Nav Links */}
-        <div className="flex gap-8 text-[16px] font-medium">
-          <a href="/" className="hover:text-[#1F4D39]">Home</a>
-          <a href="/about" className="hover:text-[#1F4D39]">About Us</a>
-          <a href="/faq" className="hover:text-[#1F4D39]">FAQs</a>
-          <a href="/contact" className="hover:text-[#1F4D39]">Contact Us</a>
+        <div className="flex gap-8 text-lg font-medium">
+          <a href="/" className="hover:text-[#1F4D39] transition">Home</a>
+          <a href="/about" className="hover:text-[#1F4D39] transition">About Us</a>
+          <a href="/faq" className="hover:text-[#1F4D39] transition">FAQs</a>
+          <a href="/contact" className="hover:text-[#1F4D39] transition">Contact Us</a>
         </div>
 
-        {/* Profile Button */}
+        {/* Profile Dropdown */}
         <div className="relative">
           <button
             onClick={() => setShowDropdown(!showDropdown)}

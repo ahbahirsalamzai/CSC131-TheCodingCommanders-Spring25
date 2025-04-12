@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -18,8 +16,14 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["student", "tutor"],
+      enum: ["student", "tutor", "admin"],
       default: "student",
+    },
+    dob: {
+      type: Date,
+    },
+    phone: {
+      type: String,
     },
     otp: {
       type: String, // for account activation/login
@@ -38,5 +42,3 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-module.exports = mongoose.model("User", userSchema);

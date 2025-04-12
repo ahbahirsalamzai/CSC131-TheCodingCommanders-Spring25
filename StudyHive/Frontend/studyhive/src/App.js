@@ -21,6 +21,7 @@ import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
 import AdminAccounts from './pages/AdminAccounts';
+import AdminProfile from "./pages/AdminProfile";
 
 function App() {
   const location = useLocation();
@@ -47,6 +48,7 @@ function App() {
           <Route path="/otp" element={<OTPPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin/accounts" element={<AdminAccounts />} />
+          <Route path="/admin/profile" element={<AdminProfile />} />
         </Routes>
       </main>
 
