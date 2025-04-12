@@ -23,7 +23,10 @@ import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
 import ScheduleSession from './pages/ScheduleSession'; // Make sure this exists
-import StudentSchedulePage from './pages/StudentSchedulePage'; // student schedual
+import StudentSchedulePage from './pages/StudentSchedulePage'; // student schedual session
+import TutorDashboard from './pages/TutorDashboard'; // tutor dashbord
+
+
 function App() {
   return (
     <Router>
@@ -52,10 +55,11 @@ function App() {
 
             {/* Dashboards */}
             <Route path="/student-dashboard" element={<StudentDashboard />} />
-            <Route path="/schedule-session" element={<ScheduleSession />} />
-            
+            <Route path="/tutor-dashboard" element={<TutorDashboard />} />
+            <Route path="/tutor-schedule-session" element={<ScheduleSession />} />
+
             {/*student schedule session */}
-            <Route path="/student/schedule-session" element={<StudentSchedulePage />} />
+            <Route path="/student-schedule-session" element={<StudentSchedulePage />} />
 
           </Routes>
         </main>

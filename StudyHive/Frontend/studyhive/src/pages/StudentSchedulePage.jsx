@@ -1,6 +1,6 @@
 // src/pages/StudentSchedulePage.jsx
 import React from 'react';
-import Sidebar from '../components/Sidebar';
+import Sidebar from "../components/Sidebar";
 
 const StudentSchedulePage = () => {
   return (
