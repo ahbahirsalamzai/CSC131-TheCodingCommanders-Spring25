@@ -4,7 +4,7 @@ const sessionSchema = new mongoose.Schema({
   tutorName: { type: String, required: true },
   start: { type: Date, required: true },
   end: { type: Date, required: true },
-  notes: { type: String },
+  subject: { type: String },
   bookedBy: { type: String, default: null },
 });
 
