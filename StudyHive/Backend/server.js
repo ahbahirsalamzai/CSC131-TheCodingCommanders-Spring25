@@ -1,22 +1,32 @@
 require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
-const connectDB = require("./config/db");
+const path = require("path");
+const sessionRoutes = require("./routes/sessionRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-connectDB();
+// MongoDB connection (no deprecated options)
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB error:", err));
 
+// Middleware
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 
-app.use("/api/auth", require("./routes/authRoutes"));
+// Routes
+app.use("/api/sessions", sessionRoutes);
 
-app.get("/", (req, res) => {
-  res.send("📚 StudyHive Backend is Running");
+// Serve frontend build
+app.use(express.static(path.join(__dirname, "../Frontend/studyhive/build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../Frontend/studyhive/build/index.html"));
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

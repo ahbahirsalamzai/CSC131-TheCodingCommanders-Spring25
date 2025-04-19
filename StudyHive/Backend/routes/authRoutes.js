@@ -11,7 +11,7 @@ const {
 } = require('../controllers/authController');
 
 router.post('/signup', signup);
-router.post('/login', login); // ⬅️ Add this route
+router.post('/login', login);
 router.post('/verify-otp', verifyOTP);
 router.post('/send-otp', sendOTP);
 router.post('/forgot-password', forgotPassword);

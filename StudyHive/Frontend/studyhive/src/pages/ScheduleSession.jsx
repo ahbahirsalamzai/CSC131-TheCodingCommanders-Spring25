@@ -1,70 +1,174 @@
-// src/pages/ScheduleSession.jsx
-import React from "react";
+// File: Frontend/studyhive/src/pages/ScheduleSession.jsx
+
+import React, { useState, useEffect } from "react";
+import { Calendar, momentLocalizer, Views } from "react-big-calendar";
+import moment from "moment";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import Sidebar from "../components/Sidebar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCalendarDays,
-  faClock,
-} from "@fortawesome/free-solid-svg-icons";
+import api from "../services/api";
+
+const localizer = momentLocalizer(moment);
 
 const ScheduleSession = () => {
+  const [events, setEvents] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [formData, setFormData] = useState({
+    tutorName: "",
+    startTime: "",
+    endTime: "",
+    notes: "",
+  });
+
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await api.get("/sessions/availability");
+        const formatted = res.data.map((event) => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end),
+          title: event.tutorName || "Available Session",
+        }));
+        setEvents(formatted);
+      } catch (err) {
+        console.error("❌ Failed to fetch availability:", err);
+      }
+    };
+    fetchAvailability();
+  }, []);
+
+  const handleSelectSlot = ({ start }) => {
+    setSelectedDate(start);
+    setModalOpen(true);
+  };
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.tutorName || !formData.startTime || !formData.endTime) {
+      alert("Please complete all fields");
+      return;
+    }
+
+    const startDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${formData.startTime}`);
+    const endDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${formData.endTime}`);
+
+    try {
+      await api.post("/sessions/availability", {
+        tutorName: formData.tutorName,
+        start: startDateTime,
+        end: endDateTime,
+        notes: formData.notes,
+      });
+      alert("✅ Availability posted!");
+      setModalOpen(false);
+      setFormData({ tutorName: "", startTime: "", endTime: "", notes: "" });
+      window.location.reload();
+    } catch (err) {
+      alert("❌ Failed to post availability");
+      console.error(err);
+    }
+  };
+
+  const handleCancelSession = async () => {
+    try {
+      await api.delete(`/sessions/${selectedEvent._id}`);
+      alert("Session canceled !");
+      setSelectedEvent(null);
+      setEvents(events.filter(e => e._id !== selectedEvent._id));
+    } catch (err) {
+      alert("Failed to cancel session");
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="flex pt-20 min-h-screen bg-gray-50"> {/* <-- pt-20 pushes content below the navbar */}
-      {/* Sidebar */}
+    <div className="flex pt-20 bg-gray-100 min-h-screen">
       <Sidebar />
+      <div className="flex-1 p-6">
+        <h2 className="text-2xl font-bold mb-4">Schedule Sessions</h2>
 
-      {/* Main Content */}
-      <div className="flex-1 p-8">
-        <div className="max-w-4xl mx-auto space-y-6 bg-white p-8 rounded-xl shadow-xl border border-slate-200">
-          {/* Header */}
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Pick Up Availability</h2>
-            <p className="text-gray-600">
-              Select a date and time to schedule your session. Your availability will sync with Google Calendar.
-            </p>
-          </div>
-
-          {/* Tutor Info */}
-          <div className="bg-gray-50 p-4 rounded-md border">
-            <h3 className="text-lg font-semibold">James Dupont</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              James is experienced in helping students build strong math foundations. Select a time that works best.
-            </p>
-          </div>
-
-          {/* Calendar + Time Picker */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Select Date <FontAwesomeIcon icon={faCalendarDays} className="ml-2 text-green-700" />
-              </label>
-              <input
-                type="date"
-                className="w-full border border-gray-300 rounded-md p-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Select Time <FontAwesomeIcon icon={faClock} className="ml-2 text-green-700" />
-              </label>
-              <select className="w-full border border-gray-300 rounded-md p-2">
-                <option value="">Choose a time slot</option>
-                <option>9:00 AM – 10:00 AM</option>
-                <option>10:15 AM – 11:15 AM</option>
-                <option>1:00 PM – 2:00 PM</option>
-                <option>3:30 PM – 4:30 PM</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="text-right">
-            <button className="bg-green-900 text-white px-6 py-2 rounded-md hover:bg-green-800">
-              Schedule Session
-            </button>
-          </div>
+        <div className="relative">
+          <Calendar
+            selectable
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            defaultView={Views.MONTH}
+            views={{ month: true, week: true, day: true, agenda: true }}
+            style={{ height: 600 }}
+            onSelectSlot={handleSelectSlot}
+            onSelectEvent={(event) => setSelectedEvent(event)}
+            popup
+          />
         </div>
+
+        {/* Modal for creating a session */}
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-md shadow-lg z-50 w-[300px]">
+              <h3 className="text-xl font-semibold mb-4">Post Availability</h3>
+              <input
+                type="text"
+                name="tutorName"
+                placeholder="Your name"
+                className="w-full border p-2 mb-3 rounded"
+                value={formData.tutorName}
+                onChange={handleChange}
+              />
+              <input
+                type="time"
+                name="startTime"
+                className="w-full border p-2 mb-3 rounded"
+                value={formData.startTime}
+                onChange={handleChange}
+              />
+              <input
+                type="time"
+                name="endTime"
+                className="w-full border p-2 mb-3 rounded"
+                value={formData.endTime}
+                onChange={handleChange}
+              />
+              <textarea
+                name="notes"
+                placeholder="Additional notes (optional)"
+                className="w-full border p-2 mb-4 rounded"
+                value={formData.notes}
+                onChange={handleChange}
+              />
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                <button onClick={handleSubmit} className="px-4 py-2 bg-green-700 text-white rounded">Save</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal for viewing a session */}
+        {selectedEvent && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
+            <div className="bg-white p-6 rounded-md shadow-lg z-50 w-[300px]">
+              <h3 className="text-xl font-semibold mb-4">Session Details</h3>
+              <p><strong>Tutor:</strong> {selectedEvent.tutorName}</p>
+              <p><strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}</p>
+              <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
+              <p><strong>Notes:</strong> {selectedEvent.notes || "None"}</p>
+              <div className="flex justify-end gap-2 mt-4">
+                <button onClick={() => setSelectedEvent(null)} className="px-4 py-2 bg-gray-300 rounded">Close</button>
+                <button onClick={handleCancelSession} className="px-4 py-2 bg-red-600 text-white rounded">Cancel Session</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
