@@ -23,6 +23,7 @@ import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
 import ScheduleSession from './pages/ScheduleSession'; // Make sure this exists
+import TutorDashboard from "./pages/TutorDashboard"
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
             {/* Dashboards */}
             <Route path="/student-dashboard" element={<StudentDashboard />} />
             <Route path="/schedule-session" element={<ScheduleSession />} />
+            <Route path="/tutor-dashboard" element={<TutorDashboard/>} />
           </Routes>
         </main>
 

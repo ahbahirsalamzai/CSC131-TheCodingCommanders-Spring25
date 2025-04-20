@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,16 +18,16 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["student", "tutor"],
-      default: "student",
+      enum: ['student', 'tutor'],
+      default: 'student',
     },
     otp: {
       type: String, // for account activation/login
     },
     status: {
       type: String,
-      enum: ["pending", "active"],
-      default: "pending",
+      enum: ['pending', 'active'],
+      default: 'pending',
     },
     resetOtp: {
       type: String, // for forgot password flow
@@ -39,4 +39,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;

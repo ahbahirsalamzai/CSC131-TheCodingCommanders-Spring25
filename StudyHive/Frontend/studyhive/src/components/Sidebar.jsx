@@ -12,16 +12,16 @@ const Sidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="w-64 min-h-screen bg-neutral-200 pt-4 px-4 shadow-md flex flex-col justify-between">
+    <div className="w-64 min-h-screen bg-[#E3EAE0] mt-[180px] px-5 shadow-md flex flex-col justify-between">
       {/* Nav Section */}
-      <div className="space-y-6 mt-4">
+      <div className="space-y-6">
         <nav className="flex flex-col gap-4">
           <Link
             to="/student-dashboard"
             className={`flex items-center gap-3 px-3 py-2 rounded-md font-semibold text-base ${
               isActive("/student-dashboard")
-                ? "bg-green-900 text-white"
-                : "text-gray-500 hover:bg-gray-100"
+                ? "bg-green-800 text-white"
+                : "text-gray-500 hover:bg-[#1F4D39]"
             }`}
           >
             <FontAwesomeIcon icon={faDisplay} className="w-5 h-5" />
@@ -43,7 +43,7 @@ const Sidebar = () => {
       </div>
 
       {/* Logout Button */}
-      <div className="px-1 pb-4">
+      <div className="px-3 pb-4">
         <button
           onClick={() => {
             localStorage.removeItem("token");
