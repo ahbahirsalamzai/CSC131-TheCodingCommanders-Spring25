@@ -115,7 +115,9 @@ const ScheduleSession = () => {
 
   return (
     <div className="flex pt-20 bg-gray-100 min-h-screen">
-      <Sidebar />
+      <div className="w-64 mt-[-60px] ml-[-2%] bg-[#E3EAE0] shadow-md border-r hidden md:block">
+        <Sidebar />
+      </div>
       <div className="flex-1 p-6">
         <div className="flex justify-between mb-4">
           <h2 className="text-2xl font-bold">Schedule Sessions</h2>

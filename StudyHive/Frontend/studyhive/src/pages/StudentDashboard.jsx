@@ -30,7 +30,9 @@ const StudentDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 pt-20">
-      <Sidebar />
+      <div className="w-64 mt-[-60px] ml-[-2%] bg-[#E3EAE0] shadow-md border-r hidden md:block">
+        <Sidebar />
+      </div>
       <div className="flex-1 p-8 space-y-8">
         {/* Stat Cards */}
         <div className="grid grid-cols-2 gap-6">
