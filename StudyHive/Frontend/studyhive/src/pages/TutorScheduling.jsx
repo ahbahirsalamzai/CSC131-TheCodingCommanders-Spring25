@@ -6,24 +6,32 @@ import LoggOff from '../assets/logoff.png';
 import { useEffect } from 'react';
 import { gapi } from 'gapi-script';
 
-const CLIENT_ID = "YOUR_CLIENT_ID.apps.googleusercontent.com"; 
-const API_KEY = "YOUR_API_KEY"; 
+const CLIENT_ID = "256345888442-nkne9mq5sce57c9mn80g38hp5m2bm9dd.apps.googleusercontent.com"; 
+const API_KEY = "AIzaSyCDE4pb7q0WuXGzjjmDNkYtn4qS7I1xnrg"; 
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";
 
 export default function TutorScheduling(){
     const navigate = useNavigate();
 
 useEffect(() =>{
-    const initClient = () =>{
-        gapi.client.init({
-        apiKey: API_KEY,
-        clientId: CLIENT_ID,
-        scope: SCOPES,
-        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+    const initClient = async () =>{
+        try {
+            await gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            scope: SCOPES,
+            discoveryDocs:[
+                "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+            ],
         });
+        console.log("GAPI Client initialized.")
+    }catch(error){
+        console.error("GAPI init error:", error);
+    }
     };
     gapi.load("client:auth2", initClient)
-}, []);
+    }); 
+
 
 const handleCreateEvent = async ()=>{
     const event = {
