@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import "./App.css";
 
+
 // Components
 import Header from './components/Header';
 import Navbar from './components/Navbar';
@@ -20,6 +21,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
+import TutorScheduling from './pages/TutorScheduling';
+import LoggedOut from './pages/LoggedOut'; 
 
 function App() {
   return (
@@ -32,7 +35,7 @@ function App() {
         <Navbar />
 
         {/* Main Content */}
-        <main className="flex-grow container mx-auto p-4">
+        <main className="flex-grow container mx-auto p-4 relative">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/contact" element={<Contact />} />
@@ -44,6 +47,8 @@ function App() {
             <Route path="/payroll" element={<Payroll />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifySignUpOTP />} />
+            <Route path="/tutorscheduling" element={<TutorScheduling />} />
+            <Route path="/logged-out" element={<LoggedOut />} />
 
             {/* Forgot Password Flow */}
             <Route path="/otp" element={<OTPPage />} />
