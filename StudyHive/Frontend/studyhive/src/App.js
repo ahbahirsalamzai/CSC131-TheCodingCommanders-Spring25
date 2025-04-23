@@ -24,6 +24,7 @@ import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
 import ScheduleSession from './pages/ScheduleSession'; // Make sure this exists
 import TutorDashboard from './pages/TutorDashboard'; // Make sure this exists
+import AdminProfilePage from './pages/AdminProfilePage'; // Admin Profile page
 
 function App() {
   return (
@@ -56,6 +57,9 @@ function App() {
             <Route path="/student-dashboard" element={<StudentDashboard />} />
             <Route path="/schedule-session" element={<ScheduleSession />} />
             <Route path="/tutor-dashboard" element={<TutorDashboard />} />
+
+            {/* Admin profile page */}
+            <Route path="/admin-profile" element={<AdminProfilePage />} />  
           </Routes>
         </main>
 
