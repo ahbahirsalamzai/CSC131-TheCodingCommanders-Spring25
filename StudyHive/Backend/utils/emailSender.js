@@ -1,5 +1,4 @@
-// Backend/utils/emailSender.js
-const nodemailer = require("nodemailer");
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -27,4 +26,4 @@ async function sendOTPEmail(to, otp) {
   await transporter.sendMail(mailOptions);
 }
 
-module.exports = sendOTPEmail;
+export default sendOTPEmail;
