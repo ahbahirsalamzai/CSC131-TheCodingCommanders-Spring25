@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarAlt,
@@ -8,7 +8,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 function Sidebar() {
-  const navigate = useNavigate();
   const location = useLocation();
 
   const isTutor = location.pathname.includes("tutor");
@@ -30,12 +29,17 @@ function Sidebar() {
       },
       {
         icon: faCalendarAlt,
+<<<<<<< Updated upstream
         path: isTutor
           ? "/tutor-schedule-session"
           : isStudent
           ? "/student-schedule-session"
           : "/schedule-session",
         label: "Schedule Session",
+=======
+        path: isTutor ? "/tutor-schedule-session" : isStudent ? "/student-schedule-session" : "/schedule-session",  // Fixed the typo and updated path
+        label: "Schedule Session"
+>>>>>>> Stashed changes
       }
     );
   }

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+
 
 const AdminProfilePage = () => {
   const [personalInfo, setPersonalInfo] = useState({
