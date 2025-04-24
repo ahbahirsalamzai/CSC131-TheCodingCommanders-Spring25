@@ -5,18 +5,18 @@ import {
   faArrowLeft,
   faCalendarAlt,
   faSignOutAlt,
-  faListAlt,  // Admin Preview Icon
+  faListAlt,  
 } from "@fortawesome/free-solid-svg-icons";
 
 function Sidebar() {
   const location = useLocation();
 
-  // Determine the user's role based on the current path
+  
   const isTutor = location.pathname.includes("tutor");
   const isStudent = location.pathname.includes("student");
   const isAdmin = location.pathname.includes("admin");
 
-  // Define nav items based on user role (excluding Dashboard and Schedule for Admin)
+  
   const navItems = [];
 
   // Dashboard and Schedule Session for non-admins
@@ -39,7 +39,7 @@ function Sidebar() {
   const adminPreviewLink = "/admin-preview";
 
   return (
-    <div className="w-64 min-h-screen bg-[#E1EADF] px-5 shadow-md flex flex-col justify-between overflow-y-auto">
+    <div className="w-64 min-h-screen ml-[10%] mt-[40%] px-5 flex flex-col justify-between overflow-y-auto">
       <div className="space-y-6 flex-1">
         <nav className="flex flex-col gap-4">
           {/* Dashboard and Schedule links based on role */}
@@ -77,15 +77,6 @@ function Sidebar() {
         </nav>
       </div>
 
-      {/* Back Button */}
-      {location.pathname !== "/admin-preview" && (
-        <Link
-          to={-1} // Using the 'to' prop of Link to go back
-          className="w-10 h-10 bg-white rounded-md flex items-center justify-center mx-auto mt-4"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} className="text-[#697586] text-lg" />
-        </Link>
-      )}
 
       {/* Logout Button */}
       <div className="px-2 pb-4">

@@ -30,7 +30,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 pt-20">
-      <div className="w-64 mt-[-60px] ml-[-2%] bg-[#E3EAE0] shadow-md border-r hidden md:block">
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
         <Sidebar />
       </div>
       <div className="flex-1 p-8 space-y-8">

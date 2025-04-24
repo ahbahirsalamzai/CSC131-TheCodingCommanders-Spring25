@@ -1,99 +1,145 @@
-// src/pages/StudentSchedulePage.jsx
-import React from 'react';
+import React, { useState, useEffect } from "react";
+import { Calendar, momentLocalizer, Views } from "react-big-calendar";
+import moment from "moment";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import Sidebar from "../components/Sidebar";
+import api from "../services/api";
 
-const StudentSchedulePage = () => {
+const localizer = momentLocalizer(moment);
+
+const ScheduleSession = () => {
+  const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [studentName, setStudentName] = useState("");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState(Views.MONTH);
+
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await api.get("/sessions/availability");
+        const formatted = res.data.map((event) => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end),
+          title: event.bookedBy ? "Booked" : event.tutorName || "Available Session",
+        }));
+        setEvents(formatted);
+      } catch (err) {
+        console.error("❌ Failed to fetch availability:", err);
+      }
+    };
+    fetchAvailability();
+  }, []);
+
+  const handleBookSession = async () => {
+    if (!studentName) return alert("Please enter your name");
+    try {
+      await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName });
+      alert("✅ Session booked!");
+      setSelectedEvent(null);
+      window.location.reload();
+    } catch (err) {
+      alert("❌ Failed to book session");
+      console.error(err);
+    }
+  };
+
+  const handleUnbookSession = async () => {
+    try {
+      await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName: "" });
+      alert("Session unbooked!");
+      setSelectedEvent(null);
+      window.location.reload();
+    } catch (err) {
+      alert("Failed to unbook session");
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-50 pt-20">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="flex pt-20 bg-gray-100 min-h-screen">
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
+        <Sidebar />
+      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 px-10 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-semibold text-neutral-800">Schedule a Session</h1>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-800">John Doe</p>
-            <p className="text-sm text-gray-500">johndoe@example.com</p>
-          </div>
-        </div>
+      <div className="flex-1 p-6">
+        <h2 className="text-2xl font-bold mb-4">Available Sessions</h2>
 
-        {/* Dropdowns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <select className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full">
-            <option>Choose Available Tutor ...</option>
-          </select>
-          <select className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full">
-            <option>Choose your prefer subject ...</option>
-          </select>
-        </div>
+        <Calendar
+          selectable={false}
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          date={currentDate}
+          view={currentView}
+          onNavigate={(date) => setCurrentDate(date)}
+          onView={(view) => setCurrentView(view)}
+          views={{ month: true, week: true, day: true, agenda: true }}
+          style={{ height: 600 }}
+          onSelectEvent={(event) => setSelectedEvent(event)}
+          popup
+          eventPropGetter={(event) => ({
+            style: {
+              backgroundColor: event.bookedBy ? "#fcd9b6" : "#c3f7ca",
+              color: "#333",
+              borderRadius: "6px",
+              padding: "4px 6px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+              transition: "transform 0.2s ease",
+            },
+            className: "hover:scale-[1.02] cursor-pointer",
+          })}
+        />
 
-        {/* Date & Time Availability */}
-        <div className="bg-white border rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-semibold text-neutral-800 mb-1">Date & Time Availability</h2>
-          <p className="text-sm text-gray-500 mb-4">Select the day & time that a tutor is available</p>
+        {selectedEvent && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40 transition-all">
+            <div className="bg-white p-6 rounded-2xl shadow-xl w-[300px] animate-fade-in">
+              <h3 className="text-xl font-semibold mb-4">Session Details</h3>
+              <p><strong>Tutor:</strong> {selectedEvent.tutorName}</p>
+              <p><strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}</p>
+              <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
+              <p><strong>Subject:</strong> {selectedEvent.subject || "None"}</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6">
-            {/* Calendar (placeholder) */}
-            <div>
-              <div className="grid grid-cols-7 text-center gap-2 text-sm font-medium text-gray-600 mb-2">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-                  <div key={d}>{d}</div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-2">
-                {Array.from({ length: 31 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full cursor-pointer text-sm hover:bg-green-100 ${i === 12 ? 'bg-black text-white font-semibold' : 'bg-gray-100'}`}
+              {!selectedEvent.bookedBy && (
+                <>
+                  <input
+                    placeholder="Your name"
+                    className="w-full border p-2 mb-3 mt-3 rounded focus:ring focus:ring-blue-300"
+                    value={studentName}
+                    onChange={(e) => setStudentName(e.target.value)}
+                  />
+                  <button
+                    onClick={handleBookSession}
+                    className="w-full py-2 mb-2 bg-blue-700 hover:bg-blue-800 text-white rounded transition-transform transform hover:scale-105"
                   >
-                    {i + 1}
-                  </div>
-                ))}
-              </div>
-            </div>
+                    Book Session
+                  </button>
+                </>
+              )}
 
-            {/* Time Slots */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {[
-                '9:00 am to 10:00 am',
-                '10:15 am to 11:15 am',
-                '11:30 am to 12:30 pm',
-                '12:45 pm to 1:45 pm',
-                '05:00 pm to 06:00 pm',
-                '06:15 pm to 07:15 pm',
-                '07:30 pm to 08:30 pm',
-                '08:45 am to 9:45 pm',
-              ].map((time, idx) => (
+              {selectedEvent.bookedBy && (
                 <button
-                  key={idx}
-                  className="px-3 py-2 border border-green-700 text-green-700 rounded-lg hover:bg-green-50"
+                  onClick={handleUnbookSession}
+                  className="w-full py-2 mb-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-transform transform hover:scale-105"
                 >
-                  {time}
+                  Cancel My Booking
                 </button>
-              ))}
+              )}
+
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="w-full mt-2 py-2 bg-gray-300 hover:bg-gray-400 rounded transition-transform transform hover:scale-105"
+              >
+                Close
+              </button>
             </div>
           </div>
-        </div>
-
-        {/* Message + Submit */}
-        <div className="bg-white border rounded-xl p-6">
-          <label className="block mb-2 text-sm text-gray-700">Message</label>
-          <textarea className="w-full border rounded-lg p-3 h-28 mb-4" placeholder="Enter message"></textarea>
-
-          <div className="flex justify-end gap-4">
-            <button className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100">
-              Cancel
-            </button>
-            <button className="px-6 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800">
-              Submit
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default StudentSchedulePage;
+export default ScheduleSession;

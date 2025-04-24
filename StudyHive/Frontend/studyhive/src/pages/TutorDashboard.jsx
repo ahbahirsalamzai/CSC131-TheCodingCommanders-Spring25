@@ -49,7 +49,7 @@ const TutorDashboard = () => {
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
       {/* Sidebar */}
-      <div className="w-64 ml-[-2%] bg-[#E3EAE0] shadow-md border-r hidden md:block">
+      <div className="w-80 min-h-screen ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
         <Sidebar />
       </div>
 
