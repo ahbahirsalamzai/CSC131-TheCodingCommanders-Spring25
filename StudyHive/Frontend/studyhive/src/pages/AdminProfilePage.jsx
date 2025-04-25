@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar"; // Keep Sidebar component
+import React, { useState, useEffect } from "react";
+import Sidebar from "../components/Sidebar";
 import axios from "axios";
 
 const AdminProfilePage = () => {
@@ -15,6 +15,22 @@ const AdminProfilePage = () => {
     newPassword: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    // This effect can be used to fetch user data (personal information) if needed
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get("/api/users/me", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setPersonalInfo(response.data);  // assuming the response structure matches
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,16 +68,18 @@ const AdminProfilePage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 pt-20">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="flex pt-20 bg-gray-100 min-h-screen">
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
+        <Sidebar />
+      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 px-10 py-8">
+      <div className="flex-1 p-6">
+        <h2 className="text-2xl font-bold mb-4">Admin Profile</h2>
+
         <div className="space-y-6">
           {/* Personal Info Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-semibold text-neutral-800 mb-4">Personal Info</h2>
+            <h3 className="text-lg font-semibold text-neutral-800 mb-4">Personal Info</h3>
             <p className="text-sm text-gray-500 mb-4">Update your personal details</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -130,7 +148,7 @@ const AdminProfilePage = () => {
 
           {/* Password Update Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-semibold text-neutral-800 mb-4">Password</h2>
+            <h3 className="text-lg font-semibold text-neutral-800 mb-4">Password</h3>
             <p className="text-sm text-gray-500 mb-4">Update your password</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
