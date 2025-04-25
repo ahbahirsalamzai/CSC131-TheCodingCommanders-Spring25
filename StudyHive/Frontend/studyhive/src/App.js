@@ -1,4 +1,3 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
@@ -22,8 +21,10 @@ import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
-import ScheduleSession from './pages/ScheduleSession';
-import TutorDashboard from './pages/TutorDashboard';
+import ScheduleSession from './pages/ScheduleSession'; 
+import TutorDashboard from './pages/TutorDashboard'; 
+import StudentSchedulePage from './pages/StudentSchedulePage'; 
+
 
 function App() {
   return (
@@ -54,8 +55,13 @@ function App() {
 
             {/* Dashboards & Scheduling */}
             <Route path="/student-dashboard" element={<StudentDashboard />} />
-            <Route path="/schedule-session" element={<ScheduleSession />} />
             <Route path="/tutor-dashboard" element={<TutorDashboard />} />
+            <Route path="/tutor-schedule-session" element={<ScheduleSession />} />
+
+            {/* Student schedule session */}
+            <Route path="/student-schedule-session" element={<StudentSchedulePage />} />
+
+            <Route path="/schedule-session" element={<ScheduleSession />} />
           </Routes>
         </main>
 

@@ -12,14 +12,14 @@ const ScheduleSession = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState(Views.MONTH);
   const [formData, setFormData] = useState({
     tutorName: "",
     startTime: "",
     endTime: "",
     subject: "",
   });
-  const [viewMode, setViewMode] = useState("tutor");
-  const [studentName, setStudentName] = useState("");
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -40,10 +40,8 @@ const ScheduleSession = () => {
   }, []);
 
   const handleSelectSlot = ({ start }) => {
-    if (viewMode === "tutor") {
-      setSelectedDate(start);
-      setModalOpen(true);
-    }
+    setSelectedDate(start);
+    setModalOpen(true);
   };
 
   const handleChange = (e) => {
@@ -51,20 +49,21 @@ const ScheduleSession = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.tutorName || !formData.startTime || !formData.endTime) {
+    const { tutorName, startTime, endTime, subject } = formData;
+    if (!tutorName || !startTime || !endTime) {
       alert("Please complete all fields");
       return;
     }
 
-    const startDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${formData.startTime}`);
-    const endDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${formData.endTime}`);
+    const startDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${startTime}`);
+    const endDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${endTime}`);
 
     try {
       await api.post("/sessions/availability", {
-        tutorName: formData.tutorName,
+        tutorName,
         start: startDateTime,
         end: endDateTime,
-        subject: formData.subject,
+        subject,
       });
       alert("✅ Availability posted!");
       setModalOpen(false);
@@ -72,31 +71,6 @@ const ScheduleSession = () => {
       window.location.reload();
     } catch (err) {
       alert("❌ Failed to post availability");
-      console.error(err);
-    }
-  };
-
-  const handleBookSession = async () => {
-    if (!studentName) return alert("Please enter your name");
-    try {
-      await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName });
-      alert("✅ Session booked!");
-      setSelectedEvent(null);
-      window.location.reload();
-    } catch (err) {
-      alert("❌ Failed to book session");
-      console.error(err);
-    }
-  };
-
-  const handleUnbookSession = async () => {
-    try {
-      await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName: "" });
-      alert("Session unbooked!");
-      setSelectedEvent(null);
-      window.location.reload();
-    } catch (err) {
-      alert("Failed to unbook session");
       console.error(err);
     }
   };
@@ -115,69 +89,84 @@ const ScheduleSession = () => {
 
   return (
     <div className="flex pt-20 bg-gray-100 min-h-screen">
-      <div className="w-64 mt-[-60px] ml-[-2%] bg-[#E3EAE0] shadow-md border-r hidden md:block">
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
         <Sidebar />
       </div>
+
       <div className="flex-1 p-6">
-        <div className="flex justify-between mb-4">
-          <h2 className="text-2xl font-bold">Schedule Sessions</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode("tutor")}
-              className={`px-4 py-1 rounded ${viewMode === "tutor" ? "bg-blue-700 text-white" : "bg-gray-300"}`}
-            >Tutor View</button>
-            <button
-              onClick={() => setViewMode("student")}
-              className={`px-4 py-1 rounded ${viewMode === "student" ? "bg-green-600 text-white" : "bg-gray-300"}`}
-            >Student View</button>
-          </div>
-        </div>
+        <h2 className="text-2xl font-bold mb-4">Schedule Sessions</h2>
 
         <Calendar
-          selectable={viewMode === "tutor"}
+          selectable
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
+          date={currentDate}
+          view={currentView}
+          onNavigate={(date) => setCurrentDate(date)}
+          onView={(view) => setCurrentView(view)}
           defaultView={Views.MONTH}
           views={{ month: true, week: true, day: true, agenda: true }}
           style={{ height: 600 }}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={(event) => setSelectedEvent(event)}
           popup
-          eventPropGetter={(event) => {
-            if (event.bookedBy) {
-              return {
-                style: {
-                  backgroundColor: "#fcd9b6",
-                  color: "#333",
-                  borderRadius: "6px",
-                  padding: "2px 4px",
-                },
-              };
-            }
-            return {
-              style: {
-                backgroundColor: "#c3f7ca",
-                color: "#333",
-                borderRadius: "6px",
-                padding: "2px 4px",
-              },
-            };
-          }}
+          eventPropGetter={(event) => ({
+            style: {
+              backgroundColor: event.bookedBy ? "#fcd9b6" : "#c3f7ca",
+              color: "#333",
+              borderRadius: "6px",
+              padding: "2px 4px",
+            },
+          })}
         />
 
         {modalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
             <div className="bg-white p-6 rounded-md shadow-lg z-50 w-[300px]">
               <h3 className="text-xl font-semibold mb-4">Post Availability</h3>
-              <input name="tutorName" placeholder="Your name" className="w-full border p-2 mb-2 rounded" value={formData.tutorName} onChange={handleChange} />
-              <input type="time" name="startTime" className="w-full border p-2 mb-2 rounded" value={formData.startTime} onChange={handleChange} />
-              <input type="time" name="endTime" className="w-full border p-2 mb-2 rounded" value={formData.endTime} onChange={handleChange} />
-              <textarea name="subject" placeholder="Subject" className="w-full border p-2 mb-3 rounded" value={formData.subject} onChange={handleChange} />
+              <input
+                name="tutorName"
+                placeholder="Your name"
+                className="w-full border p-2 mb-2 rounded"
+                value={formData.tutorName}
+                onChange={handleChange}
+              />
+              <input
+                type="time"
+                name="startTime"
+                className="w-full border p-2 mb-2 rounded"
+                value={formData.startTime}
+                onChange={handleChange}
+              />
+              <input
+                type="time"
+                name="endTime"
+                className="w-full border p-2 mb-2 rounded"
+                value={formData.endTime}
+                onChange={handleChange}
+              />
+              <textarea
+                name="subject"
+                placeholder="Subject"
+                className="w-full border p-2 mb-3 rounded"
+                value={formData.subject}
+                onChange={handleChange}
+              />
               <div className="flex justify-end gap-2">
-                <button onClick={() => setModalOpen(false)} className="px-3 py-1 bg-gray-300 rounded">Cancel</button>
-                <button onClick={handleSubmit} className="px-3 py-1 bg-green-700 text-white rounded">Save</button>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="px-3 py-1 bg-gray-300 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-3 py-1 bg-green-700 text-white rounded"
+                >
+                  Save
+                </button>
               </div>
             </div>
           </div>
@@ -192,27 +181,18 @@ const ScheduleSession = () => {
               <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
               <p><strong>Subject:</strong> {selectedEvent.subject || "None"}</p>
 
-              {viewMode === "student" && !selectedEvent.bookedBy && (
-                <>
-                  <input
-                    placeholder="Your name"
-                    className="w-full border p-2 mb-3 mt-3 rounded"
-                    value={studentName}
-                    onChange={(e) => setStudentName(e.target.value)}
-                  />
-                  <button onClick={handleBookSession} className="w-full py-2 mb-2 bg-blue-700 text-white rounded">Book Session</button>
-                </>
-              )}
-
-              {viewMode === "student" && selectedEvent.bookedBy && (
-                <button onClick={handleUnbookSession} className="w-full py-2 mb-2 bg-orange-600 text-white rounded">Cancel My Booking</button>
-              )}
-
-              {viewMode === "tutor" && (
-                <button onClick={handleCancelSession} className="w-full py-2 mb-2 bg-red-600 text-white rounded">Delete Session</button>
-              )}
-
-              <button onClick={() => setSelectedEvent(null)} className="w-full mt-2 py-2 bg-gray-300 rounded">Close</button>
+              <button
+                onClick={handleCancelSession}
+                className="w-full py-2 mb-2 bg-red-600 text-white rounded"
+              >
+                Delete Session
+              </button>
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="w-full mt-2 py-2 bg-gray-300 rounded"
+              >
+                Close
+              </button>
             </div>
           </div>
         )}

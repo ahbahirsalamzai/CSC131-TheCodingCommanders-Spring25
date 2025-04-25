@@ -1,64 +1,23 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
-
-// Function to handle smooth scrolling to sections
-const scrollToSection = (id) => {
-  const element = document.getElementById(id);
-  if (element) {
-    const offset = 80;
-    const bodyRect = document.body.getBoundingClientRect().top;
-    const elementRect = element.getBoundingClientRect().top;
-    const elementPosition = elementRect - bodyRect;
-    const offsetPosition = elementPosition - offset;
-
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: "smooth",
-    });
-  }
-};
-
-// Array of navigation links with styling and target IDs
-const navLinks = [
-  {
-    href: "/#home",
-    label: "Home",
-    targetId: "home",
-    className:
-      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
-  },
-  {
-    href: "/#about-us",
-    label: "About Us",
-    targetId: "about",
-    className:
-      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
-  },
-  {
-    href: "/#faq",
-    label: "FAQs",
-    targetId: "faq",
-    className:
-      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
-  },
-  {
-    href: "/#footer",
-    label: "Contact Us",
-    targetId: "footer",
-    className:
-      "text-xl sm:text-lg hover:text-[#1F4D39] transition duration-300 transform hover:scale-110",
-  },
-];
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Effect to handle scroll behavior
+  const navLinks = [
+    { href: "/#home", label: "Home", targetId: "home" },
+    { href: "/#about-us", label: "About Us", targetId: "about" },
+    { href: "/#faq", label: "FAQs", targetId: "faq" },
+    { href: "/#footer", label: "Contact Us", targetId: "footer" },
+  ];
+
   useEffect(() => {
     let lastScrollTop = 0;
     const handleScroll = () => {
@@ -72,97 +31,153 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Function to handle Home link and logo click
-  const handleHomeClick = (e) => {
-    e.preventDefault();
-    if (location.pathname !== "/") navigate("/");
-    setTimeout(() => scrollToSection("home"), 100);
-  };
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    } else {
+      setUser(null);
+    }
+  }, [location]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setUser(null);
+    navigate("/login");
+  };
+
+  const handleProfileClick = () => {
+    navigate("/profile");
+  };
+
+  const handleDashboardClick = () => {
+    if (user?.role === "student") {
+      navigate("/student-dashboard");
+    } else if (user?.role === "tutor") {
+      navigate("/tutor-dashboard");
+    } else {
+      navigate("/profile");
+    }
+  };
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
 
   return (
     <nav
       className={`bg-white w-full fixed ${
         headerVisible ? "top-9" : "top-0"
-      } z-[999] transition-all duration-300 ${
-        isScrolled ? "shadow-lg" : "shadow"
-      }`}
+      } z-[999] transition-all duration-300 ${isScrolled ? "shadow-lg" : "shadow"}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
-        {/* Logo Section */}
+        {/* Logo */}
         <div className="flex items-center -ml-8">
-          <a
-            href="/"
-            onClick={handleHomeClick}
-            className="flex items-center cursor-pointer group"
-          >
-            <div className="relative">
-              <img
-                src={logo}
-                alt="Logo"
-                className="h-8 w-15 ml-5 transition-transform duration-300 transform group-hover:rotate-12"
-              />
-            </div>
+          <Link to="/" className="flex items-center group">
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-8 w-15 ml-5 transition-transform duration-300 transform group-hover:rotate-12"
+            />
             <span className="font-bold text-4xl ml-2 transition-all duration-300 transform group-hover:scale-105">
               Study<span className="text-[#1F4D39]">Hive</span>
             </span>
-          </a>
-        </div>
-
-        {/* Desktop Navigation Links */}
-        <div className="hidden lg:flex lg:items-center lg:space-x-6 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] opacity-100 scale-100">
-          {navLinks.map((link, index) => (
-            <a
-              key={index}
-              href={link.href}
-              onClick={(e) => {
-                e.preventDefault();
-                if (location.pathname !== "/") navigate("/");
-                setTimeout(() => scrollToSection(link.targetId), 100);
-              }}
-              className="text-lg hover:text-[#1F4D39] transition duration-200"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-
-        {/* Desktop Auth Buttons */}
-        <div className="hidden lg:flex space-x-4 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] opacity-100 scale-100">
-          <Link
-            to="/signup"
-            className="border px-4 py-2 rounded-lg transition-colors"
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/login"
-            className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition-colors"
-          >
-            Login
           </Link>
         </div>
 
-        {/* Hamburger Button */}
-        <div
-          className={`lg:hidden z-[999] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] transform ${
-            isMenuOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-100"
-          }`}
-        >
+{/* Middle Section */}
+<div className="hidden lg:flex lg:items-center lg:space-x-6">
+  {!user ? (
+    navLinks.map((link, idx) => (
+      <a
+        key={idx}
+        href={link.href}
+        onClick={(e) => {
+          e.preventDefault();
+          if (location.pathname !== "/") navigate("/");
+          setTimeout(() => scrollToSection(link.targetId), 100);
+        }}
+        className="text-lg hover:text-[#1F4D39] transition duration-200"
+      >
+        {link.label}
+      </a>
+    ))
+  ) : (
+    <button
+      onClick={handleDashboardClick}
+      className="text-lg hover:text-[#1F4D39] transition duration-200"
+    >
+      Dashboard
+    </button>
+  )}
+</div>
+
+
+{/* Right Section */}
+<div className="hidden lg:flex lg:items-center space-x-4">
+{user ? (
+  <>
+    <div
+      className="flex flex-col items-end text-black mr-4 cursor-pointer"
+      onClick={handleProfileClick}
+    >
+      <span className="text-sm">{user.email}</span>
+    </div>
+    <button
+      onClick={handleLogout}
+      className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
+    >
+      Logout
+    </button>
+    </>
+  ) : (
+    <>
+      <Link
+        to="/signup"
+        className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+      >
+        Sign Up
+      </Link>
+      <Link
+        to="/login"
+        className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
+      >
+        Login
+      </Link>
+    </>
+  )}
+</div>
+
+
+        {/* Mobile Hamburger */}
+        <div className="lg:hidden z-[999]">
           <button onClick={toggleMenu} className="relative w-8 h-8 focus:outline-none">
             <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${
                 isMenuOpen ? "rotate-45 top-3.5" : "top-2"
               }`}
             />
             <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] ${
                 isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"
               }`}
             />
             <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${
                 isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"
               }`}
             />
@@ -171,44 +186,53 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div
-        className={`fixed top-0 left-0 w-full h-screen bg-white/95 backdrop-blur-md flex flex-col items-center justify-center space-y-6 z-[998] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-          isMenuOpen
-            ? "translate-x-0 opacity-100"
-            : "-translate-x-full opacity-0 pointer-events-none"
-        }`}
-      >
-        {navLinks.map((link, index) => (
-          <a
-            key={index}
-            href={link.href}
-            onClick={(e) => {
-              e.preventDefault();
-              if (location.pathname !== "/") navigate("/");
-              setTimeout(() => scrollToSection(link.targetId), 100);
-              setIsMenuOpen(false);
-            }}
-            className="text-2xl font-medium hover:text-[#1F4D39] transition-transform duration-300 transform hover:scale-105"
-          >
-            {link.label}
-          </a>
-        ))}
-
-        <Link
-          to="/signup"
-          className="border px-6 py-2 rounded-lg"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Sign Up
-        </Link>
-        <Link
-          to="/login"
-          className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a]"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Login
-        </Link>
-      </div>
+      {isMenuOpen && (
+        <div className="lg:hidden flex flex-col items-center bg-white py-6 space-y-4">
+          {!user ? (
+            <>
+              {navLinks.map((link, idx) => (
+                <a
+                  key={idx}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (location.pathname !== "/") navigate("/");
+                    setTimeout(() => scrollToSection(link.targetId), 100);
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-xl font-medium hover:text-[#1F4D39]"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <Link to="/signup" className="border px-6 py-2 rounded-lg">Sign Up</Link>
+              <Link to="/login" className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition">Login</Link>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleDashboardClick}
+                className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition"
+              >
+                Dashboard
+              </button>
+              <div
+                className="flex flex-col items-center text-black cursor-pointer"
+                onClick={handleProfileClick}
+              >
+                <span className="font-bold text-lg">{user.firstName} {user.lastName}</span>
+                <span className="text-sm">{user.email}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition"
+              >
+                Logout
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

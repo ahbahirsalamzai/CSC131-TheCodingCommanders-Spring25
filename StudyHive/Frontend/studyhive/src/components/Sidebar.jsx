@@ -1,78 +1,98 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faCalendarDays,
-  faDoorOpen,
-  faDisplay,
+  faArrowLeft,
+  faCalendarAlt,
+  faSignOutAlt,
+  faListAlt,  
 } from "@fortawesome/free-solid-svg-icons";
 
-const Sidebar = () => {
+function Sidebar() {
   const location = useLocation();
-  const isActive = (path) => location.pathname === path;
 
+  
   const isTutor = location.pathname.includes("tutor");
   const isStudent = location.pathname.includes("student");
   const isAdmin = location.pathname.includes("admin");
 
-  const dashboardLink = isTutor
-    ? "/tutor-dashboard"
-    : isStudent
-    ? "/student-dashboard"
-    : "/admin-dashboard";
+  
+  const navItems = [];
 
-  const scheduleLink = isTutor
-    ? "/tutor-schedule-session"
-    : "/schedule-session";
+  // Dashboard and Schedule Session for non-admins
+  if (!isAdmin) {
+    navItems.push(
+      {
+        icon: faListAlt,
+        path: isTutor ? "/tutor-dashboard" : isStudent ? "/student-dashboard" : "/admin-dashboard",
+        label: "Dashboard"
+      },
+      {
+        icon: faCalendarAlt,
+        path: isTutor ? "/tutor-schedule-session" : isStudent ? "/student-schedule-session" : "/schedule-session",  // Fixed the typo and updated path
+        label: "Schedule Session"
+      }
+    );
+  }
+
+  // Admin Preview only for admins
+  const adminPreviewLink = "/admin-preview";
 
   return (
-    <div className="w-64 min-h-screen bg-[#E3EAE0] mt-[180px] px-5 shadow-md flex flex-col justify-between">
-      {/* Nav Section */}
-      <div className="space-y-6">
+    <div className="w-64 min-h-screen ml-[10%] mt-[40%] px-5 flex flex-col justify-between overflow-y-auto">
+      <div className="space-y-6 flex-1">
         <nav className="flex flex-col gap-4">
-          <Link
-            to={dashboardLink}
-            className={`flex items-center gap-3 px-3 py-2 rounded-md font-semibold text-base ${
-              isActive(dashboardLink)
-                ? "bg-green-800 text-white"
-                : "text-gray-500 hover:bg-[#1F4D39]"
-            }`}
-          >
-            <FontAwesomeIcon icon={faDisplay} className="w-5 h-5" />
-            Dashboard
-          </Link>
+          {/* Dashboard and Schedule links based on role */}
+          {navItems.map((item, index) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={index}
+                to={item.path}
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-colors duration-200 ${
+                  isActive ? "bg-[#1F4D39] text-white" : "bg-white text-[#697586] hover:bg-[#1F4D39]"
+                }`}
+              >
+                <FontAwesomeIcon icon={item.icon} className="text-lg" />
+                <span className="text-[16px] font-[400] leading-6">{item.label}</span>
+              </Link>
+            );
+          })}
 
-          {(!isAdmin && (isTutor || isStudent)) && (
+          {/* Show Admin Preview link only for Admin */}
+          {isAdmin && (
             <Link
-              to={scheduleLink}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md font-semibold text-base ${
-                isActive(scheduleLink)
-                  ? "bg-green-900 text-white"
-                  : "text-gray-500 hover:bg-gray-100"
+              to={adminPreviewLink}
+              className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-colors duration-200 ${
+                location.pathname === adminPreviewLink
+                  ? "bg-[#1F4D39] text-white"
+                  : "bg-white text-[#697586] hover:bg-[#1F4D39]"
               }`}
+              style={{ marginTop: "20px" }} // Added margin to space it from other links
             >
-              <FontAwesomeIcon icon={faCalendarDays} className="w-5 h-5" />
-              Schedule Session
+              <FontAwesomeIcon icon={faListAlt} className="text-lg" />
+              <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
             </Link>
           )}
         </nav>
       </div>
 
+
       {/* Logout Button */}
-      <div className="px-3 pb-4">
-        <button
+      <div className="px-2 pb-4">
+        <Link
+          to="/login"
           onClick={() => {
-            localStorage.removeItem("token");
-            window.location.href = "/login";
+            localStorage.clear();
           }}
-          className="w-full flex items-center gap-3 justify-start px-3 py-2 bg-white rounded-md text-gray-400 text-base font-normal hover:shadow-md"
+          className="w-full flex items-center gap-3 justify-start px-4 py-2 bg-white rounded-md text-[#9AA4B2] text-base font-normal hover:shadow-md"
         >
-          <FontAwesomeIcon icon={faDoorOpen} className="w-5 h-5" />
-          Logout
-        </button>
+          <FontAwesomeIcon icon={faSignOutAlt} className="text-lg" />
+          <span className="text-[16px] font-[400] leading-6">Logout</span>
+        </Link>
       </div>
     </div>
   );
-};
+}
 
 export default Sidebar;

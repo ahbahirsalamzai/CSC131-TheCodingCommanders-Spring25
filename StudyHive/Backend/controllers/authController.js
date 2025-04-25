@@ -111,11 +111,18 @@ export const login = async (req, res) => {
       expiresIn: "1d",
     });
 
+    // If account is still pending, re-send OTP but don't crash if email fails
     if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
       await user.save();
-      await sendOTPEmail(normalizedEmail, otp);
+
+      try {
+        await sendOTPEmail(normalizedEmail, otp);
+      } catch (emailErr) {
+        console.error("❌ Failed to send OTP email during login:", emailErr.message);
+        return res.status(500).json({ message: "Login successful, but OTP email failed to send." });
+      }
     }
 
     res.status(200).json({
@@ -123,6 +130,10 @@ export const login = async (req, res) => {
       status: user.status,
       username: user.username,
       userId: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
     });
   } catch (err) {
     console.error("Login error:", err);
