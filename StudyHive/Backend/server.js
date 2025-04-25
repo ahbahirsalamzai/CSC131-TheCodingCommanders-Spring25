@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 
 dotenv.config();
+console.log("EMAIL CONFIG:", process.env.EMAIL_HOST, process.env.EMAIL_PORT);// added new line
 
 const app = express();
 const PORT = process.env.PORT || 3001;

@@ -21,8 +21,20 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'tutor'],
       default: 'student',
     },
+    phone: {
+      type: String,
+    },
+    dob: {
+      type: Date,
+    },
+    subjects: {
+      type: [String], // an array of subjects
+    },
+    philosophy: {
+      type: String,
+    },
     otp: {
-      type: String, // for account activation/login
+      type: String,
     },
     status: {
       type: String,
@@ -30,10 +42,10 @@ const userSchema = new mongoose.Schema(
       default: 'pending',
     },
     resetOtp: {
-      type: String, // for forgot password flow
+      type: String,
     },
     otpExpiry: {
-      type: Date, // when reset OTP expires
+      type: Date,
     },
   },
   { timestamps: true }
