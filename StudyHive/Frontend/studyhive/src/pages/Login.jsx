@@ -59,21 +59,37 @@ export default function Login() {
         const res = await login(formData);
 
         if (res.token) {
+          // ✅ Save token
           localStorage.setItem("token", res.token);
-          localStorage.setItem("otp_email", formData.email);
+
+          // ✅ Save full user info to localStorage so Navbar can read it
+          const userObject = {
+            email: res.email,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            role: res.role,
+          };
+          localStorage.setItem("user", JSON.stringify(userObject));
 
           toast.success("Login successful!", {
             position: "top-center",
-            autoClose: 2000,
+            autoClose: 1500,
           });
 
           setTimeout(() => {
             if (res.status === "pending") {
+              localStorage.setItem("otp_email", formData.email);
               navigate("/verify-otp");
             } else {
-              navigate("/profile");
+              if (res.role === "student") {
+                navigate("/student-dashboard");
+              } else if (res.role === "tutor") {
+                navigate("/tutor-dashboard");
+              } else {
+                navigate("/profile");
+              }
             }
-          }, 2000);
+          }, 1500);
         }
       } catch (err) {
         setErrorMessage(err.message);
@@ -125,14 +141,10 @@ export default function Login() {
                 value={formData.email}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
-                aria-invalid={!!errors.email}
-                aria-describedby="email-error"
                 required
               />
               {errors.email && (
-                <p id="email-error" className="text-red-500 text-sm mt-1">
-                  {errors.email}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
               )}
             </div>
 
@@ -149,8 +161,6 @@ export default function Login() {
                 value={formData.password}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3.5 bg-white rounded-lg border border-[#e0e0e0] text-black"
-                aria-invalid={!!errors.password}
-                aria-describedby="password-error"
                 required
               />
               <button
@@ -161,9 +171,7 @@ export default function Login() {
                 {showPassword ? "Hide" : "Show"}
               </button>
               {errors.password && (
-                <p id="password-error" className="text-red-500 text-sm mt-1">
-                  {errors.password}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}
             </div>
 
@@ -185,10 +193,7 @@ export default function Login() {
               type="submit"
               className="w-full px-[30px] py-4 mb-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
               disabled={
-                !!errors.email ||
-                !!errors.password ||
-                !formData.email ||
-                !formData.password
+                !!errors.email || !!errors.password || !formData.email || !formData.password
               }
             >
               Sign In

@@ -1,12 +1,12 @@
 // src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
 
 // Components
-import Header from './components/Header';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import Header from "./components/Header";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 // Pages
 import Home from './pages/Home';
@@ -22,8 +22,11 @@ import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
-import ScheduleSession from './pages/ScheduleSession'; // Make sure this exists
-import StudentProfilePage from './pages/StudentProfile'; // student profile 
+import ScheduleSession from './pages/ScheduleSession';
+import StudentSchedulePage from './pages/StudentSchedulePage';
+import TutorDashboard from './pages/TutorDashboard';
+import TutorProfilePage from './pages/TutorProfilePage'
+import StudentProfilePage from './pages/StudentProfile';
 
 function App() {
   return (
@@ -38,6 +41,7 @@ function App() {
         {/* Main Content */}
         <main className="flex-grow container mx-auto p-4">
           <Routes>
+            {/* Core Pages */}
             <Route path="/" element={<Home />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
@@ -51,12 +55,16 @@ function App() {
             <Route path="/otp" element={<OTPPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Dashboards */}
+            {/* Dashboards & Scheduling */}
             <Route path="/student-dashboard" element={<StudentDashboard />} />
+            <Route path="/tutor-dashboard" element={<TutorDashboard />} />
+            <Route path="/tutor-schedule-session" element={<ScheduleSession />} />
+            <Route path="/student-schedule-session" element={<StudentSchedulePage />} />
             <Route path="/schedule-session" element={<ScheduleSession />} />
 
-            {/*student and tutore profile */}
+            {/* Profiles */}
             <Route path="/student-profile" element={<StudentProfilePage />} />
+            <Route path="/tutor-profile" element={<TutorProfilePage />} />
           </Routes>
         </main>
 

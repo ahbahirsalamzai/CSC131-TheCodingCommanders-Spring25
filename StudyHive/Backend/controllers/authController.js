@@ -1,12 +1,11 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const sendOTPEmail = require('../utils/emailSender');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import sendOTPEmail from '../utils/emailSender.js';
 
-// ---------------------------
-// Sign Up
-// ---------------------------
-exports.signup = async (req, res) => {
+
+
+export const signup = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
     const normalizedEmail = email.toLowerCase();
@@ -40,10 +39,8 @@ exports.signup = async (req, res) => {
   }
 };
 
-// ---------------------------
-// Verify SignUp OTP
-// ---------------------------
-exports.verifyOTP = async (req, res) => {
+
+export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
@@ -72,7 +69,7 @@ exports.verifyOTP = async (req, res) => {
 // ---------------------------
 // Send SignUp/Login OTP
 // ---------------------------
-exports.sendOTP = async (req, res) => {
+export const sendOTP = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -94,7 +91,7 @@ exports.sendOTP = async (req, res) => {
 // ---------------------------
 // Login
 // ---------------------------
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -114,12 +111,18 @@ exports.login = async (req, res) => {
       expiresIn: "1d",
     });
 
-    // If user is pending, send OTP
+    // If account is still pending, re-send OTP but don't crash if email fails
     if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
       await user.save();
-      await sendOTPEmail(normalizedEmail, otp);
+
+      try {
+        await sendOTPEmail(normalizedEmail, otp);
+      } catch (emailErr) {
+        console.error("❌ Failed to send OTP email during login:", emailErr.message);
+        return res.status(500).json({ message: "Login successful, but OTP email failed to send." });
+      }
     }
 
     res.status(200).json({
@@ -127,6 +130,10 @@ exports.login = async (req, res) => {
       status: user.status,
       username: user.username,
       userId: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -137,7 +144,7 @@ exports.login = async (req, res) => {
 // ---------------------------
 // Forgot Password - Send OTP
 // ---------------------------
-exports.forgotPassword = async (req, res) => {
+export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -150,11 +157,10 @@ exports.forgotPassword = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetOtp = otp;
-    user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+    user.otpExpiry = Date.now() + 10 * 60 * 1000;
 
     console.log("Generated OTP for reset:", otp);
-
-    await user.save(); // 🔥 Save OTP and expiry to the database
+    await user.save();
 
     console.log("✅ OTP and expiry saved to user:", {
       email: user.email,
@@ -171,11 +177,10 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-
 // ---------------------------
 // Verify OTP for Forgot Password
 // ---------------------------
-exports.verifyForgotPasswordOTP = async (req, res) => {
+export const verifyForgotPasswordOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   console.log("🔐 Verifying OTP for reset:", { email, otp });
@@ -216,7 +221,7 @@ exports.verifyForgotPasswordOTP = async (req, res) => {
 // ---------------------------
 // Reset Password
 // ---------------------------
-exports.resetPassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {

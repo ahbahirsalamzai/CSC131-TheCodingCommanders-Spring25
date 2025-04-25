@@ -5,9 +5,10 @@ import {
   faThLarge,
   faCalendarAlt,
   faSignOutAlt,
+  faListAlt,
   faBars
 } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -15,27 +16,33 @@ function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   const role = localStorage.getItem('role') || 'student';
+  const isTutor = location.pathname.includes("tutor");
+  const isStudent = location.pathname.includes("student");
+  const isAdmin = location.pathname.includes("admin");
 
-  const studentNav = [
-    { icon: faThLarge, path: '/student-dashboard', label: 'Dashboard' },
-    { icon: faCalendarAlt, path: '/student-schedule-session', label: 'Schedule Session' }
-  ];
+  const navItems = [];
 
-  const tutorNav = [
-    { icon: faThLarge, path: '/tutor-dashboard', label: 'Dashboard' },
-    { icon: faCalendarAlt, path: '/tutor-schedule-session', label: 'Schedule Session' }
-  ];
+  if (!isAdmin) {
+    navItems.push(
+      {
+        icon: faThLarge,
+        path: isTutor ? "/tutor-dashboard" : isStudent ? "/student-dashboard" : "/",
+        label: "Dashboard"
+      },
+      {
+        icon: faCalendarAlt,
+        path: isTutor ? "/tutor-schedule-session" : isStudent ? "/student-schedule-session" : "/schedule-session",
+        label: "Schedule Session"
+      }
+    );
+  }
 
-  const navItems = role === 'tutor' ? tutorNav : studentNav;
+  const adminPreviewLink = "/admin-preview";
 
   return (
-    <div
-      className={`${
-        collapsed ? 'w-20' : 'w-64'
-      } bg-[#E1EADF] min-h-screen shadow-md flex flex-col justify-between transition-all duration-300`}
-    >
+    <div className={`${collapsed ? 'w-20' : 'w-64'} bg-[#E1EADF] min-h-screen shadow-md flex flex-col justify-between transition-all duration-300`}>
       <div>
-        {/* Logo + Toggle */}
+        {/* Toggle + Logo */}
         <div className="relative">
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -54,7 +61,7 @@ function Sidebar() {
           </div>
         </div>
 
-        {/* Nav Buttons */}
+        {/* Navigation Links */}
         <div className="flex flex-col gap-4 px-2">
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.path;
@@ -62,27 +69,27 @@ function Sidebar() {
               <button
                 key={index}
                 onClick={() => navigate(item.path)}
-                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-colors duration-200 ${
-                  isActive ? 'bg-[#1F4D39]' : 'bg-white'
-                }`}
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-colors duration-200 ${isActive ? 'bg-[#1F4D39]' : 'bg-white'}`}
               >
-                <FontAwesomeIcon
-                  icon={item.icon}
-                  className={`${isActive ? 'text-white' : 'text-[#697586]'} text-lg`}
-                />
+                <FontAwesomeIcon icon={item.icon} className={`${isActive ? 'text-white' : 'text-[#697586]'} text-lg`} />
                 {!collapsed && (
-                  <span
-                    className={`text-[16px] font-[400] leading-6 ${
-                      isActive ? 'text-white' : 'text-[#697586]'
-                    }`}
-                    style={{ fontFamily: 'Plus Jakarta Sans' }}
-                  >
+                  <span className={`text-[16px] font-[400] leading-6 ${isActive ? 'text-white' : 'text-[#697586]'}`} style={{ fontFamily: 'Plus Jakarta Sans' }}>
                     {item.label}
                   </span>
                 )}
               </button>
             );
           })}
+
+          {isAdmin && !collapsed && (
+            <Link
+              to={adminPreviewLink}
+              className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors duration-200 ${location.pathname === adminPreviewLink ? 'bg-[#1F4D39] text-white' : 'bg-white text-[#697586] hover:bg-[#1F4D39]'}`}
+            >
+              <FontAwesomeIcon icon={faListAlt} className="text-lg" />
+              <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
+            </Link>
+          )}
 
           {/* Back Button */}
           {!collapsed && (
@@ -107,10 +114,7 @@ function Sidebar() {
         >
           <FontAwesomeIcon icon={faSignOutAlt} className="text-[#9AA4B2] text-lg" />
           {!collapsed && (
-            <span
-              className="text-[#9AA4B2] text-[16px] font-[400] leading-6"
-              style={{ fontFamily: 'Plus Jakarta Sans' }}
-            >
+            <span className="text-[#9AA4B2] text-[16px] font-[400] leading-6" style={{ fontFamily: 'Plus Jakarta Sans' }}>
               Logout
             </span>
           )}

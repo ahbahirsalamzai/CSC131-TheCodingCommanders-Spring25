@@ -1,19 +1,22 @@
-// Backend/utils/emailSender.js
-const nodemailer = require("nodemailer");
+import dotenv from 'dotenv';
+dotenv.config();
+
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
+  port: parseInt(process.env.EMAIL_PORT, 10),
+  secure: false, // use true if using port 465
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
+// OTP email sender function
 async function sendOTPEmail(to, otp) {
   const mailOptions = {
-    from: `"StudyHive" <${process.env.EMAIL_USER}>`,
+    from: `"StudyHive Support" <${process.env.EMAIL_USER}>`,
     to,
     subject: "StudyHive OTP Verification",
     html: `
@@ -24,7 +27,13 @@ async function sendOTPEmail(to, otp) {
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ OTP email sent successfully:", info.response);
+  } catch (err) {
+    console.error("❌ Failed to send OTP email:", err.message);
+    throw err;
+  }
 }
 
-module.exports = sendOTPEmail;
+export default sendOTPEmail;
