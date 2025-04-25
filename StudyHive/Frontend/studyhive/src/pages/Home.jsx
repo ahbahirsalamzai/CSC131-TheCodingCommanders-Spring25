@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Import useState
+import React, { useState } from "react"; 
 import { Link } from 'react-router-dom';
 import FallCampusSign from "../assets/fall.jpg";
 import GradRateImage from "../assets/gradrate.jpg";

@@ -1,6 +1,6 @@
-const { body, validationResult } = require('express-validator');
+import { body, validationResult } from 'express-validator';
 
-const validateSignup = [
+export const validateSignup = [
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 8 }),
   body('role').isIn(['student', 'tutor']),
@@ -13,7 +13,7 @@ const validateSignup = [
   }
 ];
 
-const validateLogin = [
+export const validateLogin = [
   body('email').isEmail(),
   body('password').exists(),
   (req, res, next) => {
@@ -24,8 +24,3 @@ const validateLogin = [
     next();
   }
 ];
-
-module.exports = {
-  validateSignup,
-  validateLogin
-};

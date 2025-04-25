@@ -50,4 +50,5 @@ cd StudyHive/Backend
 npm install
 
 ####Start the backend server
-npm start
+node server.js
+

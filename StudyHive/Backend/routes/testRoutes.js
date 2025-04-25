@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import mongoose from 'mongoose';
+
 const router = express.Router();
-const mongoose = require('mongoose');
 
 router.get('/users', async (req, res) => {
   try {
@@ -16,4 +17,4 @@ router.get('/users', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

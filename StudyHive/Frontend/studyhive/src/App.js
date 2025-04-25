@@ -1,12 +1,12 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// src/App.js
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 
-
 // Components
-import Header from './components/Header';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import Header from "./components/Header";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 // Pages
 import Home from './pages/Home';
@@ -21,8 +21,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
-import TutorScheduling from './pages/TutorScheduling';
-import LoggedOut from './pages/LoggedOut'; 
+import StudentDashboard from './pages/StudentDashboard';
+import ScheduleSession from './pages/ScheduleSession';
+import TutorDashboard from './pages/TutorDashboard';
 
 function App() {
   return (
@@ -35,8 +36,9 @@ function App() {
         <Navbar />
 
         {/* Main Content */}
-        <main className="flex-grow container mx-auto p-4 relative">
+        <main className="flex-grow container mx-auto p-4">
           <Routes>
+            {/* Core Pages */}
             <Route path="/" element={<Home />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
@@ -47,12 +49,13 @@ function App() {
             <Route path="/payroll" element={<Payroll />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifySignUpOTP />} />
-            <Route path="/tutorscheduling" element={<TutorScheduling />} />
-            <Route path="/logged-out" element={<LoggedOut />} />
-
-            {/* Forgot Password Flow */}
             <Route path="/otp" element={<OTPPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* Dashboards & Scheduling */}
+            <Route path="/student-dashboard" element={<StudentDashboard />} />
+            <Route path="/schedule-session" element={<ScheduleSession />} />
+            <Route path="/tutor-dashboard" element={<TutorDashboard />} />
           </Routes>
         </main>
 
