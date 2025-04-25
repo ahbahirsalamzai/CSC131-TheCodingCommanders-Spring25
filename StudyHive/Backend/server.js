@@ -1,4 +1,7 @@
+// server.js
 import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -9,11 +12,16 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 
-dotenv.config();
-console.log("EMAIL CONFIG:", process.env.EMAIL_HOST, process.env.EMAIL_PORT);// added new line
+// Print EMAIL config (to debug)
+console.log("EMAIL CONFIG:", process.env.EMAIL_HOST, process.env.EMAIL_PORT);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Check if email environment variables are missing
+if (!process.env.EMAIL_HOST || !process.env.EMAIL_PORT || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.warn("⚠️ WARNING: Missing email SMTP configuration in .env!");
+}
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI)
