@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-
+import Sidebar from "../components/Sidebar"; // Keep Sidebar component
+import axios from "axios";
 
 const AdminProfilePage = () => {
   const [personalInfo, setPersonalInfo] = useState({
@@ -26,14 +25,30 @@ const AdminProfilePage = () => {
     }
   };
 
-  const handleSubmitPersonalInfo = () => {
-    // Handle form submission for personal info (call backend API to save the data)
-    console.log("Personal Info Submitted", personalInfo);
+  const handleSubmitPersonalInfo = async () => {
+    try {
+      const response = await axios.put("/api/users/update", personalInfo, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      console.log(response.data);
+      alert("Personal Info Updated Successfully");
+    } catch (error) {
+      console.error("Error updating personal info:", error);
+      alert("Failed to update personal info.");
+    }
   };
 
-  const handleSubmitPassword = () => {
-    // Handle form submission for password (call backend API to save the data)
-    console.log("Password Info Submitted", passwordInfo);
+  const handleSubmitPassword = async () => {
+    try {
+      const response = await axios.put("/api/users/change-password", passwordInfo, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      console.log(response.data);
+      alert("Password Updated Successfully");
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert("Failed to change password.");
+    }
   };
 
   return (
@@ -46,7 +61,6 @@ const AdminProfilePage = () => {
         <div className="space-y-6">
           {/* Personal Info Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">
-            {/* Title for Personal Info */}
             <h2 className="text-lg font-semibold text-neutral-800 mb-4">Personal Info</h2>
             <p className="text-sm text-gray-500 mb-4">Update your personal details</p>
 
