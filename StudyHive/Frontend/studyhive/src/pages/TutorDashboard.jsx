@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import { getTutorSessions } from '../api/sessionService';
+import { getAllSessions } from '../api/sessionService';
 import PlayCircle from '../assets/PlayCircle.png';
 import Dollar from '../assets/dollar.svg';
 
@@ -19,11 +19,11 @@ const TutorDashboard = () => {
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const data = await getTutorSessions();
+        const data = await getAllSessions();
         const now = new Date();
 
-        const upcoming = data.filter(session => new Date(`${session.date} ${session.time}`) >= now);
-        const past = data.filter(session => new Date(`${session.date} ${session.time}`) < now);
+        const upcoming = data.filter(session => new Date(session.start) >= now);
+        const past = data.filter(session => new Date(session.start) < now);
 
         setSessions(data);
         setUpcomingSessions(upcoming);
@@ -48,17 +48,13 @@ const TutorDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
-      {/* Sidebar */}
-      <div className="w-64 ml-[-2%] bg-[#E3EAE0] shadow-md border-r hidden md:block">
+      <div className="w-80 min-h-screen ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
         <Sidebar />
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col px-4 sm:px-6 md:px-10 mt-24 md:mt-20">
-        {/* Stat Cards */}
         <div className="flex flex-col md:flex-row mt-[30px] md:gap-4 mb-6 space-y-4 md:space-y-0">
-          {/* Upcoming Sessions Card */}
-          <div className="w-full md:w-1/2 px-4 mt:[200px] py-4 bg-orange-100 rounded-xl flex items-center gap-4 shadow-sm">
+          <div className="w-full md:w-1/2 px-4 py-4 bg-orange-50 rounded-xl flex items-center gap-4 shadow-sm">
             <div className="p-3 bg-white rounded-full shadow-sm">
               <img src={PlayCircle} alt="Play Icon" className="w-6 h-6" />
             </div>
@@ -66,13 +62,12 @@ const TutorDashboard = () => {
               <div className="text-base font-medium text-gray-800 mb-0.5">Upcoming Sessions</div>
               <div className="text-2xl font-bold text-indigo-700">{upcomingSessions.length}</div>
               <div className="text-xs text-gray-500">
-                Next: {upcomingSessions[0]?.date || 'N/A'}
+                Next: {upcomingSessions[0] ? new Date(upcomingSessions[0].start).toLocaleDateString() : 'N/A'}
               </div>
             </div>
           </div>
 
-          {/* Payroll Card */}
-          <div className="w-full md:w-1/2 px-4 py-4 bg-orange-100 rounded-xl flex items-center gap-4 shadow-sm">
+          <div className="w-full md:w-1/2 px-4 py-4 bg-orange-50 rounded-xl flex items-center gap-4 shadow-sm">
             <div className="p-3 bg-white rounded-full shadow-sm">
               <img src={Dollar} alt="Dollar Icon" className="w-6 h-6" />
             </div>
@@ -86,7 +81,6 @@ const TutorDashboard = () => {
           </div>
         </div>
 
-        {/* Upcoming Sessions Section */}
         <SessionSection
           title="Upcoming Sessions"
           sessions={upcomingSessions}
@@ -95,7 +89,6 @@ const TutorDashboard = () => {
           onDetailClick={openModal}
         />
 
-        {/* Past Sessions Section */}
         <SessionSection
           title="Past Sessions"
           sessions={pastSessions}
@@ -105,7 +98,6 @@ const TutorDashboard = () => {
         />
       </div>
 
-      {/* Modal */}
       {isModalOpen && selectedSession && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex justify-center items-center px-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative animate-fadeIn">
@@ -113,8 +105,8 @@ const TutorDashboard = () => {
             <div className="text-sm space-y-2 text-gray-700">
               <p><strong>Student:</strong> {selectedSession.student}</p>
               <p><strong>Subject:</strong> {selectedSession.subject}</p>
-              <p><strong>Date:</strong> {selectedSession.date}</p>
-              <p><strong>Time:</strong> {selectedSession.time}</p>
+              <p><strong>Date:</strong> {new Date(selectedSession.start).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> {new Date(selectedSession.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(selectedSession.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             </div>
             <button
               onClick={closeModal}
@@ -153,7 +145,9 @@ const SessionSection = ({ title, sessions, showAll, setShowAll, onDetailClick })
               <div className="text-base font-semibold text-gray-800">Student: {session.student}</div>
               <div className="text-xs text-gray-600">{session.subject}</div>
             </div>
-            <div className="text-sm text-gray-700">{session.date} - {session.time}</div>
+            <div className="text-sm text-gray-700">
+              {new Date(session.start).toLocaleDateString()} – {new Date(session.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
             <button
               className="w-full sm:w-auto px-4 py-2 text-sm border border-green-900 text-green-900 rounded-md hover:bg-green-50 transition"
               onClick={() => onDetailClick(session)}

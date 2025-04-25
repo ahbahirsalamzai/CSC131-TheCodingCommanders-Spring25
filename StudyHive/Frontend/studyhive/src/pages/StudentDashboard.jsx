@@ -7,6 +7,8 @@ import api from '../services/api';
 const StudentDashboard = () => {
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [pastSessions, setPastSessions] = useState([]);
+  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
+  const [showAllPast, setShowAllPast] = useState(false);
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -30,9 +32,12 @@ const StudentDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50 pt-20">
-      <div className="w-64 mt-[-60px] ml-[-2%] bg-[#E3EAE0] shadow-md border-r hidden md:block">
+      {/* Sidebar */}
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
         <Sidebar />
       </div>
+
+      {/* Main Content */}
       <div className="flex-1 p-8 space-y-8">
         {/* Stat Cards */}
         <div className="grid grid-cols-2 gap-6">
@@ -57,61 +62,60 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* Upcoming Sessions */}
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Upcoming Sessions</h2>
-            <button
-              onClick={() => console.log("View all sessions clicked")}
-              className="text-green-700 font-semibold hover:underline"
-            >
-              View All Sessions
-            </button>
-          </div>
+        {/* Upcoming Sessions Section */}
+        <SessionSection
+          title="Upcoming Sessions"
+          sessions={upcomingSessions}
+          showAll={showAllUpcoming}
+          setShowAll={setShowAllUpcoming}
+        />
 
-          <div className="space-y-4">
-            {upcomingSessions.map((session, idx) => (
-              <div key={idx} className="border-b pb-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold">Tutor - {session.tutorName}</h3>
-                    <span className="inline-block bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full mt-1">
-                      {session.subject || 'No subject provided'}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {new Date(session.start).toLocaleDateString()} – {new Date(session.start).toLocaleTimeString()} - {new Date(session.end).toLocaleTimeString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Past Sessions */}
-        <div className="bg-white p-6 rounded-xl shadow border">
-          <h2 className="text-xl font-bold mb-4">Past Sessions</h2>
-          <div className="space-y-4">
-            {pastSessions.map((session, idx) => (
-              <div key={idx} className="border-b pb-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold">Tutor - {session.tutorName}</h3>
-                    <span className="inline-block bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full mt-1">
-                      {session.subject || 'No subject provided'}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {new Date(session.start).toLocaleDateString()} – {new Date(session.start).toLocaleTimeString()} - {new Date(session.end).toLocaleTimeString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Past Sessions Section */}
+        <SessionSection
+          title="Past Sessions"
+          sessions={pastSessions}
+          showAll={showAllPast}
+          setShowAll={setShowAllPast}
+        />
       </div>
     </div>
   );
 };
+
+const SessionSection = ({ title, sessions, showAll, setShowAll }) => (
+  <div className="bg-white rounded-xl shadow-md p-5 mb-8">
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+      <button
+        onClick={() => setShowAll(!showAll)}
+        className="text-sm text-green-800 font-medium hover:underline"
+      >
+        {showAll ? 'Show Less' : 'View All'}
+      </button>
+    </div>
+    <div className="divide-y divide-slate-200">
+      {sessions.length === 0 ? (
+        <p className="text-gray-500 text-sm">No sessions to show.</p>
+      ) : (
+        (showAll ? sessions : sessions.slice(0, 3)).map(session => (
+          <div
+            key={session._id}
+            className="py-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 transition hover:bg-slate-50 rounded-lg px-2"
+          >
+            <div>
+              <div className="text-base font-semibold text-gray-800">
+                Tutor: {session.tutorName || 'TBD'}
+              </div>
+              <div className="text-xs text-gray-600">{session.subject || 'No subject'}</div>
+            </div>
+            <div className="text-sm text-gray-700">
+              {new Date(session.start).toLocaleDateString()} – {new Date(session.start).toLocaleTimeString()} to {new Date(session.end).toLocaleTimeString()}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+);
 
 export default StudentDashboard;
