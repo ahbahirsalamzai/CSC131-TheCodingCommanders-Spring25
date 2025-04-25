@@ -1,3 +1,4 @@
+// Backend/server.js
 import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -8,6 +9,8 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
+import tutorRoutes from './routes/tutorRoutes.js';
 
 dotenv.config();
 
@@ -26,8 +29,10 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/tutors", tutorRoutes);
 
-// Serve frontend build (ES module-compatible __dirname)
+// Serve frontend build
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

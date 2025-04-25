@@ -25,7 +25,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import ScheduleSession from './pages/ScheduleSession'; // Make sure this exists
 import StudentSchedulePage from './pages/StudentSchedulePage'; // student schedule session
 import TutorDashboard from './pages/TutorDashboard'; // tutor dashboard
-
+import AdminDashboard from "./pages/admin/AdminDashboard";
 function App() {
   return (
     <Router>
@@ -57,6 +57,7 @@ function App() {
             <Route path="/student-dashboard" element={<StudentDashboard />} />
             <Route path="/tutor-dashboard" element={<TutorDashboard />} />
             <Route path="/tutor-schedule-session" element={<ScheduleSession />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
             {/* Student schedule session */}
             <Route path="/student-schedule-session" element={<StudentSchedulePage />} />

@@ -77,15 +77,7 @@ function Sidebar() {
         </nav>
       </div>
 
-      {/* Back Button */}
-      {location.pathname !== "/admin-preview" && (
-        <Link
-          to={-1} // Using the 'to' prop of Link to go back
-          className="w-10 h-10 bg-white rounded-md flex items-center justify-center mx-auto mt-4"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} className="text-[#697586] text-lg" />
-        </Link>
-      )}
+      
 
       {/* Logout Button */}
       <div className="px-2 pb-4">

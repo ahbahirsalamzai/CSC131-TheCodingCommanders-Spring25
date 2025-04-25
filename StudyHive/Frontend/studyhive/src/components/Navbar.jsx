@@ -57,6 +57,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   // Effect to handle scroll behavior
   useEffect(() => {
@@ -83,11 +84,9 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`bg-white w-full fixed ${
-        headerVisible ? "top-9" : "top-0"
-      } z-[999] transition-all duration-300 ${
-        isScrolled ? "shadow-lg" : "shadow"
-      }`}
+      className={`bg-white w-full fixed ${headerVisible ? "top-9" : "top-0"
+        } z-[999] transition-all duration-300 ${isScrolled ? "shadow-lg" : "shadow"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
         {/* Logo Section */}
@@ -127,44 +126,57 @@ const Navbar = () => {
             </a>
           ))}
         </div>
-
         {/* Desktop Auth Buttons */}
-        <div className="hidden lg:flex space-x-4 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] opacity-100 scale-100">
-          <Link
-            to="/signup"
-            className="border px-4 py-2 rounded-lg transition-colors"
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/login"
-            className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition-colors"
-          >
-            Login
-          </Link>
+        <div className="hidden lg:flex space-x-4">
+          {isAdminPage ? (
+            <div className="relative group">
+              <button className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg">
+                Profile
+              </button>
+              <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-md hidden group-hover:block z-50">
+                <button
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  onClick={() => navigate("/login")}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/signup"
+                className="border px-4 py-2 rounded-lg transition-colors"
+              >
+                Sign Up
+              </Link>
+              <Link
+                to="/login"
+                className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition-colors"
+              >
+                Login
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Hamburger Button */}
         <div
-          className={`lg:hidden z-[999] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] transform ${
-            isMenuOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-100"
-          }`}
+          className={`lg:hidden z-[999] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] transform ${isMenuOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-100"
+            }`}
         >
           <button onClick={toggleMenu} className="relative w-8 h-8 focus:outline-none">
             <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-                isMenuOpen ? "rotate-45 top-3.5" : "top-2"
-              }`}
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isMenuOpen ? "rotate-45 top-3.5" : "top-2"
+                }`}
             />
             <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-                isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"
-              }`}
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"
+                }`}
             />
             <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-                isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"
-              }`}
+              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"
+                }`}
             />
           </button>
         </div>
@@ -172,11 +184,10 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed top-0 left-0 w-full h-screen bg-white/95 backdrop-blur-md flex flex-col items-center justify-center space-y-6 z-[998] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-          isMenuOpen
+        className={`fixed top-0 left-0 w-full h-screen bg-white/95 backdrop-blur-md flex flex-col items-center justify-center space-y-6 z-[998] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isMenuOpen
             ? "translate-x-0 opacity-100"
             : "-translate-x-full opacity-0 pointer-events-none"
-        }`}
+          }`}
       >
         {navLinks.map((link, index) => (
           <a

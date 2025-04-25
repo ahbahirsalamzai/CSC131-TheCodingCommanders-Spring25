@@ -1,6 +1,8 @@
+// src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../components/Sidebar";
+axios.defaults.baseURL = "http://localhost:3001";
 
 export default function AdminDashboard() {
   const [students, setStudents] = useState([]);
@@ -56,10 +58,20 @@ export default function AdminDashboard() {
   const tdStyle = "px-4 py-2 border-t";
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50 pt-20">
       <Sidebar />
-      <div className="flex-grow pt-28 px-6 space-y-12">
-        {/* Student Table */}
+
+      <div className="flex-1 px-10 py-8 space-y-12">
+        {/* ✨ Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-semibold text-neutral-800">Manage Accounts</h1>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-gray-800">John Doe</p>
+            <p className="text-sm text-gray-500">johndoe@example.com</p>
+          </div>
+        </div>
+
+        {/* Students */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold mb-4">Students</h2>
           <table className={tableStyle}>
@@ -91,7 +103,7 @@ export default function AdminDashboard() {
           </table>
         </div>
 
-        {/* Tutor Table */}
+        {/* Tutors */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold mb-4">Tutors</h2>
           <table className={tableStyle}>
@@ -123,7 +135,7 @@ export default function AdminDashboard() {
           </table>
         </div>
 
-        {/* Tutor Approval */}
+        {/* Approval */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold mb-4">Tutor Approval</h2>
           <table className={tableStyle}>
@@ -159,7 +171,7 @@ export default function AdminDashboard() {
           </table>
         </div>
 
-        {/* Add Admin Form */}
+        {/* Add Admin */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold mb-4">Add New Admin</h2>
           <p className="text-sm text-gray-500 mb-4">
