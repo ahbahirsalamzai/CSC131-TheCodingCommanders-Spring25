@@ -78,6 +78,8 @@ const Navbar = () => {
     }
   };
 
+  const isUserVerified = user && user.isVerified;
+
   return (
     <nav
       className={`bg-white w-full fixed ${
@@ -115,7 +117,7 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          {user && location.pathname === "/" && (
+          {isUserVerified && location.pathname === "/" && (
             <button
               onClick={handleDashboardClick}
               className="text-lg hover:text-[#1F4D39] transition duration-200"
@@ -127,7 +129,7 @@ const Navbar = () => {
 
         {/* Right Section */}
         <div className="hidden lg:flex lg:items-center space-x-4">
-          {user ? (
+          {isUserVerified ? (
             <>
               <div
                 className="flex flex-col items-end text-black mr-4 cursor-pointer"
@@ -200,7 +202,7 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          {user && location.pathname === "/" && (
+          {isUserVerified && location.pathname === "/" && (
             <button
               onClick={() => {
                 handleDashboardClick();
@@ -211,7 +213,7 @@ const Navbar = () => {
               Dashboard
             </button>
           )}
-          {user ? (
+          {isUserVerified ? (
             <>
               <div
                 className="flex flex-col items-center text-black cursor-pointer"
