@@ -59,10 +59,8 @@ export default function Login() {
         const res = await login(formData);
 
         if (res.token) {
-          // ✅ Save token
           localStorage.setItem("token", res.token);
 
-          // ✅ Save full user info to localStorage so Navbar can read it
           const userObject = {
             email: res.email,
             firstName: res.firstName,
