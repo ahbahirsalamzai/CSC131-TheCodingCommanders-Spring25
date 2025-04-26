@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
 
@@ -58,6 +58,18 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAdminPage = location.pathname.startsWith("/admin");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Effect to handle scroll behavior
   useEffect(() => {
@@ -129,19 +141,27 @@ const Navbar = () => {
         {/* Desktop Auth Buttons */}
         <div className="hidden lg:flex space-x-4">
           {isAdminPage ? (
-            <div className="relative group">
-              <button className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg">
-                Profile
-              </button>
-              <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-md hidden group-hover:block z-50">
+            <div className="relative" ref={dropdownRef}>
+            <button
+              className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg"
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+            >
+              Profile
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-md z-50">
                 <button
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                  onClick={() => navigate("/login")}
+                  onClick={() => {
+                    localStorage.clear();
+                    navigate("/login");
+                  }}
                 >
                   Logout
                 </button>
               </div>
-            </div>
+            )}
+          </div>
           ) : (
             <>
               <Link
@@ -185,8 +205,8 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div
         className={`fixed top-0 left-0 w-full h-screen bg-white/95 backdrop-blur-md flex flex-col items-center justify-center space-y-6 z-[998] transform transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isMenuOpen
-            ? "translate-x-0 opacity-100"
-            : "-translate-x-full opacity-0 pointer-events-none"
+          ? "translate-x-0 opacity-100"
+          : "-translate-x-full opacity-0 pointer-events-none"
           }`}
       >
         {navLinks.map((link, index) => (

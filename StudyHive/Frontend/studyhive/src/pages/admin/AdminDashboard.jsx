@@ -63,10 +63,10 @@ export default function AdminDashboard() {
 
       <div className="flex-1 px-10 py-8 space-y-12">
         {/* ✨ Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-semibold text-neutral-800">Manage Accounts</h1>
+        <div className="bg-white rounded-xl shadow-md p-6 mb-6 flex justify-between items-center">
+          <h1 className="text-xl font-semibold text-neutral-800">Manage Accounts</h1>
           <div className="text-right">
-            <p className="text-sm font-semibold text-gray-800">John Doe</p>
+            <p className="text-sm font-medium text-gray-800">John Doe</p>
             <p className="text-sm text-gray-500">johndoe@example.com</p>
           </div>
         </div>

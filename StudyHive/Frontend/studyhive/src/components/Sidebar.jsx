@@ -35,8 +35,8 @@ function Sidebar() {
     );
   }
 
-  // Admin Preview only for admins
-  const adminPreviewLink = "/admin-preview";
+  // Admin Overview only for admins
+  const adminPreviewLink = "/admin-Overview";
 
   return (
     <div className="w-64 min-h-screen bg-[#E1EADF] px-5 shadow-md flex flex-col justify-between overflow-y-auto">
@@ -71,7 +71,7 @@ function Sidebar() {
               style={{ marginTop: "20px" }} // Added margin to space it from other links
             >
               <FontAwesomeIcon icon={faListAlt} className="text-lg" />
-              <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
+              <span className="text-[16px] font-[400] leading-6">Admin Overview</span>
             </Link>
           )}
         </nav>
