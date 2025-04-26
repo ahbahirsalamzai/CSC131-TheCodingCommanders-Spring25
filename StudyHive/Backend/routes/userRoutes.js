@@ -1,19 +1,13 @@
-// Backend/routes/userRoutes.js
-const express = require("express");
-const mongoose = require("mongoose");
+import express from 'express';
+import mongoose from 'mongoose';
+import { getAllUsers } from '../controllers/userController.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+import authorizeRoles from '../middleware/roleAuth.js';
+
 const router = express.Router();
-const { getAllUsers } = require('../controllers/userController');
-const authenticateToken = require('../middleware/authMiddleware');
-const authorizeRoles = require('../middleware/roleAuth');
 
-
-
-
-
-
-// GET /api/users
-router.get("/", authorizeRoles('admin') ,async (req, res) => {  // Middleware to check if the user is an admin
-  // This route is protected and requires authentication
+// GET /api/users — Admin-only route
+router.get("/", authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const users = await mongoose.connection.db
       .collection("users")
@@ -30,4 +24,4 @@ router.get("/", authorizeRoles('admin') ,async (req, res) => {  // Middleware to
   }
 });
 
-module.exports = router;
+export default router;

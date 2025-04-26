@@ -1,26 +1,26 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'No token provided' });
-    }
+  }
 
-    const token = authHeader.split(' ')[1];
+  const token = authHeader.split(' ')[1];
 
-    try {
+  try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = {
-        id: decoded.userId,
-      role: decoded.role, // this is the important part for RBAC
+      id: decoded.userId,
+      role: decoded.role, // still important for RBAC
     };
 
     next();
-    } catch (err) {
+  } catch (err) {
     return res.status(403).json({ message: 'Invalid or expired token' });
-    }
+  }
 };
 
-module.exports = authenticateToken;
+export default authenticateToken;

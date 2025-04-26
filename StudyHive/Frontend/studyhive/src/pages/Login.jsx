@@ -5,9 +5,15 @@ import { Link } from "react-router-dom";
 import { login } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from '../context/AuthContext';
+import { jwtDecode } from 'jwt-decode';
+
+
 
 export default function Login() {
   const navigate = useNavigate();
+  const { handleLogin, user } = useAuth();
+
 
   const [formData, setFormData] = useState({
     email: "",
@@ -56,20 +62,11 @@ export default function Login() {
 
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-        const res = await login(formData);
+          await handleLogin(formData);
 
-        if (res.token) {
-          // ✅ Save token
-          localStorage.setItem("token", res.token);
+          const token = localStorage.getItem("token");
+          const decoded = jwtDecode(token);
 
-          // ✅ Save full user info to localStorage so Navbar can read it
-          const userObject = {
-            email: res.email,
-            firstName: res.firstName,
-            lastName: res.lastName,
-            role: res.role,
-          };
-          localStorage.setItem("user", JSON.stringify(userObject));
 
           toast.success("Login successful!", {
             position: "top-center",
@@ -77,20 +74,14 @@ export default function Login() {
           });
 
           setTimeout(() => {
-            if (res.status === "pending") {
-              localStorage.setItem("otp_email", formData.email);
-              navigate("/verify-otp");
-            } else {
-              if (res.role === "student") {
-                navigate("/student-dashboard");
-              } else if (res.role === "tutor") {
+            if (decoded.role === "student") {
+              navigate("/student-dashboard");
+              } else if (decoded.role === "tutor") {
                 navigate("/tutor-dashboard");
               } else {
                 navigate("/profile");
               }
-            }
           }, 1500);
-        }
       } catch (err) {
         setErrorMessage(err.message);
         toast.error(err.message, {

@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
+import { AuthProvider } from './context/AuthContext';
 
 // Components
 import Header from "./components/Header";
@@ -28,6 +29,7 @@ import StudentSchedulePage from './pages/StudentSchedulePage';
 
 function App() {
   return (
+    <AuthProvider>
     <Router>
       <div className="flex flex-col min-h-screen">
         {/* Header */}
@@ -69,6 +71,7 @@ function App() {
         <Footer />
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 

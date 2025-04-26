@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
+import testRoutes from './routes/testRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +26,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 
+app.use('/api/test', testRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 

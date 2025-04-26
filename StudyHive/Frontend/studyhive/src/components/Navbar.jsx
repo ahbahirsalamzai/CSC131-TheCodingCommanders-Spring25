@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
+import { useAuth } from "../context/AuthContext.js"
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
+ // const [user, setUser] = useState(null);
 
+  const { user, handleLogout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -31,23 +33,24 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else {
-      setUser(null);
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   const savedUser = localStorage.getItem("user");
+  //   if (savedUser) {
+  //     setUser(JSON.parse(savedUser));
+  //   } else {
+  //     setUser(null);
+  //   }
+  // }, [location]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    setUser(null);
-    navigate("/login");
-  };
-
+  // const handleLogout = () => {
+  //   setUser(null);
+  //   setToken(null);
+  //   localStorage.removeItem('token');
+  //   localStorage.removeItem('user');  // <-- ADD THIS LINE
+  // };
+  
   const handleProfileClick = () => {
     navigate("/profile");
   };

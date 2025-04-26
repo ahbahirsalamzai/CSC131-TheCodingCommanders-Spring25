@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signup } from "../api/authService";
+//import { signup } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Studs from "../assets/Studentswalk.jpg";
+import { useAuth } from '../context/AuthContext';
+import { Link } from "react-router-dom";
 
 export default function SignUp() {
+
+  const { handleSignup } = useAuth();
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -74,7 +79,7 @@ export default function SignUp() {
       try {
         setIsSubmitting(true);
 
-        await signup({
+        await handleSignup({
           username: formData.username,
           email: formData.email,
           password: formData.password,
@@ -240,9 +245,10 @@ export default function SignUp() {
           {/* Link to Login */}
           <div className="flex justify-center items-center mt-4">
             <span className="text-black text-base">Already have an account?</span>
-            <a href="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">
-              Sign In
-            </a>
+            <Link to="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">
+          Sign In
+          </Link>
+
           </div>
         </div>
 
