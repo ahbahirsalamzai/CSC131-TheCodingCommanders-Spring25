@@ -32,7 +32,18 @@ export const signup = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
+    const token = jwt.sign({
+      userId: newUser._id,
+      role: newUser.role,
+      email: newUser.email,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
+
+  res.status(201).json({ token });
+  
+    // res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ message: "Server error during signup." });

@@ -30,22 +30,30 @@ export const AuthProvider = ({ children }) => {
   const handleSignup = async (formData) => {
     try {
       const data = await signup(formData); // { token: '...' }
+  
+      if (!data.token) {
+        throw new Error("Signup did not return a valid token.");
+      }
+  
+      localStorage.setItem('token', data.token); // Save token first
+      setToken(data.token);
+  
+    
       const decoded = jwtDecode(data.token);
-
-
+  
+      
       setUser({
         id: decoded.userId,
         role: decoded.role,
         email: decoded.email,
       });
-
-      setToken(data.token);
-      localStorage.setItem('token', data.token); // Save token for persistence
+  
     } catch (err) {
       console.error(err.message);
       throw err;
     }
   };
+  
 
   // Handle login
   const handleLogin = async (formData) => {
