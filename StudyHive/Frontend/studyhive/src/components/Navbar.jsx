@@ -81,6 +81,8 @@ const Navbar = () => {
     }
   };
 
+  const isUserVerified = user && user.isVerified;
+
   return (
     <nav
       className={`bg-white w-full fixed ${
@@ -102,69 +104,66 @@ const Navbar = () => {
           </Link>
         </div>
 
-{/* Middle Section */}
-<div className="hidden lg:flex lg:items-center lg:space-x-6">
-  {!user ? (
-    navLinks.map((link, idx) => (
-      <a
-        key={idx}
-        href={link.href}
-        onClick={(e) => {
-          e.preventDefault();
-          if (location.pathname !== "/") navigate("/");
-          setTimeout(() => scrollToSection(link.targetId), 100);
-        }}
-        className="text-lg hover:text-[#1F4D39] transition duration-200"
-      >
-        {link.label}
-      </a>
-    ))
-  ) : (
-    <button
-      onClick={handleDashboardClick}
-      className="text-lg hover:text-[#1F4D39] transition duration-200"
-    >
-      Dashboard
-    </button>
-  )}
-</div>
+        {/* Middle Section */}
+        <div className="hidden lg:flex lg:items-center lg:space-x-6">
+          {navLinks.map((link, idx) => (
+            <a
+              key={idx}
+              href={link.href}
+              onClick={(e) => {
+                e.preventDefault();
+                if (location.pathname !== "/") navigate("/");
+                setTimeout(() => scrollToSection(link.targetId), 100);
+              }}
+              className="text-lg hover:text-[#1F4D39] transition duration-200"
+            >
+              {link.label}
+            </a>
+          ))}
+          {isUserVerified && location.pathname === "/" && (
+            <button
+              onClick={handleDashboardClick}
+              className="text-lg hover:text-[#1F4D39] transition duration-200"
+            >
+              Dashboard
+            </button>
+          )}
+        </div>
 
-
-{/* Right Section */}
-<div className="hidden lg:flex lg:items-center space-x-4">
-{user ? (
-  <>
-    <div
-      className="flex flex-col items-end text-black mr-4 cursor-pointer"
-      onClick={handleProfileClick}
-    >
-      <span className="text-sm">{user.email}</span>
-    </div>
-    <button
-      onClick={handleLogout}
-      className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
-    >
-      Logout
-    </button>
-    </>
-  ) : (
-    <>
-      <Link
-        to="/signup"
-        className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-      >
-        Sign Up
-      </Link>
-      <Link
-        to="/login"
-        className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
-      >
-        Login
-      </Link>
-    </>
-  )}
-</div>
-
+        {/* Right Section */}
+        <div className="hidden lg:flex lg:items-center space-x-4">
+          {isUserVerified ? (
+            <>
+              <div
+                className="flex flex-col items-end text-black mr-4 cursor-pointer"
+                onClick={handleProfileClick}
+              >
+                <span className="text-sm">{user.email}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/signup"
+                className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+              >
+                Sign Up
+              </Link>
+              <Link
+                to="/login"
+                className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
+              >
+                Login
+              </Link>
+            </>
+          )}
+        </div>
 
         {/* Mobile Hamburger */}
         <div className="lg:hidden z-[999]">
@@ -191,47 +190,70 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="lg:hidden flex flex-col items-center bg-white py-6 space-y-4">
-          {!user ? (
+          {navLinks.map((link, idx) => (
+            <a
+              key={idx}
+              href={link.href}
+              onClick={(e) => {
+                e.preventDefault();
+                if (location.pathname !== "/") navigate("/");
+                setTimeout(() => scrollToSection(link.targetId), 100);
+                setIsMenuOpen(false);
+              }}
+              className="text-xl font-medium hover:text-[#1F4D39]"
+            >
+              {link.label}
+            </a>
+          ))}
+          {isUserVerified && location.pathname === "/" && (
+            <button
+              onClick={() => {
+                handleDashboardClick();
+                setIsMenuOpen(false);
+              }}
+              className="text-xl font-medium hover:text-[#1F4D39]"
+            >
+              Dashboard
+            </button>
+          )}
+          {isUserVerified ? (
             <>
-              {navLinks.map((link, idx) => (
-                <a
-                  key={idx}
-                  href={link.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (location.pathname !== "/") navigate("/");
-                    setTimeout(() => scrollToSection(link.targetId), 100);
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-xl font-medium hover:text-[#1F4D39]"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <Link to="/signup" className="border px-6 py-2 rounded-lg">Sign Up</Link>
-              <Link to="/login" className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition">Login</Link>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={handleDashboardClick}
-                className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition"
-              >
-                Dashboard
-              </button>
               <div
                 className="flex flex-col items-center text-black cursor-pointer"
-                onClick={handleProfileClick}
+                onClick={() => {
+                  handleProfileClick();
+                  setIsMenuOpen(false);
+                }}
               >
                 <span className="font-bold text-lg">{user.firstName} {user.lastName}</span>
                 <span className="text-sm">{user.email}</span>
               </div>
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
                 className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition"
               >
                 Logout
               </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/signup"
+                onClick={() => setIsMenuOpen(false)}
+                className="border px-6 py-2 rounded-lg"
+              >
+                Sign Up
+              </Link>
+              <Link
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition"
+              >
+                Login
+              </Link>
             </>
           )}
         </div>

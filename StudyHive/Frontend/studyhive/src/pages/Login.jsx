@@ -52,36 +52,48 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const newErrors = {
       email: validateField("email", formData.email),
       password: validateField("password", formData.password),
     };
-
+  
     setErrors(newErrors);
-
+  
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-          await handleLogin(formData);
-
-          const token = localStorage.getItem("token");
-          const decoded = jwtDecode(token);
-
-
+        const res = await handleLogin(formData); // 🛠 ADD THIS BACK
+  
+        if (res.token) {
+          // ✅ Save token
+          localStorage.setItem("token", res.token);
+  
+          // ✅ Save full user info to localStorage so Navbar can read it
+          const userObject = {
+            email: res.email,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            role: res.role,
+          };
+          localStorage.setItem("user", JSON.stringify(userObject));
+  
+          const decoded = jwtDecode(res.token);
+  
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,
           });
-
+  
           setTimeout(() => {
             if (decoded.role === "student") {
               navigate("/student-dashboard");
-              } else if (decoded.role === "tutor") {
-                navigate("/tutor-dashboard");
-              } else {
-                navigate("/profile");
-              }
+            } else if (decoded.role === "tutor") {
+              navigate("/tutor-dashboard");
+            } else {
+              navigate("/profile");
+            }
           }, 1500);
+        }
       } catch (err) {
         setErrorMessage(err.message);
         toast.error(err.message, {
@@ -90,7 +102,7 @@ export default function Login() {
       }
     }
   };
-
+  
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-[1440px] flex justify-center items-center">
