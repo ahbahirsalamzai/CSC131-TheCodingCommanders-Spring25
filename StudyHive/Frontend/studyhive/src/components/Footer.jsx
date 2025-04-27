@@ -42,10 +42,13 @@ export default function Footer() {
             <h3 className="text-2xl font-bold">Contact Us</h3>
             <div className="flex flex-col gap-2">
               <p className="text-lg font-light">
-                <span className="font-semibold">PHONE:</span> (123) 456-7890
+                <span className="font-semibold">PHONE:</span> +1 (220) 215-0466
               </p>
               <p className="text-lg font-light">
-                <span className="font-semibold">Address:</span> 123 Learning Lane, Education City, EC 45678
+                <span className="font-semibold">EMAIL:</span> studyhivehelpteam@gmail.com
+              </p>
+              <p className="text-lg font-light">
+                <span className="font-semibold">Address:</span> 6000 Jed Smith Dr, Sacramento, CA 95819
               </p>
             </div>
           </div>

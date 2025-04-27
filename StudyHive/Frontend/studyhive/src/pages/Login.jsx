@@ -65,10 +65,10 @@ export default function Login() {
         const res = await handleLogin(formData); // 🛠 ADD THIS BACK
   
         if (res.token) {
-          // ✅ Save token
+          //  Save token
           localStorage.setItem("token", res.token);
   
-          // ✅ Save full user info to localStorage so Navbar can read it
+          //  Save full user info to localStorage so Navbar can read it
           const userObject = {
             email: res.email,
             firstName: res.firstName,
@@ -79,6 +79,13 @@ export default function Login() {
   
           const decoded = jwtDecode(res.token);
   
+          //console.log("Decoded token:", decoded);// FOR TESTING REMOVEEEEEEEEEEEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!! SECURITY RISK
+          console.log("Decoded token:", JSON.stringify(decoded, null, 2));//TEST
+
+          console.log("🌟 Raw Token:", res.token);// more test
+          console.log("🌟 Decoded Token:", decoded);// and more
+
+          
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,

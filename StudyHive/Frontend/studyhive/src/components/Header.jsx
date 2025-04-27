@@ -18,8 +18,8 @@ const Header = () => {
     <div className={`fixed w-full bg-black text-white text-sm py-2 px-4 flex justify-between items-center transition-all duration-300 z-[1000] ${
       isVisible ? "top-0" : "-top-9"
     }`}>
-      <span>Email: info@domainname.com</span>
-      <span>Contact: +123 (456) 789</span>
+      <span>Email: studyhivehelpteam@gmail.com</span>
+      <span>Contact: +1 (220) 215-0466</span>
     </div>
   );
 };
