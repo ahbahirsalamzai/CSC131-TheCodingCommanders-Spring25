@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarAlt,
   faListAlt,
+  faSignOutAlt, // <-- This was missing in one version!
 } from "@fortawesome/free-solid-svg-icons";
 
 function Sidebar() {
@@ -35,6 +36,7 @@ function Sidebar() {
     );
   }
 
+  // Admin Preview (resolved conflict: use "/admin-preview")
   const adminPreviewLink = "/admin-preview";
 
   return (
@@ -72,10 +74,24 @@ function Sidebar() {
               style={{ marginTop: "20px" }}
             >
               <FontAwesomeIcon icon={faListAlt} className="text-lg" />
-              <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
+              <span className="text-[16px] font-[400] leading-6">Admin Overview</span>
             </Link>
           )}
         </nav>
+      </div>
+
+      {/* Logout Button */}
+      <div className="px-2 pb-4">
+        <Link
+          to="/login"
+          onClick={() => {
+            localStorage.clear();
+          }}
+          className="w-full flex items-center gap-3 justify-start px-4 py-2 bg-white rounded-md text-[#9AA4B2] text-base font-normal hover:shadow-md"
+        >
+          <FontAwesomeIcon icon={faSignOutAlt} className="text-lg" />
+          <span className="text-[16px] font-[400] leading-6">Logout</span>
+        </Link>
       </div>
     </div>
   );

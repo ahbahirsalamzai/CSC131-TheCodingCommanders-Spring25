@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
-import { useAuth } from "../context/AuthContext.js"
+import { useAuth } from "../context/AuthContext.js";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
- // const [user, setUser] = useState(null);
 
   const { user, handleLogout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const isAdminPage = location.pathname.startsWith("/admin");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && event.target.closest(".dropdown-menu") === null) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDropdownOpen]);
 
   const navLinks = [
     { href: "/#home", label: "Home", targetId: "home" },
@@ -24,8 +35,7 @@ const Navbar = () => {
     let lastScrollTop = 0;
     const handleScroll = () => {
       const currentScroll = window.scrollY;
-      const isHeaderVisible = currentScroll <= lastScrollTop;
-      setHeaderVisible(isHeaderVisible);
+      setHeaderVisible(currentScroll <= lastScrollTop);
       setIsScrolled(currentScroll > 50);
       lastScrollTop = currentScroll;
     };
@@ -33,24 +43,8 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // useEffect(() => {
-  //   const savedUser = localStorage.getItem("user");
-  //   if (savedUser) {
-  //     setUser(JSON.parse(savedUser));
-  //   } else {
-  //     setUser(null);
-  //   }
-  // }, [location]);
-
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // const handleLogout = () => {
-  //   setUser(null);
-  //   setToken(null);
-  //   localStorage.removeItem('token');
-  //   localStorage.removeItem('user');  // <-- ADD THIS LINE
-  // };
-  
   const handleProfileClick = () => {
     navigate("/profile");
   };
@@ -73,7 +67,6 @@ const Navbar = () => {
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
       const offsetPosition = elementPosition - offset;
-
       window.scrollTo({
         top: offsetPosition,
         behavior: "smooth",

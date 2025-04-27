@@ -1,3 +1,4 @@
+// Backend/server.js
 import dotenv from 'dotenv';
 dotenv.config(); 
 
@@ -10,6 +11,8 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
+import tutorRoutes from './routes/tutorRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 
 const app = express();
@@ -29,7 +32,10 @@ app.use(express.json());
 app.use('/api/test', testRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/tutors", tutorRoutes);
 
+// Serve frontend build
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
