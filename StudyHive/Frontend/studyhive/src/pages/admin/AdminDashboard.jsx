@@ -59,16 +59,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-50 pt-20">
-      <Sidebar />
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
+        <Sidebar />
+      </div>
 
       <div className="flex-1 px-10 py-8 space-y-12">
         {/* ✨ Header */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-6 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-neutral-800">Manage Accounts</h1>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-800">John Doe</p>
-            <p className="text-sm text-gray-500">johndoe@example.com</p>
-          </div>
         </div>
 
         {/* Students */}

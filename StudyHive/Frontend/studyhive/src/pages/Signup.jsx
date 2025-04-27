@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signup } from "../api/authService";
+//import { signup } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Studs from "../assets/Studentswalk.jpg";
+import { useAuth } from '../context/AuthContext';
+import { Link } from "react-router-dom";
 
 export default function SignUp() {
+
+  const { handleSignup } = useAuth();
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -21,6 +26,7 @@ export default function SignUp() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const validateField = (name, value) => {
     let error = "";
@@ -47,7 +53,6 @@ export default function SignUp() {
       [name]: newValue,
     }));
 
-    // Validate on change
     setErrors((prev) => ({
       ...prev,
       [name]: validateField(name, newValue),
@@ -74,7 +79,7 @@ export default function SignUp() {
       try {
         setIsSubmitting(true);
 
-        await signup({
+        await handleSignup({
           username: formData.username,
           email: formData.email,
           password: formData.password,
@@ -213,7 +218,7 @@ export default function SignUp() {
             </div>
 
             {/* Terms */}
-            <label className="flex items-center w-full text-sm mt-2">
+            <div className="flex items-center w-full text-sm mt-2">
               <input
                 type="checkbox"
                 name="acceptedTerms"
@@ -221,8 +226,15 @@ export default function SignUp() {
                 onChange={handleChange}
                 className="mr-2"
               />
-              I Accept Terms & Conditions
-            </label>
+              I accept{" "}
+              <button
+                type="button"
+                className="text-[#1f4d39] font-semibold hover:underline ml-1"
+                onClick={() => setShowTerms(true)}
+              >
+                Terms & Conditions
+              </button>
+            </div>
             {errors.acceptedTerms && (
               <p className="text-red-500 text-sm mt-1">{errors.acceptedTerms}</p>
             )}
@@ -240,9 +252,10 @@ export default function SignUp() {
           {/* Link to Login */}
           <div className="flex justify-center items-center mt-4">
             <span className="text-black text-base">Already have an account?</span>
-            <a href="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">
-              Sign In
-            </a>
+            <Link to="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">
+          Sign In
+          </Link>
+
           </div>
         </div>
 
@@ -255,6 +268,25 @@ export default function SignUp() {
           />
         </div>
       </div>
+
+      {/* Terms Modal */}
+      {showTerms && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-[500px] p-6 rounded-lg relative">
+            <h2 className="text-2xl font-bold mb-4 text-[#1f4d39]">Terms and Conditions</h2>
+            <p className="text-sm text-gray-700 mb-10">
+              StudyHive is an educational platform. By signing up, you agree to use the platform respectfully,
+              maintain academic honesty, and abide by all community guidelines.
+            </p>
+            <button
+              onClick={() => setShowTerms(false)}
+              className="absolute bottom-4 right-6 text-sm font-semibold text-black hover:underline"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <ToastContainer />
     </div>

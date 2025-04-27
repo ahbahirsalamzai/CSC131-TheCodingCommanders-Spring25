@@ -2,14 +2,35 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-export const getTutorSessions = async () => {
-  const res = await axios.get(`${API_URL}/sessions/availability`);
+// 📚 For STUDENTS → get all available sessions
+export const getAllSessions = async () => {
+  const res = await axios.get(`${API_URL}/sessions/availability`, {
+    withCredentials: true,
+  });
+
   const allSessions = res.data;
 
-  // Filter only booked sessions (assumes "student" is filled)
+  return allSessions.map(session => ({
+    _id: session._id,
+    tutorName: session.tutorName,
+    subject: session.subject,
+    start: session.start,
+    end: session.end,
+    student: session.student,
+  }));
+};
+
+// 🎯 For TUTORS → get sessions belonging to the logged-in tutor
+export const getTutorSessions = async () => {
+  const res = await axios.get(`${API_URL}/sessions/tutor`, {
+    withCredentials: true,
+  });
+
+  const allSessions = res.data;
+
+  // Only sessions that are booked
   const bookedSessions = allSessions.filter(session => session.student);
 
-  // Format sessions to frontend-friendly format
   return bookedSessions.map(session => ({
     _id: session._id,
     student: session.student,

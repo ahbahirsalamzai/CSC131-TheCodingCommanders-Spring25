@@ -32,7 +32,18 @@ export const signup = async (req, res) => {
 
     await newUser.save();
 
-    res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
+    const token = jwt.sign({
+      userId: newUser._id,
+      role: newUser.role,
+      email: newUser.email,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
+
+  res.status(201).json({ token });
+  
+    // res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ message: "Server error during signup." });
@@ -111,11 +122,18 @@ export const login = async (req, res) => {
       expiresIn: "1d",
     });
 
+    // If account is still pending, re-send OTP but don't crash if email fails
     if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
       await user.save();
-      await sendOTPEmail(normalizedEmail, otp);
+
+      try {
+        await sendOTPEmail(normalizedEmail, otp);
+      } catch (emailErr) {
+        console.error("❌ Failed to send OTP email during login:", emailErr.message);
+        return res.status(500).json({ message: "Login successful, but OTP email failed to send." });
+      }
     }
 
     res.status(200).json({
@@ -123,6 +141,10 @@ export const login = async (req, res) => {
       status: user.status,
       username: user.username,
       userId: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
     });
   } catch (err) {
     console.error("Login error:", err);

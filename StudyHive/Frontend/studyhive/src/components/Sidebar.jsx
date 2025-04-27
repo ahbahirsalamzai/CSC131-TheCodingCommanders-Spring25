@@ -2,55 +2,58 @@ import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faArrowLeft,
   faCalendarAlt,
-  faSignOutAlt,
-  faListAlt,  // Admin Preview Icon
+  faListAlt,
+  faSignOutAlt, // <-- This was missing in one version!
 } from "@fortawesome/free-solid-svg-icons";
 
 function Sidebar() {
   const location = useLocation();
 
-  // Determine the user's role based on the current path
   const isTutor = location.pathname.includes("tutor");
   const isStudent = location.pathname.includes("student");
   const isAdmin = location.pathname.includes("admin");
 
-  // Define nav items based on user role (excluding Dashboard and Schedule for Admin)
   const navItems = [];
 
-  // Dashboard and Schedule Session for non-admins
+  // Dashboard and Schedule Session links for tutors and students
   if (!isAdmin) {
     navItems.push(
       {
         icon: faListAlt,
         path: isTutor ? "/tutor-dashboard" : isStudent ? "/student-dashboard" : "/admin-dashboard",
-        label: "Dashboard"
+        label: "Dashboard",
       },
       {
         icon: faCalendarAlt,
-        path: isTutor ? "/tutor-schedule-session" : isStudent ? "/student-schedule-session" : "/schedule-session",  // Fixed the typo and updated path
-        label: "Schedule Session"
+        path: isTutor
+          ? "/tutor-schedule-session"
+          : isStudent
+          ? "/student-schedule-session"
+          : "/schedule-session",
+        label: "Schedule Session",
       }
     );
   }
 
-  // Admin Overview only for admins
-  const adminPreviewLink = "/admin-Overview";
+  // Admin Preview (resolved conflict: use "/admin-preview")
+  const adminPreviewLink = "/admin-preview";
 
   return (
-    <div className="w-64 min-h-screen bg-[#E1EADF] px-5 shadow-md flex flex-col justify-between overflow-y-auto">
+    <div className="w-64 min-h-screen ml-[10%] mt-[40%] px-5 flex flex-col justify-between overflow-y-auto">
       <div className="space-y-6 flex-1">
         <nav className="flex flex-col gap-4">
-          {/* Dashboard and Schedule links based on role */}
+          {/* Dashboard and Schedule links */}
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={index}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-colors duration-200 ${
-                  isActive ? "bg-[#1F4D39] text-white" : "bg-white text-[#697586] hover:bg-[#1F4D39]"
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
+                  isActive
+                    ? "bg-[#1F4D39] text-white"
+                    : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
                 }`}
               >
                 <FontAwesomeIcon icon={item.icon} className="text-lg" />
@@ -59,16 +62,16 @@ function Sidebar() {
             );
           })}
 
-          {/* Show Admin Preview link only for Admin */}
+          {/* Admin only preview */}
           {isAdmin && (
             <Link
               to={adminPreviewLink}
-              className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-colors duration-200 ${
+              className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
                 location.pathname === adminPreviewLink
                   ? "bg-[#1F4D39] text-white"
-                  : "bg-white text-[#697586] hover:bg-[#1F4D39]"
+                  : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
               }`}
-              style={{ marginTop: "20px" }} // Added margin to space it from other links
+              style={{ marginTop: "20px" }}
             >
               <FontAwesomeIcon icon={faListAlt} className="text-lg" />
               <span className="text-[16px] font-[400] leading-6">Admin Overview</span>
@@ -76,8 +79,6 @@ function Sidebar() {
           )}
         </nav>
       </div>
-
-      
 
       {/* Logout Button */}
       <div className="px-2 pb-4">

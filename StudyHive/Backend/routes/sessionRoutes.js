@@ -1,14 +1,16 @@
 import express from 'express';
 import { getAllSessions } from '../controllers/sessionController.js';
 import Session from '../models/Session.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+import authorizeRoles from '../middleware/roleAuth.js';
 
 const router = express.Router();
 
 // GET /api/sessions - Fetch all sessions (controller-based)
-router.get('/', getAllSessions);
+router.get('/', authenticateToken, getAllSessions);
 
 // GET /api/sessions/availability - Fetch all session availability
-router.get('/availability', async (req, res) => {
+router.get('/availability',authenticateToken, async (req, res) => {
   try {
     const sessions = await Session.find();
     res.status(200).json(sessions);
@@ -18,7 +20,7 @@ router.get('/availability', async (req, res) => {
 });
 
 // POST /api/sessions/availability - Create tutor availability
-router.post('/availability', async (req, res) => {
+router.post('/availability',authenticateToken, authorizeRoles('tutor'), async (req, res) => {
   const { tutorName, start, end, subject } = req.body;
 
   if (!tutorName || !start || !end) {
@@ -35,7 +37,7 @@ router.post('/availability', async (req, res) => {
 });
 
 // PATCH /api/sessions/book/:id - Book or unbook a session
-router.patch('/book/:id', async (req, res) => {
+router.patch('/book/:id', authenticateToken, authorizeRoles('student'), async (req, res) => {
   const { studentName } = req.body;
   const { id } = req.params;
 
@@ -62,7 +64,7 @@ router.patch('/book/:id', async (req, res) => {
 });
 
 // DELETE /api/sessions/:id - Permanently delete a session
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',authenticateToken, authorizeRoles('admin','tutor'), async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -77,3 +79,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 export default router;
+//module.exports = router; 

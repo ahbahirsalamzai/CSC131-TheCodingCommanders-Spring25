@@ -1,10 +1,13 @@
-// Backend/routes/userRoutes.js
-const express = require("express");
-const router = express.Router();
-const mongoose = require("mongoose");
+import express from 'express';
+import mongoose from 'mongoose';
+import { getAllUsers } from '../controllers/userController.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+import authorizeRoles from '../middleware/roleAuth.js';
 
-// GET /api/users
-router.get("/", async (req, res) => {
+const router = express.Router();
+
+// GET /api/users — Admin-only route
+router.get("/", authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const users = await mongoose.connection.db
       .collection("users")
@@ -21,4 +24,4 @@ router.get("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
