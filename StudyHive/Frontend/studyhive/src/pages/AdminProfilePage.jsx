@@ -16,14 +16,15 @@ const AdminProfilePage = () => {
     confirmPassword: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
-    // This effect can be used to fetch user data (personal information) if needed
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get("/api/users/me", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        setPersonalInfo(response.data);  // assuming the response structure matches
+        setPersonalInfo(response.data);
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
@@ -32,8 +33,14 @@ const AdminProfilePage = () => {
     fetchUserInfo();
   }, []);
 
+  const validatePhone = (phone) => /^[0-9-]+$/.test(phone);
+  const validateDOB = (dob) => /^(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2},\s\d{4}$/.test(dob);
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setErrors({ ...errors, [name]: "" });
+
     if (name in personalInfo) {
       setPersonalInfo({ ...personalInfo, [name]: value });
     } else {
@@ -42,6 +49,23 @@ const AdminProfilePage = () => {
   };
 
   const handleSubmitPersonalInfo = async () => {
+    const newErrors = {};
+
+    if (!validatePhone(personalInfo.phone)) {
+      newErrors.phone = "Phone number must contain only digits and dashes.";
+    }
+    if (!validateDOB(personalInfo.dob)) {
+      newErrors.dob = "Date of Birth must be like 'January 1, 2000'.";
+    }
+    if (!validateEmail(personalInfo.email)) {
+      newErrors.email = "Invalid email address format.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       const response = await axios.put("/api/users/update", personalInfo, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -55,6 +79,20 @@ const AdminProfilePage = () => {
   };
 
   const handleSubmitPassword = async () => {
+    const newErrors = {};
+
+    if (passwordInfo.newPassword.length < 8) {
+      newErrors.newPassword = "Password must be at least 8 characters long.";
+    }
+    if (passwordInfo.newPassword !== passwordInfo.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       const response = await axios.put("/api/users/change-password", passwordInfo, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -63,7 +101,7 @@ const AdminProfilePage = () => {
       alert("Password Updated Successfully");
     } catch (error) {
       console.error("Error changing password:", error);
-      alert("Failed to change password.");
+      setErrors({ currentPassword: "Incorrect current password." });
     }
   };
 
@@ -74,7 +112,10 @@ const AdminProfilePage = () => {
       </div>
 
       <div className="flex-1 p-6">
-        <h2 className="text-2xl font-bold mb-4">Admin Profile</h2>
+        <div className="bg-white border rounded-xl p-6 mb-6">
+          <div className="text-xl font-semibold text-neutral-800 mb-1">{personalInfo.name}</div>
+          <div className="text-gray-500 text-sm">Email: {personalInfo.email}</div>
+        </div>
 
         <div className="space-y-6">
           {/* Personal Info Section */}
@@ -104,17 +145,7 @@ const AdminProfilePage = () => {
                   placeholder="example@example.com"
                   className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
                 />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-700">Phone</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={personalInfo.phone}
-                  onChange={handleChange}
-                  placeholder="123-456-7890"
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
-                />
+                {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
               </div>
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700">Date of Birth</label>
@@ -126,10 +157,22 @@ const AdminProfilePage = () => {
                   placeholder="January 1, 2000"
                   className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
                 />
+                {errors.dob && <span className="text-red-500 text-sm">{errors.dob}</span>}
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm text-gray-700">Phone</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={personalInfo.phone}
+                  onChange={handleChange}
+                  placeholder="123-456-7890"
+                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
+                />
+                {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
               </div>
             </div>
 
-            {/* Cancel and Update buttons for Personal Info */}
             <div className="flex gap-4 justify-end mt-4">
               <button
                 onClick={() => setPersonalInfo({ name: "", email: "", phone: "", dob: "" })}
@@ -162,6 +205,7 @@ const AdminProfilePage = () => {
                   placeholder="*******"
                   className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
                 />
+                {errors.currentPassword && <span className="text-red-500 text-sm">{errors.currentPassword}</span>}
               </div>
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700">New Password</label>
@@ -173,6 +217,7 @@ const AdminProfilePage = () => {
                   placeholder="*******"
                   className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
                 />
+                {errors.newPassword && <span className="text-red-500 text-sm">{errors.newPassword}</span>}
               </div>
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700">Confirm Password</label>
@@ -184,10 +229,10 @@ const AdminProfilePage = () => {
                   placeholder="*******"
                   className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
                 />
+                {errors.confirmPassword && <span className="text-red-500 text-sm">{errors.confirmPassword}</span>}
               </div>
             </div>
 
-            {/* Cancel and Submit buttons for Password */}
             <div className="flex gap-4 justify-end mt-4">
               <button
                 onClick={() => setPasswordInfo({ currentPassword: "", newPassword: "", confirmPassword: "" })}
@@ -203,6 +248,7 @@ const AdminProfilePage = () => {
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>
