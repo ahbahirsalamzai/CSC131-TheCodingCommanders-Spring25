@@ -1,12 +1,14 @@
 import express from 'express';
-import { updatePersonalInfo, changePassword } from '../controllers/userController.js';
-import { authenticateAdmin } from '../middleware/authMiddleware.js'; // Authentication middleware
-import { validatePersonalInfoUpdate, validatePasswordChange } from '../middleware/validationMiddleware.js'; // Adding validations for personal info and password updates
+import mongoose from 'mongoose';
+import { updatePersonalInfo, changePassword, getAllUsers } from '../controllers/userController.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+import authorizeRoles from '../middleware/roleAuth.js';
+import { validatePersonalInfoUpdate, validatePasswordChange } from '../middleware/validationMiddleware.js';
 
 const router = express.Router();
 
-// Existing route to fetch users
-router.get("/", async (req, res) => {
+// GET /api/users — Admin-only route
+router.get("/", authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const users = await mongoose.connection.db
       .collection("users")
@@ -24,9 +26,9 @@ router.get("/", async (req, res) => {
 });
 
 // New route to update personal info
-router.put("/update", authenticateAdmin, validatePersonalInfoUpdate, updatePersonalInfo);
+router.put("/update", authenticateToken, validatePersonalInfoUpdate, updatePersonalInfo);
 
 // New route to change password
-router.put("/change-password", authenticateAdmin, validatePasswordChange, changePassword);
+router.put("/change-password", authenticateToken, validatePasswordChange, changePassword);
 
-module.exports = router;
+export default router;

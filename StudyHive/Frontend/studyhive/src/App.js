@@ -1,7 +1,7 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
+import { AuthProvider } from './context/AuthContext';
 
 // Components
 import Header from "./components/Header";
@@ -22,52 +22,54 @@ import VerifySignUpOTP from './pages/VerifySignUpOTP';
 import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
-import ScheduleSession from './pages/ScheduleSession';
-import TutorDashboard from './pages/TutorDashboard';
-import AdminProfilePage from './pages/AdminProfilePage';
-import StudentSchedulePage from './pages/StudentSchedulePage';
+import ScheduleSession from './pages/ScheduleSession'; 
+import TutorDashboard from './pages/TutorDashboard'; 
+import AdminProfilePage from './pages/AdminProfilePage'; 
+import StudentSchedulePage from './pages/StudentSchedulePage'; 
 
 function App() {
   return (
-    <Router>
-      <div className="flex flex-col min-h-screen">
-        {/* Header */}
-        <Header />
+    <AuthProvider>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          {/* Header */}
+          <Header />
 
-        {/* Navbar */}
-        <Navbar />
+          {/* Navbar */}
+          <Navbar />
 
-        {/* Main Content */}
-        <main className="flex-grow container mx-auto p-4">
-          <Routes>
-            {/* Core Pages */}
-            <Route path="/" element={<Home />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/sessions" element={<Sessions />} />
-            <Route path="/attendance" element={<Attendance />} />
-            <Route path="/payroll" element={<Payroll />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verify-otp" element={<VerifySignUpOTP />} />
-            <Route path="/otp" element={<OTPPage />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+          {/* Main Content */}
+          <main className="flex-grow container mx-auto p-4">
+            <Routes>
+              {/* Core Pages */}
+              <Route path="/" element={<Home />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/sessions" element={<Sessions />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/payroll" element={<Payroll />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/verify-otp" element={<VerifySignUpOTP />} />
+              <Route path="/otp" element={<OTPPage />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Dashboards & Scheduling */}
-            <Route path="/student-dashboard" element={<StudentDashboard />} />
-            <Route path="/tutor-dashboard" element={<TutorDashboard />} />
-            <Route path="/admin-profile" element={<AdminProfilePage />} />
-            <Route path="/tutor-schedule-session" element={<ScheduleSession />} />
-            <Route path="/student-schedule-session" element={<StudentSchedulePage />} />
-            <Route path="/schedule-session" element={<ScheduleSession />} />
-          </Routes>
-        </main>
+              {/* Dashboards & Scheduling */}
+              <Route path="/student-dashboard" element={<StudentDashboard />} />
+              <Route path="/tutor-dashboard" element={<TutorDashboard />} />
+              <Route path="/admin-profile" element={<AdminProfilePage />} />
+              <Route path="/tutor-schedule-session" element={<ScheduleSession />} />
+              <Route path="/student-schedule-session" element={<StudentSchedulePage />} />
+              <Route path="/schedule-session" element={<ScheduleSession />} />
+            </Routes>
+          </main>
 
-        {/* Footer */}
-        <Footer />
-      </div>
-    </Router>
+          {/* Footer */}
+          <Footer />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

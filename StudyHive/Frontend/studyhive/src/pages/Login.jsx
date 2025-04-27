@@ -5,9 +5,15 @@ import { Link } from "react-router-dom";
 import { login } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from '../context/AuthContext';
+import { jwtDecode } from 'jwt-decode';
+
+
 
 export default function Login() {
   const navigate = useNavigate();
+  const { handleLogin, user } = useAuth();
+
 
   const [formData, setFormData] = useState({
     email: "",
@@ -46,22 +52,22 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const newErrors = {
       email: validateField("email", formData.email),
       password: validateField("password", formData.password),
     };
-
+  
     setErrors(newErrors);
-
+  
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-        const res = await login(formData);
-
+        const res = await handleLogin(formData); // 🛠 ADD THIS BACK
+  
         if (res.token) {
           // ✅ Save token
           localStorage.setItem("token", res.token);
-
+  
           // ✅ Save full user info to localStorage so Navbar can read it
           const userObject = {
             email: res.email,
@@ -70,24 +76,21 @@ export default function Login() {
             role: res.role,
           };
           localStorage.setItem("user", JSON.stringify(userObject));
-
+  
+          const decoded = jwtDecode(res.token);
+  
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,
           });
-
+  
           setTimeout(() => {
-            if (res.status === "pending") {
-              localStorage.setItem("otp_email", formData.email);
-              navigate("/verify-otp");
+            if (decoded.role === "student") {
+              navigate("/student-dashboard");
+            } else if (decoded.role === "tutor") {
+              navigate("/tutor-dashboard");
             } else {
-              if (res.role === "student") {
-                navigate("/student-dashboard");
-              } else if (res.role === "tutor") {
-                navigate("/tutor-dashboard");
-              } else {
-                navigate("/profile");
-              }
+              navigate("/profile");
             }
           }, 1500);
         }
@@ -99,7 +102,7 @@ export default function Login() {
       }
     }
   };
-
+  
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-[1440px] flex justify-center items-center">

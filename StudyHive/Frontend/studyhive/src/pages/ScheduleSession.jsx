@@ -4,6 +4,8 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Sidebar from "../components/Sidebar";
 import api from "../services/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const localizer = momentLocalizer(moment);
 
@@ -33,7 +35,7 @@ const ScheduleSession = () => {
         }));
         setEvents(formatted);
       } catch (err) {
-        console.error("❌ Failed to fetch availability:", err);
+        console.error("Failed to fetch availability:", err);
       }
     };
     fetchAvailability();
@@ -51,7 +53,7 @@ const ScheduleSession = () => {
   const handleSubmit = async () => {
     const { tutorName, startTime, endTime, subject } = formData;
     if (!tutorName || !startTime || !endTime) {
-      alert("Please complete all fields");
+      toast.error("Please complete all fields", { position: "top-center" });
       return;
     }
 
@@ -65,12 +67,15 @@ const ScheduleSession = () => {
         end: endDateTime,
         subject,
       });
-      alert("✅ Availability posted!");
+      toast.success("Availability posted!", { position: "top-center", autoClose: 1500 });
       setModalOpen(false);
       setFormData({ tutorName: "", startTime: "", endTime: "", subject: "" });
-      window.location.reload();
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
-      alert("❌ Failed to post availability");
+      toast.error("Failed to post availability!", { position: "top-center" });
       console.error(err);
     }
   };
@@ -78,11 +83,14 @@ const ScheduleSession = () => {
   const handleCancelSession = async () => {
     try {
       await api.delete(`/sessions/${selectedEvent._id}`);
-      alert("Session deleted");
+      toast.success("Session deleted!", { position: "top-center", autoClose: 1500 });
       setSelectedEvent(null);
-      window.location.reload();
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
-      alert("Failed to delete session");
+      toast.error("Failed to delete session!", { position: "top-center" });
       console.error(err);
     }
   };
@@ -179,7 +187,7 @@ const ScheduleSession = () => {
               <p><strong>Tutor:</strong> {selectedEvent.tutorName}</p>
               <p><strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}</p>
               <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
-              <p><strong>Subject:</strong> {selectedEvent.subject || "None"}</p>
+              <p className="mb-3"><strong>Subject:</strong> {selectedEvent.subject || "None"}</p> {/* <-- Added spacing here */}
 
               <button
                 onClick={handleCancelSession}
@@ -197,6 +205,7 @@ const ScheduleSession = () => {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 };
