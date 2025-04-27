@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }) => {
       });
   
     } catch (err) {
-      console.error(err.message);
-      throw err;
+      console.error(err.response?.data?.message || err.message || "SignUp Failed.");
+      throw new Error(err.response?.data?.message || err.message || "SignUp Failed.");
     }
   };
   
@@ -59,6 +59,11 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = async (formData) => {
     try {
       const data = await login(formData); // { token: '...' }
+
+      if(!data.token){
+        throw new Error("Login failed: token missing.");
+      }
+
       const decoded = jwtDecode(data.token);
 
 
@@ -70,6 +75,9 @@ export const AuthProvider = ({ children }) => {
 
       setToken(data.token);
       localStorage.setItem('token', data.token); // Save token for persistence
+
+      return data;// Return the api response
+
     } catch (err) {
       console.error(err.message);
       throw err;
