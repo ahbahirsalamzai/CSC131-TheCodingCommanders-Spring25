@@ -34,7 +34,8 @@ const AdminProfilePage = () => {
   }, []);
 
   const validatePhone = (phone) => /^[0-9-]+$/.test(phone);
-  const validateDOB = (dob) => /^(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2},\s\d{4}$/.test(dob);
+  const validateDOB = (dob) =>
+    /^(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2},\s\d{4}$/i.test(dob);
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleChange = (e) => {
@@ -112,11 +113,6 @@ const AdminProfilePage = () => {
       </div>
 
       <div className="flex-1 p-6">
-        <div className="bg-white border rounded-xl p-6 mb-6">
-          <div className="text-xl font-semibold text-neutral-800 mb-1">{personalInfo.name}</div>
-          <div className="text-gray-500 text-sm">Email: {personalInfo.email}</div>
-        </div>
-
         <div className="space-y-6">
           {/* Personal Info Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">

@@ -62,18 +62,33 @@ function Sidebar() {
 
           {/* Admin only preview */}
           {isAdmin && (
-            <Link
-              to={adminPreviewLink}
-              className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
-                location.pathname === adminPreviewLink
-                  ? "bg-[#1F4D39] text-white"
-                  : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
-              }`}
-              style={{ marginTop: "20px" }}
-            >
-              <FontAwesomeIcon icon={faListAlt} className="text-lg" />
-              <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
-            </Link>
+            <>
+              <Link
+                to={adminPreviewLink}
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
+                  location.pathname === adminPreviewLink
+                    ? "bg-[#1F4D39] text-white"
+                    : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
+                }`}
+                style={{ marginTop: "20px" }}
+              >
+                <FontAwesomeIcon icon={faListAlt} className="text-lg" />
+                <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
+              </Link>
+
+              {/* Admin only profile link */}
+              <Link
+                to="/admin-profile"
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
+                  location.pathname === "/admin-profile"
+                    ? "bg-[#1F4D39] text-white"
+                    : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
+                }`}
+              >
+                <FontAwesomeIcon icon={faListAlt} className="text-lg" />
+                <span className="text-[16px] font-[400] leading-6">Admin Profile</span>
+              </Link>
+            </>
           )}
         </nav>
       </div>
