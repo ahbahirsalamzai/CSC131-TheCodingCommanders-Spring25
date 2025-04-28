@@ -1,7 +1,7 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
+import { AuthProvider } from './context/AuthContext';
 
 // Components
 import Header from "./components/Header";
@@ -23,13 +23,15 @@ import OTPPage from './pages/OTPPage';
 import ResetPassword from './pages/ResetPassword';
 import StudentDashboard from './pages/StudentDashboard';
 import ScheduleSession from './pages/ScheduleSession';
-import StudentSchedulePage from './pages/StudentSchedulePage';
 import TutorDashboard from './pages/TutorDashboard';
-import TutorProfilePage from './pages/TutorProfilePage'
-import StudentProfilePage from './pages/StudentProfile';
+import StudentSchedulePage from './pages/StudentSchedulePage';
+
+// ⭐ ADD THIS IMPORT:
+import StudentProfilePage from './pages/StudentProfile'; 
 
 function App() {
   return (
+    <AuthProvider>
     <Router>
       <div className="flex flex-col min-h-screen">
         {/* Header */}
@@ -62,9 +64,8 @@ function App() {
             <Route path="/student-schedule-session" element={<StudentSchedulePage />} />
             <Route path="/schedule-session" element={<ScheduleSession />} />
 
-            {/* Profiles */}
+            {/* ⭐ ADD THIS ROUTE: */}
             <Route path="/student-profile" element={<StudentProfilePage />} />
-            <Route path="/tutor-profile" element={<TutorProfilePage />} />
           </Routes>
         </main>
 
@@ -72,6 +73,7 @@ function App() {
         <Footer />
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 

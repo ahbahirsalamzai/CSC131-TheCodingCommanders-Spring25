@@ -1,15 +1,14 @@
 // Backend/routes/userRoutes.js
-const express = require("express");
-const router = express.Router();
-const mongoose = require("mongoose");
-const {
-  getTutorProfile,
-  updateTutorProfile,
-  updateTutorPassword
-} = require("../controllers/userController");
+import express from 'express';
+import mongoose from 'mongoose';
+import { getAllUsers, getTutorProfile, updateTutorProfile, updateTutorPassword } from '../controllers/userController.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+import authorizeRoles from '../middleware/roleAuth.js';
 
-// GET /api/users (already existing, KEEP THIS)
-router.get("/", async (req, res) => {
+const router = express.Router();
+
+// ✅ GET /api/users — Admin-only route
+router.get("/", authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const users = await mongoose.connection.db
       .collection("users")
@@ -26,17 +25,15 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ADD THESE NEW ROUTES BELOW ⬇️
-const { protect } = require("../middleware/authMiddleware");
+// ✅ Tutor Profile Routes (for /tutor-profile frontend)
 
-
-// GET tutor profile (for /tutor-profile frontend)
-router.get("/profile", protect, getTutorProfile);
+// GET tutor profile
+router.get("/profile", authenticateToken, getTutorProfile);
 
 // PUT update tutor personal info
-router.put("/profile", protect, updateTutorProfile);
+router.put("/profile", authenticateToken, updateTutorProfile);
 
 // PUT update tutor password
-router.put("/profile/password", protect, updateTutorPassword);
+router.put("/profile/password", authenticateToken, updateTutorPassword);
 
-module.exports = router;
+export default router;

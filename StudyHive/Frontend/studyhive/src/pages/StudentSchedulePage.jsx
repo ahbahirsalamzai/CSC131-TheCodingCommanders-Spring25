@@ -4,10 +4,12 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import Sidebar from "../components/Sidebar";
 import api from "../services/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const localizer = momentLocalizer(moment);
 
-const ScheduleSession = () => {
+const StudentSchedulePage = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [studentName, setStudentName] = useState("");
@@ -26,21 +28,26 @@ const ScheduleSession = () => {
         }));
         setEvents(formatted);
       } catch (err) {
-        console.error(" Failed to fetch availability:", err);
+        console.error("Failed to fetch availability:", err);
       }
     };
     fetchAvailability();
   }, []);
 
   const handleBookSession = async () => {
-    if (!studentName) return alert("Please enter your name");
+    if (!studentName) {
+      toast.error("Please enter your name", { position: "top-center" });
+      return;
+    }
     try {
       await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName });
-      alert(" Session booked!");
+      toast.success("Session booked!", { position: "top-center", autoClose: 1500 });
       setSelectedEvent(null);
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
-      alert(" Failed to book session");
+      toast.error("Failed to book session!", { position: "top-center" });
       console.error(err);
     }
   };
@@ -48,11 +55,13 @@ const ScheduleSession = () => {
   const handleUnbookSession = async () => {
     try {
       await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName: "" });
-      alert("Session unbooked!");
+      toast.success("Session cancelled!", { position: "top-center", autoClose: 1500 });
       setSelectedEvent(null);
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
-      alert("Failed to unbook session");
+      toast.error("Failed to cancel session!", { position: "top-center" });
       console.error(err);
     }
   };
@@ -100,7 +109,7 @@ const ScheduleSession = () => {
               <p><strong>Tutor:</strong> {selectedEvent.tutorName}</p>
               <p><strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}</p>
               <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
-              <p><strong>Subject:</strong> {selectedEvent.subject || "None"}</p>
+              <p className="mb-3"><strong>Subject:</strong> {selectedEvent.subject || "None"}</p> {/* Added margin-bottom */}
 
               {!selectedEvent.bookedBy && (
                 <>
@@ -112,7 +121,7 @@ const ScheduleSession = () => {
                   />
                   <button
                     onClick={handleBookSession}
-                    className="w-full py-2 mb-2 bg-blue-700 hover:bg-blue-800 text-white rounded transition-transform transform hover:scale-105"
+                    className="w-full py-2 mb-2 bg-[#1F4D39] hover:bg-[#17382a] text-white rounded transition-transform transform hover:scale-105"
                   >
                     Book Session
                   </button>
@@ -122,7 +131,7 @@ const ScheduleSession = () => {
               {selectedEvent.bookedBy && (
                 <button
                   onClick={handleUnbookSession}
-                  className="w-full py-2 mb-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-transform transform hover:scale-105"
+                  className="w-full py-2 mb-2 bg-red-600 hover:bg-red-700 text-white rounded transition-transform transform hover:scale-105"
                 >
                   Cancel My Booking
                 </button>
@@ -138,8 +147,9 @@ const ScheduleSession = () => {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 };
 
-export default ScheduleSession;
+export default StudentSchedulePage;
