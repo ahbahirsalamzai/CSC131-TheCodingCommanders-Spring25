@@ -13,7 +13,7 @@ const authenticateToken = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = {
-      id: decoded.userId,
+      _id: decoded.userId,
       role: decoded.role, // still important for RBAC
     };
 
