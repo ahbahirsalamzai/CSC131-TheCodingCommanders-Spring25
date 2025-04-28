@@ -114,6 +114,7 @@ const AdminProfilePage = () => {
 
       <div className="flex-1 p-6">
         <div className="space-y-6">
+
           {/* Personal Info Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">
             <h3 className="text-lg font-semibold text-neutral-800 mb-4">Personal Info</h3>
@@ -172,13 +173,13 @@ const AdminProfilePage = () => {
             <div className="flex gap-4 justify-end mt-4">
               <button
                 onClick={() => setPersonalInfo({ name: "", email: "", phone: "", dob: "" })}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg"
+                className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base capitalize font-semibold rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmitPersonalInfo}
-                className="px-6 py-2 bg-green-700 text-white rounded-lg"
+                className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base capitalize font-semibold rounded-lg"
               >
                 Update
               </button>
@@ -232,13 +233,13 @@ const AdminProfilePage = () => {
             <div className="flex gap-4 justify-end mt-4">
               <button
                 onClick={() => setPasswordInfo({ currentPassword: "", newPassword: "", confirmPassword: "" })}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg"
+                className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base capitalize font-semibold rounded-lg"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmitPassword}
-                className="px-6 py-2 bg-green-700 text-white rounded-lg"
+                className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base capitalize font-semibold rounded-lg"
               >
                 Submit
               </button>
