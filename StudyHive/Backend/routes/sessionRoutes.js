@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/', authenticateToken, getAllSessions);
 
 // GET /api/sessions/availability - Fetch all session availability
-router.get('/availability',authenticateToken, async (req, res) => {
+router.get('/availability',authenticateToken, authorizeRoles('student','tutor','admin'), async (req, res) => {
   try {
     const sessions = await Session.find();
     res.status(200).json(sessions);
@@ -20,7 +20,7 @@ router.get('/availability',authenticateToken, async (req, res) => {
 });
 
 // POST /api/sessions/availability - Create tutor availability
-router.post('/availability',authenticateToken, authorizeRoles('tutor'), async (req, res) => {
+router.post('/availability',authenticateToken, authorizeRoles('tutor', 'admin'), async (req, res) => {
   const { tutorName, start, end, subject } = req.body;
 
   if (!tutorName || !start || !end) {
@@ -37,7 +37,7 @@ router.post('/availability',authenticateToken, authorizeRoles('tutor'), async (r
 });
 
 // PATCH /api/sessions/book/:id - Book or unbook a session
-router.patch('/book/:id', authenticateToken, authorizeRoles('student'), async (req, res) => {
+router.patch('/book/:id', authenticateToken, authorizeRoles('student','tutor'), async (req, res) => {
   const { studentName } = req.body;
   const { id } = req.params;
 
@@ -64,7 +64,7 @@ router.patch('/book/:id', authenticateToken, authorizeRoles('student'), async (r
 });
 
 // DELETE /api/sessions/:id - Permanently delete a session
-router.delete('/:id',authenticateToken, authorizeRoles('admin','tutor'), async (req, res) => {
+router.delete('/:id',authenticateToken, authorizeRoles('admin','tutor', 'student'), async (req, res) => {
   const { id } = req.params;
 
   try {
