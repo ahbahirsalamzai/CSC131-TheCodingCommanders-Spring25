@@ -1,12 +1,13 @@
 import axios from 'axios';
+import axiosInstance from './axiosInstance'; 
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-// 📚 For STUDENTS → get all available sessions
+// For STUDENTS → get all available sessions
 export const getAllSessions = async () => {
-  const res = await axios.get(`${API_URL}/sessions/availability`, {
-    withCredentials: true,
-  });
+
+
+  const res = await axiosInstance.get(`/sessions/availability`);
 
   const allSessions = res.data;
 
@@ -20,11 +21,9 @@ export const getAllSessions = async () => {
   }));
 };
 
-// 🎯 For TUTORS → get sessions belonging to the logged-in tutor
+//  For TUTORS → get sessions belonging to the logged-in tutor
 export const getTutorSessions = async () => {
-  const res = await axios.get(`${API_URL}/sessions/tutor`, {
-    withCredentials: true,
-  });
+  const res = await axiosInstance.get(`/sessions/tutor`);
 
   const allSessions = res.data;
 
