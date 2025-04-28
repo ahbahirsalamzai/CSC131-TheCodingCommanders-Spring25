@@ -12,6 +12,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
+//RBACv
+import { useEffect } from 'react';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+//RBAC^
+
 
 const scrollToSection = (id) => {
   const element = document.getElementById(id);
@@ -31,6 +37,16 @@ const scrollToSection = (id) => {
 
 export default function Home() {
   const [openIndex, setOpenIndex] = useState(null); // State for FAQ open/close
+
+  //RBAC v
+  useEffect(() => {
+    const message = localStorage.getItem('accessDenied');
+    if (message) {
+      toast.error(message);
+      localStorage.removeItem('accessDenied'); // clean up after showing toast
+    }
+  }, []);
+//RBAC ^
 
   const faqItems = [
     {
@@ -57,6 +73,10 @@ export default function Home() {
 
   return (
   <div className="w-full overflow-x-hidden">
+
+{/* RBAC */}
+<ToastContainer />
+
    {/* Hero Section */}
   <section id="home" className="relative w-full min-h-[90vh] md:min-h-screen flex items-center justify-center text-white pt-16">
       <div className="relative w-full max-w-6xl lg:h-[643px] rounded-3xl shadow-lg border border-black overflow-hidden mx-auto">

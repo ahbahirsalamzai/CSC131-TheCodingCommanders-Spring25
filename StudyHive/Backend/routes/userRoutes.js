@@ -6,7 +6,7 @@ import authorizeRoles from '../middleware/roleAuth.js';
 
 const router = express.Router();
 
-// GET /api/users — Admin-only route
+
 router.get("/", authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const users = await mongoose.connection.db

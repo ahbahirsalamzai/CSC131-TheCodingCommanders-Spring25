@@ -96,7 +96,9 @@ export default function Login() {
               navigate("/student-dashboard");
             } else if (decoded.role === "tutor") {
               navigate("/tutor-dashboard");
-            } else {
+            } else if (decoded.role === "admin") {
+              navigate("/admin-dashboard");
+            }else {
               navigate("/profile");
             }
           }, 1500);

@@ -6,12 +6,34 @@ import LoggOff from '../assets/logoff.png';
 import { useEffect } from 'react';
 import { gapi } from 'gapi-script';
 
+
+// this section will help protect the pages: RBAC 
+import { useAuth } from '../context/AuthContext';
+//RBAC^
+
 const CLIENT_ID = "256345888442-nkne9mq5sce57c9mn80g38hp5m2bm9dd.apps.googleusercontent.com"; 
 const API_KEY = "AIzaSyCDE4pb7q0WuXGzjjmDNkYtn4qS7I1xnrg"; 
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";
 
+
+
 export default function TutorScheduling(){
     const navigate = useNavigate();
+
+    //RBAC v
+    const { user } = useAuth();
+
+    useEffect(()=> {
+        if (user){
+        if (!user || user.role !== 'tutor'){
+            localStorage.setItem('accessDenied', 'Access restricted. You do not have permission to view this page.');
+            navigate('/'); // send them to home if they do not belong
+        }
+    }
+    },[user, navigate]);
+    
+
+    //RBAC^
 
 useEffect(() =>{
     const initClient = async () =>{
