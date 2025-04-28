@@ -15,6 +15,10 @@ export default function StudentProfilePage() {
     newPassword: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState({});
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     api.get('/student/profile')
@@ -35,131 +39,203 @@ export default function StudentProfilePage() {
 
   const updateField = (key, val) => setProfile(prev => ({ ...prev, [key]: val }));
 
-  const addSubject = () => {
-    if (profile.newSubject && !profile.subjects.includes(profile.newSubject)) {
+  const handleSubjectKeyDown = (e) => {
+    if (e.key === 'Enter' && profile.newSubject.trim() !== '') {
+      e.preventDefault();
       setProfile(prev => ({
         ...prev,
-        subjects: [...prev.subjects, profile.newSubject],
+        subjects: [...prev.subjects, prev.newSubject],
         newSubject: ''
       }));
     }
   };
 
-  const removeSubject = (subj) => {
-    setProfile(prev => ({
-      ...prev,
-      subjects: prev.subjects.filter(s => s !== subj)
-    }));
-  };
-
-  const handleUpdate = () => {
-    const { name, email, dob, phone, subjects, learningGoals } = profile;
-    api.put('/student/profile', { name, email, dob, phone, subjects, learningGoals })
-      .then(() => alert('Profile updated successfully!'))
-      .catch(() => alert('Failed to update profile'));
-  };
-
-  const handlePasswordUpdate = () => {
-    if (profile.newPassword !== profile.confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-    api.put('/student/password', {
-      currentPassword: profile.currentPassword,
-      newPassword: profile.newPassword
-    })
-      .then(() => alert('Password updated successfully!'))
-      .catch(err => alert(err.response?.data?.message || 'Password update failed'));
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePhone = (phone) => /^[0-9-]+$/.test(phone);
+  const validateDOB = (dob) => /^(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2},\s\d{4}$/i.test(dob);
 
   return (
-    <div className="flex pt-20 min-h-screen bg-gray-50">
-      <Sidebar showBackArrow={true} />
+    <div className="flex pt-20 bg-gray-100 min-h-screen">
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
+        <Sidebar />
+      </div>
 
-      <div className="flex-1 p-8">
-        <div className="max-w-5xl mx-auto space-y-6">
-          <div className="bg-white shadow px-6 py-4 flex justify-end rounded-xl border border-slate-200">
-            <div className="text-right">
-              <div className="text-sm font-semibold text-[#1F1F1F]">John Doe</div>
-              <div className="text-sm text-[#697586]">johndoe@example.com</div>
+      <div className="flex-1 p-6 space-y-6">
+        {/* Personal Info Section */}
+        <div className="bg-white border rounded-xl p-6 mb-6">
+          <h3 className="text-lg font-semibold text-neutral-800 mb-4">Personal Info</h3>
+          <p className="text-sm text-gray-500 mb-4">Update your photo and personal details.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-700">Name</label>
+              <input
+                type="text"
+                placeholder="Name"
+                className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 w-full"
+                value={profile.name}
+                onChange={(e) => updateField('name', e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-700">Email</label>
+              <input
+                type="email"
+                placeholder="Email"
+                className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 w-full"
+                value={profile.email}
+                onChange={(e) => updateField('email', e.target.value)}
+              />
+              {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-700">Date of Birth</label>
+              <input
+                type="text"
+                placeholder="March 15, 2020"
+                className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 w-full"
+                value={profile.dob}
+                onChange={(e) => updateField('dob', e.target.value)}
+              />
+              {errors.dob && <span className="text-red-500 text-sm">{errors.dob}</span>}
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-700">Phone</label>
+              <input
+                type="text"
+                placeholder="Phone Number"
+                className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 w-full"
+                value={profile.phone}
+                onChange={(e) => updateField('phone', e.target.value)}
+              />
+              {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
+            </div>
+          </div>
+          <div className="flex gap-4 justify-end mt-4">
+            <button className="px-6 py-2 bg-white hover:bg-gray-100 text-[#1F4D39] border border-[#1F4D39] text-base font-semibold capitalize rounded-lg">Cancel</button>
+            <button className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base font-semibold capitalize rounded-lg">Update</button>
+          </div>
+        </div>
+
+        {/* Academic Details Section */}
+        <div className="bg-white border rounded-xl p-6 mb-6">
+          <h3 className="text-lg font-semibold text-neutral-800 mb-4">Academic Details</h3>
+          <p className="text-sm text-gray-500 mb-4">Update your academic details.</p>
+
+          <h4 className="text-md font-semibold text-neutral-700 mb-2">Subject of Interest</h4>
+          <div className="flex mb-4">
+            <input
+              type="text"
+              placeholder="Enter subject"
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400"
+              value={profile.newSubject}
+              onChange={(e) => updateField('newSubject', e.target.value)}
+              onKeyDown={handleSubjectKeyDown}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-4">
+            {profile.subjects.map((subject, idx) => (
+              <div key={idx} className="bg-gray-200 px-3 py-1 rounded-full flex items-center">
+                {subject}
+                <button
+                  className="ml-2 text-red-600 hover:text-red-800"
+                  onClick={() => {
+                    setProfile(prev => ({
+                      ...prev,
+                      subjects: prev.subjects.filter((_, i) => i !== idx)
+                    }));
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col mb-4">
+            <label className="text-sm text-gray-700">Learning Goals</label>
+            <textarea
+              placeholder="Enter your learning goals"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400"
+              rows="4"
+              value={profile.learningGoals}
+              onChange={(e) => updateField('learningGoals', e.target.value)}
+            ></textarea>
+          </div>
+
+          <div className="flex gap-4 justify-end mt-4">
+            <button className="px-6 py-2 bg-white hover:bg-gray-100 text-[#1F4D39] border border-[#1F4D39] text-base font-semibold capitalize rounded-lg">Cancel</button>
+            <button className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base font-semibold capitalize rounded-lg">Update</button>
+          </div>
+        </div>
+
+        {/* Password Section */}
+        <div className="bg-white border rounded-xl p-6 mb-6">
+          <h3 className="text-lg font-semibold text-neutral-800 mb-4">Password</h3>
+          <p className="text-sm text-gray-500 mb-4">Update your password.</p>
+
+          <div className="flex flex-col mb-6 relative">
+            <label className="text-sm text-gray-700">Current Password</label>
+            <input
+              type={showCurrentPassword ? 'text' : 'password'}
+              placeholder="Current Password"
+              className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 w-full"
+              value={profile.currentPassword}
+              onChange={(e) => updateField('currentPassword', e.target.value)}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-9 text-sm text-gray-600"
+              onClick={() => setShowCurrentPassword(prev => !prev)}
+            >
+              {showCurrentPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col relative">
+              <label className="text-sm text-gray-700">New Password</label>
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                placeholder="New Password"
+                className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 w-full"
+                value={profile.newPassword}
+                onChange={(e) => updateField('newPassword', e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-9 text-sm text-gray-600"
+                onClick={() => setShowNewPassword(prev => !prev)}
+              >
+                {showNewPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+
+            <div className="flex flex-col relative">
+              <label className="text-sm text-gray-700">Confirm New Password</label>
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirm New Password"
+                className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 placeholder-gray-400 w-full"
+                value={profile.confirmPassword}
+                onChange={(e) => updateField('confirmPassword', e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-9 text-sm text-gray-600"
+                onClick={() => setShowConfirmPassword(prev => !prev)}
+              >
+                {showConfirmPassword ? 'Hide' : 'Show'}
+              </button>
             </div>
           </div>
 
-          <Section title="Personal info" subtitle="Update your photo and personal details.">
-            <div className="flex flex-col md:flex-row gap-6">
-              <Input label="Name" val={profile.name} set={v => updateField('name', v)} placeholder="James Dupont" />
-              <Input label="Email" val={profile.email} set={v => updateField('email', v)} disabled placeholder="johndoe@example.com" />
-            </div>
-            <div className="flex flex-col md:flex-row gap-6">
-              <Input label="Date of Birth" type="date" val={profile.dob} set={v => updateField('dob', v)} placeholder="March 15, 2002" />
-              <Input label="Phone" val={profile.phone} set={v => updateField('phone', v)} placeholder="123-456-7931" />
-            </div>
-            <ActionButtons onUpdate={handleUpdate} />
-          </Section>
-
-          <Section title="Academic Details" subtitle="Update your academic details.">
-            <Input label="Subjects of Interest" val={profile.newSubject} set={v => updateField('newSubject', v)} placeholder="Enter name" />
-            <button className="bg-[#1F4D39] text-white px-4 py-2 rounded-md font-semibold" onClick={addSubject}>Add</button>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {profile.subjects.map((s, i) => (
-                <div key={i} className="flex items-center border border-[#697586] text-sm text-[#4B5565] rounded-full px-3 py-1">
-                  {s} <button className="ml-2" onClick={() => removeSubject(s)}>×</button>
-                </div>
-              ))}
-            </div>
-            <TextArea label="Learning Goals" val={profile.learningGoals} set={v => updateField('learningGoals', v)} placeholder="I want to improve my problem-solving skills in math and gain a deeper understanding of programming concepts." />
-            <ActionButtons onUpdate={handleUpdate} />
-          </Section>
-
-          <Section title="Password" subtitle="Update Your Password.">
-            <Input label="Current Password" type="password" val={profile.currentPassword} set={v => updateField('currentPassword', v)} placeholder="***********" />
-            <div className="flex flex-col md:flex-row gap-6">
-              <Input label="New Password" type="password" val={profile.newPassword} set={v => updateField('newPassword', v)} placeholder="***********" />
-              <Input label="Confirm Password" type="password" val={profile.confirmPassword} set={v => updateField('confirmPassword', v)} placeholder="***********" />
-            </div>
-            <ActionButtons onUpdate={handlePasswordUpdate} submitText="Submit" />
-          </Section>
+          <div className="flex gap-4 justify-end mt-4">
+            <button className="px-6 py-2 bg-white hover:bg-gray-100 text-[#1F4D39] border border-[#1F4D39] text-base font-semibold capitalize rounded-lg">Cancel</button>
+            <button className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base font-semibold capitalize rounded-lg">Submit</button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Section({ title, subtitle, children }) {
-  return (
-    <div className="bg-white border border-[#E3E8EF] rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-[#121926] mb-1">{title}</h2>
-      <p className="text-sm text-[#697586] mb-4">{subtitle}</p>
-      {children}
-    </div>
-  );
-}
-
-function Input({ label, val, set, type = 'text', disabled = false, placeholder = '' }) {
-  return (
-    <div className="flex flex-col flex-1">
-      <label className="font-medium text-[#121926] mb-1">{label}</label>
-      <input type={type} value={val} onChange={e => set(e.target.value)} disabled={disabled} placeholder={placeholder}
-             className="border border-[#CDD5DF] rounded-md px-4 py-3 text-sm text-[#121926] bg-white placeholder-[#9AA4B2]" />
-    </div>
-  );
-}
-
-function TextArea({ label, val, set, placeholder = '' }) {
-  return (
-    <div className="mt-4">
-      <label className="font-medium text-[#121926] mb-1">{label}</label>
-      <textarea value={val} onChange={e => set(e.target.value)} placeholder={placeholder}
-                className="border border-[#CDD5DF] rounded-md px-4 py-3 text-sm text-[#121926] w-full min-h-[100px] placeholder-[#9AA4B2]" />
-    </div>
-  );
-}
-
-function ActionButtons({ onUpdate, submitText = 'Update' }) {
-  return (
-    <div className="flex justify-end gap-3 mt-4">
-      <button className="border border-[#1F4D39] text-[#1F4D39] px-6 py-2 rounded-md font-semibold">Cancel</button>
-      <button className="bg-[#1F4D39] text-white px-6 py-2 rounded-md font-semibold" onClick={onUpdate}>{submitText}</button>
     </div>
   );
 }
