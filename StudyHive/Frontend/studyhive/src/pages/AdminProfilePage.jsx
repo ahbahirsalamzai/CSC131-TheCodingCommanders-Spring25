@@ -25,19 +25,29 @@ const AdminProfilePage = () => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
+      const token = localStorage.getItem("token");
+      console.log("🔑 Loaded token:", token); // 🔍 Check if token exists
+  
+      if (!token) {
+        console.warn("⚠️ No token found in localStorage.");
+        return;
+      }
+  
       try {
         const response = await axios.get("http://localhost:3001/api/users/me", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
+  
+        console.log("✅ Fetched user info:", response.data); // 🔍 Log response
         setPersonalInfo(response.data);
       } catch (error) {
-        console.error("Error fetching user info:", error);
+        console.error("❌ Error fetching user info:", error);
       }
     };
-
+  
     fetchUserInfo();
   }, []);
-
+  
   const validatePhone = (phone) => /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/.test(phone);
   const validateDOB = (dob) => /^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-(19|20)\d{2}$/.test(dob);
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -45,7 +55,6 @@ const AdminProfilePage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setErrors({ ...errors, [name]: "" });
-
     if (name in personalInfo) {
       setPersonalInfo({ ...personalInfo, [name]: value });
     } else {
@@ -138,6 +147,7 @@ const AdminProfilePage = () => {
 
       <div className="flex-1 p-6">
         <div className="space-y-6">
+          {/* Personal Info Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">
             <h3 className="text-lg font-semibold text-neutral-800 mb-4">Personal Info</h3>
             <p className="text-sm text-gray-500 mb-4">Update your personal details</p>
@@ -215,12 +225,13 @@ const AdminProfilePage = () => {
             </div>
           </div>
 
-          {/* Password Section Corrected Layout */}
+          {/* Password Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">
             <h3 className="text-lg font-semibold text-neutral-800 mb-4">Password</h3>
             <p className="text-sm text-gray-500 mb-4">Update your password</p>
 
             <div className="grid grid-cols-1 gap-6">
+              {/* Current Password */}
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700">Current Password</label>
                 <div className="relative">
@@ -243,6 +254,7 @@ const AdminProfilePage = () => {
                 {errors.currentPassword && <span className="text-red-500 text-sm">{errors.currentPassword}</span>}
               </div>
 
+              {/* New Password */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col">
                   <label className="text-sm text-gray-700">New Password</label>
@@ -266,6 +278,7 @@ const AdminProfilePage = () => {
                   {errors.newPassword && <span className="text-red-500 text-sm">{errors.newPassword}</span>}
                 </div>
 
+                {/* Confirm Password */}
                 <div className="flex flex-col">
                   <label className="text-sm text-gray-700">Confirm Password</label>
                   <div className="relative">

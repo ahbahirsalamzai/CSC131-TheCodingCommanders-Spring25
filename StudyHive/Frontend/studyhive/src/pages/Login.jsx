@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { login } from "../api/authService"; // you still need this for API call
 import { ToastContainer, toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import "react-toastify/dist/ReactToastify.css";
@@ -42,21 +41,13 @@ export default function Login() {
 
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-        const res = await login(formData); // 🔥 actually call API here
+        console.log("🚀 Sending login request with:", formData);
+
+        // ✅ This now properly saves the token and user context
+        const res = await handleLogin(formData);
+        localStorage.setItem("user", JSON.stringify(res));
 
         if (res.token) {
-          const userObject = {
-            email: res.email,
-            firstName: res.firstName,
-            lastName: res.lastName,
-            role: res.role,
-            isVerified: res.isVerified,
-            token: res.token,
-          };
-
-          // 🔥 Save user to context AND localStorage
-          handleLogin(userObject);
-
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,
@@ -70,8 +61,8 @@ export default function Login() {
             } else if (decoded.role === "tutor") {
               navigate("/tutor-dashboard");
             } else if (decoded.role === "admin") {
-              navigate("/admin-dashboard");
-            }else {
+              navigate("/admin-profile");
+            } else {
               navigate("/profile");
             }
           }, 1500);

@@ -3,8 +3,9 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import sendOTPEmail from '../utils/emailSender.js';
 
-
-
+// ---------------------------
+// Sign Up Controller
+// ---------------------------
 export const signup = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
@@ -36,21 +37,18 @@ export const signup = async (req, res) => {
       userId: newUser._id,
       role: newUser.role,
       email: newUser.email,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '1d' }
-  );
+    }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-  res.status(201).json({ token });
-  
-    // res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
+    res.status(201).json({ token });
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ message: "Server error during signup." });
   }
 };
 
-
+// ---------------------------
+// Verify OTP After Signup
+// ---------------------------
 export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -78,20 +76,25 @@ export const verifyOTP = async (req, res) => {
 };
 
 // ---------------------------
-// Send SignUp/Login OTP
+// Standalone Send OTP Endpoint (for signup or manual resend)
 // ---------------------------
 export const sendOTP = async (req, res) => {
   const { email } = req.body;
 
   try {
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(404).json({ message: "User not found." });
+    const normalizedEmail = email.toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
     await user.save();
 
-    await sendOTPEmail(email.toLowerCase(), otp);
+    await sendOTPEmail(normalizedEmail, otp);
+
     res.status(200).json({ message: "OTP sent to email." });
   } catch (err) {
     console.error("Send OTP error:", err);
@@ -100,12 +103,17 @@ export const sendOTP = async (req, res) => {
 };
 
 // ---------------------------
-// Login
+// Login Controller
 // ---------------------------
 export const login = async (req, res) => {
+  console.log(" Received req.body:", req.body); //debug purpose
   const { email, password } = req.body;
 
   try {
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required." });
+    }
+
     const normalizedEmail = email.toLowerCase();
     const user = await User.findOne({ email: normalizedEmail });
 
@@ -113,19 +121,15 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
+    if (!user.password) {
+      return res.status(400).json({ message: "User password is missing." });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
-    const token = jwt.sign({ userId: user._id, role: user.role,  email: user.email }, process.env.JWT_SECRET, {
-      
-
-      expiresIn: "1d",
-      
-    });
-
-    // If account is still pending, re-send OTP but don't crash if email fails
     if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
@@ -135,22 +139,27 @@ export const login = async (req, res) => {
         await sendOTPEmail(normalizedEmail, otp);
       } catch (emailErr) {
         console.error("❌ Failed to send OTP email during login:", emailErr.message);
-        return res.status(500).json({ message: "Login successful, but OTP email failed to send." });
       }
     }
+
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
     res.status(200).json({
       token,
       status: user.status,
       username: user.username,
       userId: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
       email: user.email,
       role: user.role,
     });
   } catch (err) {
-    console.error("Login error:", err);
+    console.error("Login error:", err.stack);
     res.status(500).json({ message: "Server error during login." });
   }
 };

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-//const API_URL = process.env.REACT_APP_API_URL;
+// Set API base URL
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
 
 // ----------------------
@@ -17,11 +17,24 @@ export const signup = async (userData) => {
 };
 
 // ----------------------
-// 🔓 Login
+// 🔓 Login (✅ FIXED: no JSON.stringify)
 // ----------------------
 export const login = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/auth/login`, userData);
+    const response = await axios.post(
+      `${API_URL}/auth/login`,
+      userData,
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    if (!response.data || !response.data.token) {
+      throw new Error(response.data?.message || "Login failed. Token missing.");
+    }
+
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || "Login failed. Please try again.";

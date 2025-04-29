@@ -49,7 +49,7 @@ const Navbar = () => {
   };
 
   const handleProfileClick = () => {
-    navigate("/profile");
+    navigate("/admin-profile");
   };
 
   const handleDashboardClick = () => {
