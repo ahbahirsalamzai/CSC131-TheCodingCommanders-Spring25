@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
-import { useAuth } from "../context/AuthContext.js"
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
- // const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
 
-  const { user, handleLogout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,24 +31,23 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // useEffect(() => {
-  //   const savedUser = localStorage.getItem("user");
-  //   if (savedUser) {
-  //     setUser(JSON.parse(savedUser));
-  //   } else {
-  //     setUser(null);
-  //   }
-  // }, [location]);
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    } else {
+      setUser(null);
+    }
+  }, [location]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // const handleLogout = () => {
-  //   setUser(null);
-  //   setToken(null);
-  //   localStorage.removeItem('token');
-  //   localStorage.removeItem('user');  // <-- ADD THIS LINE
-  // };
-  
+  const handleLogout = () => {
+    localStorage.clear();
+    setUser(null);
+    navigate("/login");
+  };
+
   const handleProfileClick = () => {
     navigate("/profile");
   };
@@ -80,8 +77,6 @@ const Navbar = () => {
       });
     }
   };
-
-  const isUserVerified = user && user.isVerified;
 
   return (
     <nav
@@ -120,7 +115,7 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          {isUserVerified && location.pathname === "/" && (
+          {user && location.pathname === "/" && (
             <button
               onClick={handleDashboardClick}
               className="text-lg hover:text-[#1F4D39] transition duration-200"
@@ -132,7 +127,7 @@ const Navbar = () => {
 
         {/* Right Section */}
         <div className="hidden lg:flex lg:items-center space-x-4">
-          {isUserVerified ? (
+          {user ? (
             <>
               <div
                 className="flex flex-col items-end text-black mr-4 cursor-pointer"
@@ -205,7 +200,7 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          {isUserVerified && location.pathname === "/" && (
+          {user && location.pathname === "/" && (
             <button
               onClick={() => {
                 handleDashboardClick();
@@ -216,7 +211,7 @@ const Navbar = () => {
               Dashboard
             </button>
           )}
-          {isUserVerified ? (
+          {user ? (
             <>
               <div
                 className="flex flex-col items-center text-black cursor-pointer"
