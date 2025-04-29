@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import User from '../models/User.js'; // User model
+import User from '../models/User.js';
 
 // ==============================
 // Update Personal Info
@@ -12,6 +12,29 @@ export const updatePersonalInfo = async (req, res) => {
 
     if (!admin) {
       return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    // ==========================
+    // Validate for duplicate Name, Email, Phone Number, DOB
+    // ==========================
+    const existingAdminWithName = await User.findOne({ name });
+    if (existingAdminWithName && existingAdminWithName._id.toString() !== admin._id.toString()) {
+      return res.status(400).json({ message: 'This name is already taken.' });
+    }
+
+    const existingAdminWithEmail = await User.findOne({ email });
+    if (existingAdminWithEmail && existingAdminWithEmail._id.toString() !== admin._id.toString()) {
+      return res.status(400).json({ message: 'This email is already taken.' });
+    }
+
+    const existingAdminWithPhone = await User.findOne({ phone });
+    if (existingAdminWithPhone && existingAdminWithPhone._id.toString() !== admin._id.toString()) {
+      return res.status(400).json({ message: 'This phone number is already taken.' });
+    }
+
+    const existingAdminWithDOB = await User.findOne({ dob });
+    if (existingAdminWithDOB && existingAdminWithDOB._id.toString() !== admin._id.toString()) {
+      return res.status(400).json({ message: 'This Date of Birth is already taken.' });
     }
 
     // Update fields if provided
@@ -53,6 +76,11 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ message: 'New password and confirmation do not match' });
     }
 
+    // Check if the new password is the same as the current password
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: 'New password cannot be the same as the current password.' });
+    }
+
     // Hash and update the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     admin.password = hashedPassword;
@@ -71,7 +99,7 @@ export const changePassword = async (req, res) => {
 // ==============================
 export const getMyProfile = async (req, res) => {
   try {
-    const admin = await User.findById(req.user._id).select('name email phone dob');
+    const admin = await User.findById(req.user._id).select('username email phone dob');
 
     if (!admin) {
       return res.status(404).json({ message: 'Admin not found' });
@@ -81,5 +109,22 @@ export const getMyProfile = async (req, res) => {
   } catch (err) {
     console.error('Error fetching admin profile:', err);
     res.status(500).json({ message: 'Server error fetching profile information' });
+  }
+};
+
+// ==============================
+// Get All Users
+// Purpose: Admin can see the list of all users
+// ==============================
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('name email phone dob role'); // Only select necessary fields
+    res.status(200).json({
+      count: users.length,
+      users,
+    });
+  } catch (err) {
+    console.error('Error fetching all users:', err);
+    res.status(500).json({ message: 'Server error fetching all users' });
   }
 };
