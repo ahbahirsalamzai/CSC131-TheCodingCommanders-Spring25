@@ -17,6 +17,11 @@ const AdminProfilePage = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -114,7 +119,6 @@ const AdminProfilePage = () => {
 
       <div className="flex-1 p-6">
         <div className="space-y-6">
-
           {/* Personal Info Section */}
           <div className="bg-white border rounded-xl p-6 mb-6">
             <h3 className="text-lg font-semibold text-neutral-800 mb-4">Personal Info</h3>
@@ -173,7 +177,7 @@ const AdminProfilePage = () => {
             <div className="flex gap-4 justify-end mt-4">
               <button
                 onClick={() => setPersonalInfo({ name: "", email: "", phone: "", dob: "" })}
-                className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base capitalize font-semibold rounded-lg"
+                className="px-6 py-2 bg-white hover:bg-gray-100 text-[#1F4D39] border border-[#1F4D39] text-base font-semibold capitalize rounded-lg"
               >
                 Cancel
               </button>
@@ -194,38 +198,71 @@ const AdminProfilePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700">Current Password</label>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  value={passwordInfo.currentPassword}
-                  onChange={handleChange}
-                  placeholder="*******"
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword.currentPassword ? "text" : "password"}
+                    name="currentPassword"
+                    value={passwordInfo.currentPassword}
+                    onChange={handleChange}
+                    placeholder="*******"
+                    className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword({ ...showPassword, currentPassword: !showPassword.currentPassword })
+                    }
+                    className="absolute right-3 top-3 text-sm text-[#1F4D39] font-semibold"
+                  >
+                    {showPassword.currentPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
                 {errors.currentPassword && <span className="text-red-500 text-sm">{errors.currentPassword}</span>}
               </div>
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700">New Password</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={passwordInfo.newPassword}
-                  onChange={handleChange}
-                  placeholder="*******"
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword.newPassword ? "text" : "password"}
+                    name="newPassword"
+                    value={passwordInfo.newPassword}
+                    onChange={handleChange}
+                    placeholder="*******"
+                    className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword({ ...showPassword, newPassword: !showPassword.newPassword })
+                    }
+                    className="absolute right-3 top-3 text-sm text-[#1F4D39] font-semibold"
+                  >
+                    {showPassword.newPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
                 {errors.newPassword && <span className="text-red-500 text-sm">{errors.newPassword}</span>}
               </div>
               <div className="flex flex-col">
                 <label className="text-sm text-gray-700">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={passwordInfo.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="*******"
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword.confirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={passwordInfo.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="*******"
+                    className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword({ ...showPassword, confirmPassword: !showPassword.confirmPassword })
+                    }
+                    className="absolute right-3 top-3 text-sm text-[#1F4D39] font-semibold"
+                  >
+                    {showPassword.confirmPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
                 {errors.confirmPassword && <span className="text-red-500 text-sm">{errors.confirmPassword}</span>}
               </div>
             </div>
@@ -233,7 +270,7 @@ const AdminProfilePage = () => {
             <div className="flex gap-4 justify-end mt-4">
               <button
                 onClick={() => setPasswordInfo({ currentPassword: "", newPassword: "", confirmPassword: "" })}
-                className="px-6 py-2 bg-[#1F4D39] hover:bg-[#17382a] text-white text-base capitalize font-semibold rounded-lg"
+                className="px-6 py-2 bg-white hover:bg-gray-100 text-[#1F4D39] border border-[#1F4D39] text-base font-semibold capitalize rounded-lg"
               >
                 Cancel
               </button>
