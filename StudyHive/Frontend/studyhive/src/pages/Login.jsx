@@ -54,8 +54,12 @@ export default function Login() {
             token: res.token,
           };
 
+          // Save to localStorage for navbar use
+              localStorage.setItem('token', res.token); // ✅ store token
+              localStorage.setItem('user', JSON.stringify(userObject)); // ✅ store us
+
           // 🔥 Save user to context AND localStorage
-          handleLogin(userObject);
+              handleLogin(userObject);
 
           toast.success("Login successful!", {
             position: "top-center",
@@ -66,7 +70,7 @@ export default function Login() {
 
           setTimeout(() => {
             if (decoded.role === "student") {
-              navigate("/student-dashboard");
+              navigate("/student-profile");
             } else if (decoded.role === "tutor") {
               navigate("/tutor-dashboard");
             } else {

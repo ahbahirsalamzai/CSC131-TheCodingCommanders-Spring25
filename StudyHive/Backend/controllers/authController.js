@@ -3,8 +3,9 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import sendOTPEmail from '../utils/emailSender.js';
 
-
-
+// ==============================
+// Signup New User
+// ==============================
 export const signup = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
@@ -32,25 +33,22 @@ export const signup = async (req, res) => {
 
     await newUser.save();
 
-    const token = jwt.sign({
-      userId: newUser._id,
-      role: newUser.role,
-      email: newUser.email,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '1d' }
-  );
+    const token = jwt.sign(
+      { userId: newUser._id, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-  res.status(201).json({ token });
-  
-    // res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
+    res.status(201).json({ token });
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ message: "Server error during signup." });
   }
 };
 
-
+// ==============================
+// Verify OTP to Activate Account
+// ==============================
 export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -77,9 +75,9 @@ export const verifyOTP = async (req, res) => {
   }
 };
 
-// ---------------------------
-// Send SignUp/Login OTP
-// ---------------------------
+// ==============================
+// Send OTP for Signup or Login
+// ==============================
 export const sendOTP = async (req, res) => {
   const { email } = req.body;
 
@@ -99,30 +97,37 @@ export const sendOTP = async (req, res) => {
   }
 };
 
-// ---------------------------
-// Login
-// ---------------------------
+// ==============================
+// Login User
+// ==============================
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const normalizedEmail = email.toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail });
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
+    if (!user.password) {
+      return res.status(400).json({ message: "User password is missing." });
+    }
     const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid email or password.' });
+    }
+
+    //const isMatch = await bcrypt.compare(password, user.password);
+    //console.log("🔍 user.password from DB:", user.password); // debug
+    //console.log("🔍 password from request:", password);       // debug
+
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    // If account is still pending, re-send OTP but don't crash if email fails
+    // Handle pending users
     if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
@@ -136,25 +141,32 @@ export const login = async (req, res) => {
       }
     }
 
+    // ✅ Generate and send token
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
     res.status(200).json({
       token,
       status: user.status,
-      username: user.username,
       userId: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      username: user.username,
       email: user.email,
       role: user.role,
     });
+
   } catch (err) {
-    console.error("Login error:", err);
+    console.error("Login error:", err.stack);
     res.status(500).json({ message: "Server error during login." });
   }
 };
 
-// ---------------------------
+
+// ==============================
 // Forgot Password - Send OTP
-// ---------------------------
+// ==============================
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -170,15 +182,7 @@ export const forgotPassword = async (req, res) => {
     user.resetOtp = otp;
     user.otpExpiry = Date.now() + 10 * 60 * 1000;
 
-    console.log("Generated OTP for reset:", otp);
     await user.save();
-
-    console.log("✅ OTP and expiry saved to user:", {
-      email: user.email,
-      resetOtp: user.resetOtp,
-      otpExpiry: user.otpExpiry,
-    });
-
     await sendOTPEmail(normalizedEmail, otp);
 
     res.status(200).json({ message: "OTP sent to your email.", email: normalizedEmail });
@@ -188,13 +192,11 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// ---------------------------
+// ==============================
 // Verify OTP for Forgot Password
-// ---------------------------
+// ==============================
 export const verifyForgotPasswordOTP = async (req, res) => {
   const { email, otp } = req.body;
-
-  console.log("🔐 Verifying OTP for reset:", { email, otp });
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -202,10 +204,6 @@ export const verifyForgotPasswordOTP = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-
-    console.log("Stored OTP:", user.resetOtp);
-    console.log("Entered OTP:", otp);
-    console.log("Expiry:", user.otpExpiry, "Now:", Date.now());
 
     const storedOtp = user.resetOtp?.toString();
     const enteredOtp = otp?.toString();
@@ -229,23 +227,22 @@ export const verifyForgotPasswordOTP = async (req, res) => {
   }
 };
 
-// ---------------------------
-// Reset Password
-// ---------------------------
+// ==============================
+// Reset Password with New Password
+// ==============================
 export const resetPassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(404).json({ message: "User not found." });
+    if (!user) return res.status(404).json({ message: 'User not found.' });
 
-    const hashed = await bcrypt.hash(newPassword, 10);
-    user.password = hashed;
+    user.password = newPassword; // This will trigger the pre-save hook to hash the password
     await user.save();
 
-    res.status(200).json({ message: "Password reset successful." });
+    res.status(200).json({ message: 'Password reset successful.' });
   } catch (err) {
-    console.error("Reset Password error:", err);
-    res.status(500).json({ message: "Server error while resetting password." });
+    console.error('Reset Password error:', err);
+    res.status(500).json({ message: 'Server error while resetting password.' });
   }
 };

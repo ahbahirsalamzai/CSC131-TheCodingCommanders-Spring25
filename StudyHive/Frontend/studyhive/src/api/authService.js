@@ -92,3 +92,37 @@ export const resetPassword = async (email, newPassword) => {
     throw new Error(errorMessage);
   }
 };
+
+// ----------------------
+// 📝 Update Student Profile Info
+// ----------------------
+export const updateStudentProfile = async (profileData, token) => {
+  try {
+    const response = await axios.put(`${API_URL}/users/student/profile`, profileData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Failed to update profile.";
+    throw new Error(errorMessage);
+  }
+};
+
+// ----------------------
+// 🔐 Update Student Password
+// ----------------------
+export const updateStudentPassword = async (passwordData, token) => {
+  try {
+    const response = await axios.put(`${API_URL}/users/profile/password`, passwordData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Failed to update password.";
+    throw new Error(errorMessage);
+  }
+};

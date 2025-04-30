@@ -43,7 +43,7 @@ export default function StudentProfilePage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    api.get('/student/profile')
+    api.get('/users/student/profile')
       .then(res => {
         const { name, email, dob, phone, subjects, learningGoals } = res.data;
         setProfile(prev => ({
@@ -62,7 +62,7 @@ export default function StudentProfilePage() {
   const updateField = (key, val) => {
     setProfile(prev => ({ ...prev, [key]: val }));
     if (key === 'newPassword' || key === 'confirmPassword') {
-      setPasswordError(''); // clear error as user types
+      setPasswordError('');
     }
   };
 
@@ -94,7 +94,7 @@ export default function StudentProfilePage() {
     }
 
     try {
-      await api.put('/student/profile', {
+      await api.put('/users/student/profile', {
         name: profile.name,
         email: profile.email,
         phone: profile.phone,
@@ -111,29 +111,25 @@ export default function StudentProfilePage() {
 
   const handleUpdatePassword = async () => {
     const { currentPassword, newPassword, confirmPassword } = profile;
-
     if (!currentPassword || !newPassword || !confirmPassword) {
       setPasswordError('Please fill in all password fields');
       return;
     }
-
     if (newPassword.length < 8) {
       setPasswordError('New password must be at least 8 characters.');
       return;
     }
-
     if (!/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
       setPasswordError('New password must contain at least one letter and one number.');
       return;
     }
-
     if (newPassword !== confirmPassword) {
       setPasswordError('New password and confirmation do not match.');
       return;
     }
 
     try {
-      await api.post('/student/update-password', { currentPassword, newPassword });
+      await api.put('/users/student/profile/password', { currentPassword, newPassword });
       alert('Password updated successfully!');
       setProfile(prev => ({
         ...prev,
@@ -154,15 +150,106 @@ export default function StudentProfilePage() {
         <Sidebar />
       </div>
       <div className="flex-1 p-6 space-y-6">
-
         {/* Personal Info */}
-        {/* (your Personal Info and Academic Details sections stay the same) */}
+        <div className="bg-white border rounded-xl p-6">
+          <h3 className="text-lg font-semibold">Personal Info</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <input
+              type="text"
+              placeholder="Name"
+              value={profile.name}
+              onChange={(e) => updateField('name', e.target.value)}
+              className="border rounded p-2"
+            />
+            <div>
+              <input
+                type="email"
+                placeholder="Email"
+                value={profile.email}
+                onChange={(e) => updateField('email', e.target.value)}
+                className="border rounded p-2 w-full"
+              />
+              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            </div>
+            <div>
+              <input
+                type="text"
+                placeholder="MM-DD-YYYY"
+                value={profile.dob}
+                onChange={(e) => updateField('dob', formatDOB(e.target.value))}
+                className="border rounded p-2 w-full"
+              />
+              {errors.dob && <p className="text-red-500 text-sm">{errors.dob}</p>}
+            </div>
+            <div>
+              <input
+                type="text"
+                placeholder="123-456-7890"
+                value={profile.phone}
+                onChange={(e) => updateField('phone', formatPhoneNumber(e.target.value))}
+                className="border rounded p-2 w-full"
+              />
+              {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+            </div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <button
+              className="bg-[#1F4D39] hover:bg-[#17382a] text-white px-4 py-2 rounded"
+              onClick={handleUpdatePersonalInfo}
+            >
+              Update
+            </button>
+          </div>
+        </div>
+
+        {/* Academic Details */}
+        <div className="bg-white border rounded-xl p-6">
+          <h3 className="text-lg font-semibold">Academic Details</h3>
+          <input
+            type="text"
+            placeholder="Add subject"
+            value={profile.newSubject}
+            onChange={(e) => updateField('newSubject', e.target.value)}
+            onKeyDown={handleSubjectKeyDown}
+            className="border rounded p-2 mt-4 w-full"
+          />
+          <div className="flex flex-wrap gap-2 mt-3">
+            {profile.subjects.map((subject, i) => (
+              <span key={i} className="bg-gray-200 px-3 py-1 rounded-full">
+                {subject}
+                <button
+                  onClick={() => {
+                    setProfile(prev => ({
+                      ...prev,
+                      subjects: prev.subjects.filter((_, idx) => idx !== i)
+                    }));
+                  }}
+                  className="ml-2 text-red-500"
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
+          </div>
+          <textarea
+            placeholder="Learning goals"
+            value={profile.learningGoals}
+            onChange={(e) => updateField('learningGoals', e.target.value)}
+            className="border rounded p-2 w-full mt-4"
+          />
+          <div className="flex justify-end mt-4">
+            <button
+              className="bg-[#1F4D39] hover:bg-[#17382a] text-white px-4 py-2 rounded"
+              onClick={handleUpdatePersonalInfo}
+            >
+              Update
+            </button>
+          </div>
+        </div>
 
         {/* Password Update */}
         <div className="bg-white border rounded-xl p-6">
           <h3 className="text-lg font-semibold">Update Password</h3>
-
-          {/* First line: Current Password */}
           <div className="relative mt-4">
             <input
               type={showCurrentPassword ? 'text' : 'password'}
@@ -179,8 +266,6 @@ export default function StudentProfilePage() {
               {showCurrentPassword ? 'Hide' : 'Show'}
             </button>
           </div>
-
-          {/* Second line: New Password + Confirm Password */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             <div className="relative">
               <input
@@ -215,12 +300,9 @@ export default function StudentProfilePage() {
               </button>
             </div>
           </div>
-
-          {/* Show password error if any */}
           {passwordError && (
             <p className="text-red-500 text-sm mt-2">{passwordError}</p>
           )}
-
           <div className="flex justify-end gap-4 mt-4">
             <button className="px-6 py-2 bg-white hover:bg-gray-100 text-[#1F4D39] border border-[#1F4D39] text-base font-semibold capitalize rounded-lg">
               Cancel

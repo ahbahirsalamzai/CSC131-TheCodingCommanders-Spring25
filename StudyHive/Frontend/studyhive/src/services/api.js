@@ -3,8 +3,20 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // e.g., http://localhost:3001/api
-  withCredentials: true, // if you're using cookies/sessions
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
+  withCredentials: true, // only needed if using cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// ✅ Automatically attach token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default api;

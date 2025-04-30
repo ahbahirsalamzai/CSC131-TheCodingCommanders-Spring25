@@ -1,3 +1,4 @@
+// Backend/middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 
 const authenticateToken = (req, res, next) => {
@@ -12,10 +13,11 @@ const authenticateToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = {
-      id: decoded.userId,
-      role: decoded.role, // still important for RBAC
-    };
+    const token = jwt.sign({
+      userId: user._id,
+      role: user.role,
+    }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    
 
     next();
   } catch (err) {
