@@ -37,8 +37,8 @@ const TutorScheduling = () => {
       }
     };
 
-    if (user) fetchAvailability();
-  }, [user]);
+    fetchAvailability();
+  }, []);
 
   const handleSelectSlot = ({ start }) => {
     setSelectedDate(start);
@@ -158,5 +158,5 @@ const TutorScheduling = () => {
     </div>
   );
 };
-a
+
 export default TutorScheduling;

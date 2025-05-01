@@ -17,6 +17,8 @@ const StudentSchedulePage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState(Views.MONTH);
 
+  const fullName = `${user?.firstName} ${user?.lastName}`;
+
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
@@ -25,7 +27,7 @@ const StudentSchedulePage = () => {
           ...event,
           start: new Date(event.start),
           end: new Date(event.end),
-          title: event.bookedBy ? "Booked" : event.tutorName || "Available Session",
+          title: event.bookedBy ? "Booked" : `${event.tutorName || "Available Session"}`,
         }));
         setEvents(formatted);
       } catch (err) {
@@ -33,9 +35,7 @@ const StudentSchedulePage = () => {
       }
     };
     if (user) fetchAvailability();
-  }, [user]);
-
-  const fullName = `${user.firstName} ${user.lastName}`;
+  }, [user, fullName]);
 
   const handleBookSession = async () => {
     try {
@@ -70,7 +70,7 @@ const StudentSchedulePage = () => {
       </div>
 
       <div className="flex-1 p-6">
-        <h2 className="text-2xl font-bold mb-4">Available Sessions</h2>
+        <h2 className="text-2xl font-bold mb-4">My Sessions</h2>
 
         <Calendar
           selectable={false}

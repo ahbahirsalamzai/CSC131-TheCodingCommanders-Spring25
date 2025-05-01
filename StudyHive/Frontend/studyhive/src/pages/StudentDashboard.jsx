@@ -3,8 +3,10 @@ import Sidebar from '../components/Sidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquareCheck, faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const StudentDashboard = () => {
+  const { user } = useAuth();
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [pastSessions, setPastSessions] = useState([]);
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
@@ -14,11 +16,12 @@ const StudentDashboard = () => {
     const fetchSessions = async () => {
       try {
         const res = await api.get('/sessions/availability');
-        const bookedSessions = res.data.filter(session => session.bookedBy);
+        const fullName = `${user.firstName} ${user.lastName}`;
+        const userSessions = res.data.filter(session => session.bookedBy === fullName);
         const now = new Date();
 
-        const upcoming = bookedSessions.filter(session => new Date(session.start) > now);
-        const past = bookedSessions.filter(session => new Date(session.start) <= now);
+        const upcoming = userSessions.filter(session => new Date(session.start) > now);
+        const past = userSessions.filter(session => new Date(session.start) <= now);
 
         setUpcomingSessions(upcoming);
         setPastSessions(past);
@@ -27,8 +30,8 @@ const StudentDashboard = () => {
       }
     };
 
-    fetchSessions();
-  }, []);
+    if (user) fetchSessions();
+  }, [user]);
 
   return (
     <div className="flex min-h-screen bg-gray-50 pt-20">
