@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs'; // Assuming you're also hashing passwords
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,6 +16,12 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+    },
+    dob: {
+      type: String, // e.g., "01-15-1990"
+    },
+    phone: {
+      type: String, // e.g., "123-456-7890"
     },
     role: {
       type: String,
@@ -38,6 +45,14 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// ✅ Hash password before saving (if not already hashed)
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
 
 const User = mongoose.model('User', userSchema);
 export default User;

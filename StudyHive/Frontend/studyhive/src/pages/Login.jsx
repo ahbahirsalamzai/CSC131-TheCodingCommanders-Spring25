@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { login } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,7 +8,7 @@ import union from "../assets/union.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user, loading, handleLogin } = useAuth();
+  const { user, loading, performLogin, handleLogin } = useAuth(); // ✅ context login
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
@@ -19,7 +18,6 @@ export default function Login() {
 
   useEffect(() => {
     if (redirectRole) {
-      console.log("🚀 Redirecting to role dashboard:", redirectRole);
       const timer = setTimeout(() => {
         if (redirectRole === "student") navigate("/student-dashboard");
         else if (redirectRole === "tutor") navigate("/tutor-dashboard");
@@ -56,47 +54,36 @@ export default function Login() {
 
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-        const res = await login(formData);
+        console.log("🔐 Sending login data:", formData);
+        const res = await performLogin(formData); // ✅ using context login
 
-        if (res.token) {
-          const decoded = jwtDecode(res.token);
-          console.log(" Decoded token:", decoded);
-
-          if (!decoded.role) {
-            console.error("No role found in decoded token");
-            return;
-          }
-          
-
-          if (res.status === "pending") {
-            toast.info("Please verify your account to continue.", {
-              position: "top-center",
-              autoClose: 1500,
-            });
-            navigate("/verify-otp", { state: { email: formData.email } });
-
-            return;
-          }
-          
-          
-          const userObject = {
-            email: res.email,
-            firstName: res.firstName,
-            lastName: res.lastName,
-            role: res.role,
-            isVerified: res.isVerified,
-            token: res.token,
-          };
-
-          handleLogin(userObject);
-          setRedirectRole(decoded.role);
-          console.log("Login success — setting redirectRole:", decoded.role);
-
-          toast.success("Login successful!", {
+        if (res.status === "pending") {
+          toast.info("Please verify your account to continue.", {
             position: "top-center",
             autoClose: 1500,
           });
+          navigate("/verify-otp", { state: { email: formData.email } });
+          return;
         }
+
+        const decoded = jwtDecode(res.token);
+
+        const userObject = {
+          email: res.email,
+          firstName: res.firstName,
+          lastName: res.lastName,
+          role: res.role,
+          isVerified: res.isVerified,
+          token: res.token,
+        };
+
+        handleLogin(userObject);
+        setRedirectRole(decoded.role);
+
+        toast.success("Login successful!", {
+          position: "top-center",
+          autoClose: 1500,
+        });
       } catch (err) {
         setErrorMessage(err.message || "Login failed.");
         toast.error(err.message || "Login failed.", {
