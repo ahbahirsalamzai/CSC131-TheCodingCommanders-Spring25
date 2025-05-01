@@ -111,6 +111,7 @@ export const login = async (req, res) => {  // Login - if pending send a new OTP
 
   try {
     if (!email || !password) {
+      console.warn("Login failed — missing fields:", { email, password });
       return res.status(400).json({ message: "Email and password are required." });
     }
 

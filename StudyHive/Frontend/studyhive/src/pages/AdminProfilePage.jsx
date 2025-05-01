@@ -115,27 +115,49 @@ const AdminProfilePage = () => {
 
   const handleSubmitPassword = async () => {
     const newErrors = {};
-    if (passwordInfo.newPassword.length < 8) {
-      newErrors.newPassword = "Password must be at least 8 characters long.";
+  
+    // Inline validation hints
+    if (passwordInfo.newPassword.length < 6) {
+      newErrors.newPassword = "Password must be at least 6 characters long.";
     }
+  
     if (passwordInfo.newPassword !== passwordInfo.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match.";
     }
-
+  
+    if (!passwordInfo.currentPassword) {
+      newErrors.currentPassword = "Current password is required.";
+    }
+  
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
+  
     try {
       const response = await axios.put("/api/users/change-password", passwordInfo, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       console.log(response.data);
       alert("Password Updated Successfully");
+      setPasswordInfo({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setErrors({});
     } catch (error) {
       console.error("Error changing password:", error);
-      setErrors({ currentPassword: "Incorrect current password." });
+      const apiErrors = error?.response?.data?.errors || {};
+      const fallback = error?.response?.data?.message || "Incorrect current password.";
+      const updatedErrors = {};
+  
+      // Show all returned field-level errors, fallback to general error
+      Object.keys(apiErrors).forEach((key) => {
+        updatedErrors[key] = apiErrors[key];
+      });
+  
+      if (Object.keys(updatedErrors).length === 0) {
+        updatedErrors.currentPassword = fallback;
+      }
+  
+      setErrors(updatedErrors);
     }
   };
 

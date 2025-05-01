@@ -62,23 +62,39 @@ export const changePassword = async (req, res) => {
     const admin = await User.findById(req.user._id);
 
     if (!admin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({
+        errors: {
+          currentPassword: 'Admin not found',
+        },
+      });
     }
 
     // Check if the current password matches
     const isMatch = await bcrypt.compare(currentPassword, admin.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Incorrect current password' });
+      return res.status(400).json({
+        errors: {
+          currentPassword: 'Incorrect current password',
+        },
+      });
     }
 
     // Check if new password and confirmation match
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: 'New password and confirmation do not match' });
+      return res.status(400).json({
+        errors: {
+          confirmPassword: 'New password and confirmation do not match',
+        },
+      });
     }
 
     // Check if the new password is the same as the current password
     if (currentPassword === newPassword) {
-      return res.status(400).json({ message: 'New password cannot be the same as the current password.' });
+      return res.status(400).json({
+        errors: {
+          newPassword: 'New password cannot be the same as the current password.',
+        },
+      });
     }
 
     // Hash and update the new password
@@ -89,7 +105,11 @@ export const changePassword = async (req, res) => {
     res.status(200).json({ message: 'Password changed successfully.' });
   } catch (err) {
     console.error('Error changing password:', err);
-    res.status(500).json({ message: 'Server error while changing password.' });
+    res.status(500).json({
+      errors: {
+        general: 'Server error while changing password.',
+      },
+    });
   }
 };
 

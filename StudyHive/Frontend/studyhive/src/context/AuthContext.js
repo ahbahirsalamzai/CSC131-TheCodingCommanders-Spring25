@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { signup, login } from "../api/authService";
+import { signup, login } from "../api/authService"; // <-- now importing login
 
 const AuthContext = createContext();
 
@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (token) {
       try {
         const decoded = jwtDecode(token);
@@ -22,26 +21,13 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     }
-
     setLoading(false);
   }, []);
 
-  // 🔐 Signup handler
-  const handleSignup = async (formData) => {
+  // 🔐 Performs full login using email/password and backend API
+  const performLogin = async (credentials) => {
     try {
-      const res = await signup(formData);
-      return res; // Let the component handle toast & redirection
-    } catch (err) {
-      console.error("Signup failed:", err);
-      throw err;
-    }
-  };
-
-  // 🔓 Login handler
-  const handleLogin = async (formData) => {
-    try {
-      const data = await login(formData);
-
+      const data = await login(credentials);
       if (!data.token) throw new Error("Login failed: token missing.");
 
       localStorage.setItem("token", data.token);
@@ -55,14 +41,40 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🚪 Logout handler
+  // ✅ Sets user context directly from an already-decoded token (e.g., after signup or token restore)
+  const handleLogin = (userObject) => {
+    if (userObject && userObject.token) {
+      localStorage.setItem("token", userObject.token);
+      setUser(userObject);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setUser(null);
   };
 
+  const handleSignup = async (formData) => {
+    try {
+      const res = await signup(formData);
+      return res;
+    } catch (err) {
+      console.error("Signup failed:", err);
+      throw err;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, handleLogin, handleLogout, handleSignup }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        performLogin,  // Use for login with email/password
+        handleLogin,   // Use to store an already-decoded user
+        handleLogout,
+        handleSignup,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
