@@ -27,12 +27,38 @@ export default function OTPPage() {
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
 
-    const newDigits = [...otpDigits];
-    newDigits[index] = value;
-    setOtpDigits(newDigits);
+    // If pasted 6-digit code
+    if (value.length === 6) {
+      const digits = value.split("").slice(0, 6);
+      setOtpDigits(digits);
+      digits.forEach((digit, i) => {
+        if (inputRefs.current[i]) {
+          inputRefs.current[i].value = digit;
+        }
+      });
+      inputRefs.current[5]?.focus();
+    } else {
+      const newDigits = [...otpDigits];
+      newDigits[index] = value;
+      setOtpDigits(newDigits);
+      if (value && index < 5) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    }
+  };
 
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+  const handlePaste = (e) => {
+    const pasted = e.clipboardData.getData("text").trim();
+    if (/^\d{6}$/.test(pasted)) {
+      const digits = pasted.split("");
+      setOtpDigits(digits);
+      digits.forEach((digit, i) => {
+        if (inputRefs.current[i]) {
+          inputRefs.current[i].value = digit;
+        }
+      });
+      inputRefs.current[5]?.focus();
+      e.preventDefault();
     }
   };
 
@@ -55,9 +81,7 @@ export default function OTPPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const otpCode = otpDigits.join("");
-
     if (otpCode.length !== 6) {
       setError("OTP must be exactly 6 digits.");
       setSuccess("");
@@ -67,10 +91,8 @@ export default function OTPPage() {
     setLoading(true);
     try {
       await verifyForgotPasswordOTP(email, otpCode);
-
       setSuccess("OTP verified successfully!");
       setError("");
-
       setTimeout(() => {
         navigate("/reset-password", { state: { email } });
       }, 1500);
@@ -114,33 +136,25 @@ export default function OTPPage() {
           </div>
 
           {error && (
-            <p className="text-red-600 text-center text-sm font-semibold mb-2">
-              {error}
-            </p>
+            <p className="text-red-600 text-center text-sm font-semibold mb-2">{error}</p>
           )}
 
           {success && (
-            <p className="text-green-600 text-center text-sm font-semibold mb-2">
-              {success}
-            </p>
+            <p className="text-green-600 text-center text-sm font-semibold mb-2">{success}</p>
           )}
 
           {resendMessage && (
-            <p className="text-green-600 text-center text-sm font-semibold mb-2">
-              {resendMessage}
-            </p>
+            <p className="text-green-600 text-center text-sm font-semibold mb-2">{resendMessage}</p>
           )}
 
           <p className="text-center text-black text-sm mb-4">
             A 6 digit OTP Code has been sent to your email
             <br />
-            <span className="font-semibold">
-              ({email || "missing email"})
-            </span>
+            <span className="font-semibold">({email || "missing email"})</span>
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col items-center w-full">
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-4" onPaste={handlePaste}>
               {otpDigits.map((digit, index) => (
                 <input
                   key={index}
@@ -177,10 +191,7 @@ export default function OTPPage() {
 
           <div className="text-center mt-4 text-sm">
             Remember your password?{" "}
-            <a
-              href="/login"
-              className="text-[#1f4d39] font-semibold hover:underline"
-            >
+            <a href="/login" className="text-[#1f4d39] font-semibold hover:underline">
               Sign In
             </a>
           </div>

@@ -1,153 +1,162 @@
-import React from 'react';
-import DashboardIcon from '../assets/element-4.svg';
-import CalendarIcon from '../assets/calendar_white_small-4.png'
-import { useNavigate } from 'react-router-dom';
-import LoggOff from '../assets/logoff.png';
-import { useEffect } from 'react';
-import { gapi } from 'gapi-script';
+import React, { useState, useEffect } from "react";
+import { Calendar, momentLocalizer, Views } from "react-big-calendar";
+import moment from "moment";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import Sidebar from "../components/Sidebar";
+import api from "../services/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../context/AuthContext";
 
-const CLIENT_ID = "256345888442-nkne9mq5sce57c9mn80g38hp5m2bm9dd.apps.googleusercontent.com"; 
-const API_KEY = "AIzaSyCDE4pb7q0WuXGzjjmDNkYtn4qS7I1xnrg"; 
-const SCOPES = "https://www.googleapis.com/auth/calendar.events";
+const localizer = momentLocalizer(moment);
 
-export default function TutorScheduling(){
-    const navigate = useNavigate();
+const TutorScheduling = () => {
+  const { user } = useAuth();
+  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
-useEffect(() =>{
-    const initClient = async () =>{
-        try {
-            await gapi.client.init({
-            apiKey: API_KEY,
-            clientId: CLIENT_ID,
-            scope: SCOPES,
-            discoveryDocs:[
-                "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-            ],
-        });
-        console.log("GAPI Client initialized.")
-    }catch(error){
-        console.error("GAPI init error:", error);
+  const [events, setEvents] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [subject, setSubject] = useState("");
+
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await api.get("/sessions/availability");
+        const formatted = res.data.map((event) => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end),
+          title: event.bookedBy ? "Booked" : event.tutorName || "Available Session",
+        }));
+        setEvents(formatted);
+      } catch (err) {
+        console.error("Failed to fetch availability:", err);
+      }
+    };
+
+    if (user) fetchAvailability();
+  }, [user]);
+
+  const handleSelectSlot = ({ start }) => {
+    setSelectedDate(start);
+    setStartTime("");
+    setEndTime("");
+    setSubject("");
+    setModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!startTime || !endTime || !subject) {
+      toast.error("Please fill out all fields.", { position: "top-center" });
+      return;
     }
-    };
-    gapi.load("client:auth2", initClient)
-    }); 
 
+    const startDateTime = new Date(selectedDate);
+    const endDateTime = new Date(selectedDate);
+    const [startHour, startMin] = startTime.split(":");
+    const [endHour, endMin] = endTime.split(":");
+    startDateTime.setHours(+startHour, +startMin);
+    endDateTime.setHours(+endHour, +endMin);
 
-const handleCreateEvent = async ()=>{
-    const event = {
-        summary: "Tutoring Sessions",
-        description: "StudyHive Tutoring Session",
-        start: {
-            dateTime:"2025-04-16T10:00:00-07:00",
-            timeZone:"America/Los_Angeles",
-        },
-        end: {
-            dateTime: "2025-04-16T10:00:00-07:30",
-            timeZone: "America/Los_Angeles",
-        },
-    };
-    const request = gapi.client.calendar.events.insert({
-        calendarId: "primary",
-        resource: event,
-    });
+    try {
+      await api.post("/sessions/availability", {
+        tutorName: fullName,
+        start: startDateTime,
+        end: endDateTime,
+        subject,
+      });
+      toast.success("Availability posted!", { position: "top-center" });
+      setModalOpen(false);
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to post availability.", { position: "top-center" });
+    }
+  };
 
-    request.execute((event) => {
-        alert(`Event created: ${event.htmlLink}`);
-    });
-    };
+  return (
+    <div className="flex pt-20 bg-gray-100 min-h-screen">
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
+        <Sidebar />
+      </div>
 
-    
+      <div className="flex-1 p-6">
+        <h2 className="text-2xl font-bold mb-4">Schedule Sessions</h2>
 
+        <Calendar
+          selectable
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          defaultView={Views.MONTH}
+          views={{ month: true, week: true, day: true, agenda: true }}
+          onSelectSlot={handleSelectSlot}
+          style={{ height: 600 }}
+          eventPropGetter={(event) => ({
+            style: {
+              backgroundColor: event.bookedBy ? "#fcd9b6" : "#c3f7ca",
+              color: "#333",
+              borderRadius: "6px",
+              padding: "4px 6px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+              transition: "transform 0.2s ease",
+            },
+            className: "hover:scale-[1.02] cursor-pointer",
+          })}
+        />
 
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40 transition-all">
+            <div className="bg-white p-6 rounded-2xl shadow-xl w-[300px] animate-fade-in">
+              <h3 className="text-xl font-semibold mb-4">Post Availability</h3>
 
-    return(
-        <div className="bg-gray-50 min-h-screen"> 
-        <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-6">
-        
-        {/*Sidebar */}
-        <aside className="hidden lg:block bg-[#E1EADF] min-h-full px-6 py-8 border-gray-300 mt-20">
-            <nav className="flex flex-col justify-between h-full text-gray-800">
+              <div className="text-sm mb-2 text-gray-600">
+                Availability as:{" "}
+                <span className="font-semibold text-black">{fullName}</span>
+              </div>
 
-                {/*Navigates home as place holder */}
-                <div className="space-y-4">
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full border p-2 mb-2 rounded focus:ring focus:ring-green-600"
+              />
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="w-full border p-2 mb-2 rounded focus:ring focus:ring-green-600"
+              />
+              <textarea
+                placeholder="Subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full border p-2 mb-3 rounded resize-none focus:ring focus:ring-green-600"
+              />
 
-                    <button onClick={() => navigate('/')} className="flex items-center gap-2 bg-white text-gray-600 px-3 py-2 rounded shadow-sm" >
-                        <img src={DashboardIcon} alt="Dashboard" className="w-5 h-5" /> 
-                        <span className="text-sm font-semibold">Dashboard</span>
-                </button> 
-
-                    <button onClick={() => navigate('/')} className="flex items-center gap-2 bg-green-900 text-white px-3 py-2 rounded shadow-sm">
-                        <img src={CalendarIcon} alt="Calendar" className="w-5 h-5" />
-                        <span className="text-sm font-semibold">Schedule Session</span>
-                </button>
+              <button
+                onClick={handleSave}
+                className="w-full py-2 mb-2 bg-[#1F4D39] hover:bg-[#17382a] text-white rounded transition-transform transform hover:scale-105"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="w-full py-2 bg-gray-300 hover:bg-gray-400 rounded transition-transform transform hover:scale-105"
+              >
+                Cancel
+              </button>
             </div>
-
-                <button  onClick={() => navigate('/logged-out')} className="flex items-center gap-2 bg-white text-gray-600 px-3 py-2 rounded shadow-sm">
-                <img src={LoggOff} alt="LogOff" className="w-5 h-5" /> 
-                <span className="text-sm font-semibold">Logout</span>
-                    </button>
-            </nav>
-        </aside>
-
-    {/* Main Content */}
-    <main className="p-4 sm:p-8">
-
-          {/* Topbar */}
-        <div className="flex justify-between items-center mb-20 mt-20">
-            <div>
-            <h1 className="text-2xl font-bold text-green-900">Put Up Availability</h1>
-            <p className="text-gray-600 text-sm">Schedule your available tutoring sessions.</p>
-            </div>
-            <div className="text-right">
-            <div className="text-sm font-semibold">John Doe</div>
-            <div className="text-xs text-gray-500">johndoe@example.com</div>
-            </div>
-        </div>
-
-        {/* tutor bio card */}
-                <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-1">James Dupont</h2>
-                    <p className="text-sm text-gray-500 mb-2">History</p>
-                    <hr className="my-2" />
-                    <p className="text-sm text-gray-600">
-                        Experienced and dedicated tutor specializing in [subject], committed to helping Students
-                        build a strong foundation and achieve their academic goals...
-                    </p>
-                </section>
-
-        {/* Calendar + Time Slots */}
-        <section className="bg-white  p-6 rounded-xl shadow border border-gray-200">
-            <h2 className="text-lg font-semibold mb-2 text-gray-800">Date & Time</h2>
-            <p className="text-sm text-gray-500 mb-4">Select the days and times you are availible</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Calendar placeholder */}
-                <div className="bg-gray-100 rounded-lg p-4 text-center">
-                <p className="text-gray-500">[Calendar Component Here]</p>
-                </div>
-        
-         {/* Calendar placeholder */}
-        <div className="bg-gray-100 rounded-lg p-4">
-                <ul className="space-y-2 text-gray-700">
-                    <li> 9:00am - 10:00am</li>
-                    <li> 10:15am - 11:15am</li>
-                    <li> 11:30am - 12:30am</li>
-                    <li> 5:00pm - 6:00pm</li>
-                </ul>
-            </div>
-        </div>
-        
-
-        {/* Buttons */}
-        <div className="flex justify-end mt-6 gap-4">
-            <button className="border border-green-900 text-green-900 px-5 py-2 rounded-md">Cancel</button>
-            <button onClick={handleCreateEvent} className="bg-green-900 text-white px-5 py-2 rounded-md">Confirm</button>
-
-        </div>
-    </section>
-    </main>
-</div>
-</div>
-    );
-}
-
+          </div>
+        )}
+      </div>
+      <ToastContainer />
+    </div>
+  );
+};
+a
+export default TutorScheduling;
