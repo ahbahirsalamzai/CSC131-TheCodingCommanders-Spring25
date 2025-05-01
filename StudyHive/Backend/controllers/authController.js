@@ -1,14 +1,14 @@
-import bcrypt from 'bcryptjs'; // for hashing passwords and comparing hashes
-import jwt from 'jsonwebtoken'; // Creating the JWTs
-import User from '../models/User.js'; 
-import sendOTPEmail from '../utils/emailSender.js'; // Helps send OTP for acc verification
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import sendOTPEmail from '../utils/emailSender.js';
 
 // ---------------------------
 // Sign Up Controller
 // ---------------------------
-export const signup = async (req, res) => { // Handle sign up - breaks down users input
+export const signup = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { firstName, lastName, username, email, password, role } = req.body;
     const normalizedEmail = email.toLowerCase();
 
     const existingUser = await User.findOne({ email: normalizedEmail });
@@ -18,26 +18,34 @@ export const signup = async (req, res) => { // Handle sign up - breaks down user
     }
 
     if (existingUser && existingUser.status === "pending") {
-      return res.status(400).json({ message: "Account already exists but is not activated. Please log in to receive OTP." });
+      return res.status(400).json({ message: "Account exists but is not activated." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
+      firstName,
+      lastName,
       username,
       email: normalizedEmail,
       password: hashedPassword,
       role,
-      status: "pending", // auto set as pending - active once OTP verification is done
+      status: "pending",
     });
 
     await newUser.save();
 
-    const token = jwt.sign({ // Generating the Json web token - Valid 1 day
-      userId: newUser._id,
-      role: newUser.role,
-      email: newUser.email,
-    }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(
+      {
+        userId: newUser._id,
+        role: newUser.role,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
     res.status(201).json({ token });
   } catch (err) {
@@ -49,7 +57,7 @@ export const signup = async (req, res) => { // Handle sign up - breaks down user
 // ---------------------------
 // Verify OTP After Signup
 // ---------------------------
-export const verifyOTP = async (req, res) => { // completes account activation - OTP Verification
+export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
@@ -76,9 +84,9 @@ export const verifyOTP = async (req, res) => { // completes account activation -
 };
 
 // ---------------------------
-// Standalone Send OTP Endpoint (for signup or manual resend)
+// Standalone Send OTP (for signup or resend)
 // ---------------------------
-export const sendOTP = async (req, res) => { // Send SignUp/Login OTP
+export const sendOTP = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -105,13 +113,11 @@ export const sendOTP = async (req, res) => { // Send SignUp/Login OTP
 // ---------------------------
 // Login Controller
 // ---------------------------
-export const login = async (req, res) => {  // Login - if pending send a new OTP verification code
-  console.log("Received req.body:", req.body); // debug purpose
+export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     if (!email || !password) {
-      console.warn("Login failed — missing fields:", { email, password });
       return res.status(400).json({ message: "Email and password are required." });
     }
 
@@ -131,7 +137,7 @@ export const login = async (req, res) => {  // Login - if pending send a new OTP
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
-    // If account is still pending, re-send OTP but don't crash if email fails
+    // If account is still pending, re-send OTP
     if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
@@ -145,7 +151,7 @@ export const login = async (req, res) => {  // Login - if pending send a new OTP
       }
     }
 
-    const token = jwt.sign( // Include role, userId, and more in JWT
+    const token = jwt.sign(
       {
         userId: user._id,
         email: user.email,
@@ -169,7 +175,7 @@ export const login = async (req, res) => {  // Login - if pending send a new OTP
       role: user.role,
     });
   } catch (err) {
-    console.error("Login error:", err.stack);
+    console.error("Login error:", err);
     res.status(500).json({ message: "Server error during login." });
   }
 };
@@ -191,18 +197,9 @@ export const forgotPassword = async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetOtp = otp;
     user.otpExpiry = Date.now() + 10 * 60 * 1000;
-
-    console.log("Generated OTP for reset:", otp);
     await user.save();
 
-    console.log("OTP and expiry saved to user:", {
-      email: user.email,
-      resetOtp: user.resetOtp,
-      otpExpiry: user.otpExpiry,
-    });
-
     await sendOTPEmail(normalizedEmail, otp);
-
     res.status(200).json({ message: "OTP sent to your email.", email: normalizedEmail });
   } catch (err) {
     console.error("Forgot Password error:", err);
@@ -216,18 +213,10 @@ export const forgotPassword = async (req, res) => {
 export const verifyForgotPasswordOTP = async (req, res) => {
   const { email, otp } = req.body;
 
-  console.log("Verifying OTP for reset:", { email, otp });
-
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    console.log("Stored OTP:", user.resetOtp);
-    console.log("Entered OTP:", otp);
-    console.log("Expiry:", user.otpExpiry, "Now:", Date.now());
+    if (!user) return res.status(404).json({ message: "User not found." });
 
     const storedOtp = user.resetOtp?.toString();
     const enteredOtp = otp?.toString();

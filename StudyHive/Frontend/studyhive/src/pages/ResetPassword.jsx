@@ -44,7 +44,7 @@ export default function ResetPassword() {
         navigate("/login");
       }, 3000); // delay so user can read the toast
     } catch (err) {
-      setMessage(err.message);
+      setMessage(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

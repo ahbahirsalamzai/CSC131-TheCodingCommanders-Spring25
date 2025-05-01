@@ -27,12 +27,39 @@ export default function OTPPage() {
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
 
-    const newDigits = [...otpDigits];
-    newDigits[index] = value;
-    setOtpDigits(newDigits);
+    // Handle paste in single field
+    if (value.length === 6) {
+      const digits = value.slice(0, 6).split("");
+      setOtpDigits(digits);
+      digits.forEach((digit, i) => {
+        if (inputRefs.current[i]) {
+          inputRefs.current[i].value = digit;
+        }
+      });
+      inputRefs.current[5]?.focus();
+    } else {
+      const newDigits = [...otpDigits];
+      newDigits[index] = value;
+      setOtpDigits(newDigits);
 
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+      if (value && index < 5) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    }
+  };
+
+  const handlePaste = (e) => {
+    const pasted = e.clipboardData.getData("text").trim();
+    if (/^\d{6}$/.test(pasted)) {
+      const digits = pasted.split("");
+      setOtpDigits(digits);
+      digits.forEach((digit, i) => {
+        if (inputRefs.current[i]) {
+          inputRefs.current[i].value = digit;
+        }
+      });
+      inputRefs.current[5]?.focus();
+      e.preventDefault();
     }
   };
 
@@ -55,9 +82,7 @@ export default function OTPPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const otpCode = otpDigits.join("");
-
     if (otpCode.length !== 6) {
       setError("OTP must be exactly 6 digits.");
       setSuccess("");
@@ -67,10 +92,8 @@ export default function OTPPage() {
     setLoading(true);
     try {
       await verifyForgotPasswordOTP(email, otpCode);
-
       setSuccess("OTP verified successfully!");
       setError("");
-
       setTimeout(() => {
         navigate("/reset-password", { state: { email } });
       }, 1500);
@@ -99,48 +122,28 @@ export default function OTPPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-[1440px] flex justify-center items-center">
+        {/* Left Image */}
         <div className="hidden xl:block w-[500px] h-[700px] mb-[100px] mt-[120px] overflow-hidden rounded-[31px] mr-12 relative">
-          <img
-            className="w-full h-full object-cover"
-            src={transferlife}
-            alt="OTP page"
-          />
+          <img className="w-full h-full object-cover" src={transferlife} alt="OTP page" />
           <div className="absolute inset-0 bg-black bg-opacity-30 rounded-[31px]" />
         </div>
 
+        {/* OTP Form */}
         <div className="w-full max-w-[450px] mt-[100px] ml-[50px] mr-[50px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
-          <div className="text-center text-black text-[40px] font-bold font-['Mulish'] mb-4">
-            OTP Code
-          </div>
+          <div className="text-center text-black text-[40px] font-bold font-['Mulish'] mb-4">OTP Code</div>
 
-          {error && (
-            <p className="text-red-600 text-center text-sm font-semibold mb-2">
-              {error}
-            </p>
-          )}
-
-          {success && (
-            <p className="text-green-600 text-center text-sm font-semibold mb-2">
-              {success}
-            </p>
-          )}
-
-          {resendMessage && (
-            <p className="text-green-600 text-center text-sm font-semibold mb-2">
-              {resendMessage}
-            </p>
-          )}
+          {error && <p className="text-red-600 text-center text-sm font-semibold mb-2">{error}</p>}
+          {success && <p className="text-green-600 text-center text-sm font-semibold mb-2">{success}</p>}
+          {resendMessage && <p className="text-green-600 text-center text-sm font-semibold mb-2">{resendMessage}</p>}
 
           <p className="text-center text-black text-sm mb-4">
             A 6 digit OTP Code has been sent to your email
             <br />
-            <span className="font-semibold">
-              ({email || "missing email"})
-            </span>
+            <span className="font-semibold">({email || "missing email"})</span>
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col items-center w-full">
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-4" onPaste={handlePaste}>
               {otpDigits.map((digit, index) => (
                 <input
                   key={index}
@@ -177,10 +180,7 @@ export default function OTPPage() {
 
           <div className="text-center mt-4 text-sm">
             Remember your password?{" "}
-            <a
-              href="/login"
-              className="text-[#1f4d39] font-semibold hover:underline"
-            >
+            <a href="/login" className="text-[#1f4d39] font-semibold hover:underline">
               Sign In
             </a>
           </div>

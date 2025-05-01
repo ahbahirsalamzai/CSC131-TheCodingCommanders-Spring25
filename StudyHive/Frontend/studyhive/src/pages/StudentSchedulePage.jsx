@@ -6,15 +6,18 @@ import Sidebar from "../components/Sidebar";
 import api from "../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../context/AuthContext";
 
 const localizer = momentLocalizer(moment);
 
 const StudentSchedulePage = () => {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [studentName, setStudentName] = useState("");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState(Views.MONTH);
+
+  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -31,21 +34,18 @@ const StudentSchedulePage = () => {
         console.error("Failed to fetch availability:", err);
       }
     };
-    fetchAvailability();
-  }, []);
+
+    if (user) fetchAvailability();
+  }, [user]);
 
   const handleBookSession = async () => {
-    if (!studentName) {
-      toast.error("Please enter your name", { position: "top-center" });
-      return;
-    }
     try {
-      await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName });
+      await api.patch(`/sessions/book/${selectedEvent._id}`, {
+        studentName: fullName,
+      });
       toast.success("Session booked!", { position: "top-center", autoClose: 1500 });
       setSelectedEvent(null);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       toast.error("Failed to book session!", { position: "top-center" });
       console.error(err);
@@ -54,12 +54,10 @@ const StudentSchedulePage = () => {
 
   const handleUnbookSession = async () => {
     try {
-      await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName: "" });
+      await api.patch(`/sessions/book/${selectedEvent._id}`, { cancel: true });
       toast.success("Session cancelled!", { position: "top-center", autoClose: 1500 });
       setSelectedEvent(null);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       toast.error("Failed to cancel session!", { position: "top-center" });
       console.error(err);
@@ -109,16 +107,13 @@ const StudentSchedulePage = () => {
               <p><strong>Tutor:</strong> {selectedEvent.tutorName}</p>
               <p><strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}</p>
               <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
-              <p className="mb-3"><strong>Subject:</strong> {selectedEvent.subject || "None"}</p> {/* Added margin-bottom */}
+              <p className="mb-3"><strong>Subject:</strong> {selectedEvent.subject || "None"}</p>
 
-              {!selectedEvent.bookedBy && (
+              {!selectedEvent.bookedBy ? (
                 <>
-                  <input
-                    placeholder="Your name"
-                    className="w-full border p-2 mb-3 mt-3 rounded focus:ring focus:ring-blue-300"
-                    value={studentName}
-                    onChange={(e) => setStudentName(e.target.value)}
-                  />
+                  <div className="text-sm mb-2 text-gray-600">
+                    Booking as: <span className="font-semibold text-black">{fullName}</span>
+                  </div>
                   <button
                     onClick={handleBookSession}
                     className="w-full py-2 mb-2 bg-[#1F4D39] hover:bg-[#17382a] text-white rounded transition-transform transform hover:scale-105"
@@ -126,9 +121,7 @@ const StudentSchedulePage = () => {
                     Book Session
                   </button>
                 </>
-              )}
-
-              {selectedEvent.bookedBy && (
+              ) : selectedEvent.bookedBy === fullName && (
                 <button
                   onClick={handleUnbookSession}
                   className="w-full py-2 mb-2 bg-red-600 hover:bg-red-700 text-white rounded transition-transform transform hover:scale-105"

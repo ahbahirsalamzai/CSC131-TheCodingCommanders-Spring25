@@ -76,11 +76,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className={`bg-white w-full fixed ${
-        headerVisible ? "top-9" : "top-0"
-      } z-[999] transition-all duration-300 ${isScrolled ? "shadow-lg" : "shadow"}`}
-    >
+    <nav className={`bg-white w-full fixed ${headerVisible ? "top-9" : "top-0"} z-[999] transition-all duration-300 ${isScrolled ? "shadow-lg" : "shadow"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
         {/* Logo */}
         <div className="flex items-center -ml-8">
@@ -130,7 +126,7 @@ const Navbar = () => {
                 className="flex flex-col items-end text-black mr-4 cursor-pointer"
                 onClick={handleProfileClick}
               >
-                <span className="text-sm">{user?.email}</span>
+                <span className="text-sm font-bold">{user.firstName} {user.lastName}</span>
                 <span className="text-xs text-gray-500">{user?.role}</span>
               </div>
               <button
@@ -142,18 +138,8 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link
-                to="/signup"
-                className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-              >
-                Sign Up
-              </Link>
-              <Link
-                to="/login"
-                className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
-              >
-                Login
-              </Link>
+              <Link to="/signup" className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition">Sign Up</Link>
+              <Link to="/login" className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition">Login</Link>
             </>
           )}
         </div>
@@ -161,21 +147,9 @@ const Navbar = () => {
         {/* Mobile Hamburger */}
         <div className="lg:hidden z-[999]">
           <button onClick={toggleMenu} className="relative w-8 h-8 focus:outline-none">
-            <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${
-                isMenuOpen ? "rotate-45 top-3.5" : "top-2"
-              }`}
-            />
-            <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] ${
-                isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"
-              }`}
-            />
-            <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${
-                isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"
-              }`}
-            />
+            <span className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${isMenuOpen ? "rotate-45 top-3.5" : "top-2"}`} />
+            <span className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] ${isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"}`} />
+            <span className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"}`} />
           </button>
         </div>
       </div>
@@ -233,20 +207,8 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link
-                to="/signup"
-                onClick={() => setIsMenuOpen(false)}
-                className="border px-6 py-2 rounded-lg"
-              >
-                Sign Up
-              </Link>
-              <Link
-                to="/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition"
-              >
-                Login
-              </Link>
+              <Link to="/signup" onClick={() => setIsMenuOpen(false)} className="border px-6 py-2 rounded-lg">Sign Up</Link>
+              <Link to="/login" onClick={() => setIsMenuOpen(false)} className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition">Login</Link>
             </>
           )}
         </div>

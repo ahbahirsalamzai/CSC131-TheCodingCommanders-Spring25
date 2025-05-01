@@ -2,6 +2,14 @@ import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
     username: {
       type: String,
       required: true,
@@ -24,16 +32,16 @@ const userSchema = new mongoose.Schema(
     otp: {
       type: String, // for account activation/login
     },
-    status: {
-      type: String,
-      enum: ['pending', 'active'],
-      default: 'pending',
-    },
     resetOtp: {
       type: String, // for forgot password flow
     },
     otpExpiry: {
       type: Date, // when reset OTP expires
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'active'],
+      default: 'pending',
     },
   },
   { timestamps: true }
