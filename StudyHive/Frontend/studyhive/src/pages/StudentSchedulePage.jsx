@@ -17,7 +17,7 @@ const StudentSchedulePage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState(Views.MONTH);
 
-  const fullName = `${user?.firstName} ${user?.lastName}`;
+  const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -27,7 +27,7 @@ const StudentSchedulePage = () => {
           ...event,
           start: new Date(event.start),
           end: new Date(event.end),
-          title: event.bookedBy ? "Booked" : `${event.tutorName || "Available Session"}`,
+          title: event.bookedBy ? "Booked" : event.tutorName || "Available Session",
         }));
         setEvents(formatted);
       } catch (err) {

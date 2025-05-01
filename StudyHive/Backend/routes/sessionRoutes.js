@@ -1,4 +1,3 @@
-// routes/sessionRoutes.js
 import express from 'express';
 import Session from '../models/Session.js';
 import authenticateToken from '../middleware/authMiddleware.js';
@@ -29,7 +28,7 @@ router.get('/availability', authenticateToken, async (req, res) => {
 // POST /api/sessions/availability - Tutor posts available session
 router.post('/availability', authenticateToken, authorizeRoles('tutor'), async (req, res) => {
   const { start, end, subject } = req.body;
-  const tutorName = `${req.user.firstName} ${req.user.lastName}`;
+  const tutorName = `${req.user.firstName} ${req.user.lastName}`; // ✅ uses authenticated user
 
   if (!start || !end) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -55,6 +54,7 @@ router.patch('/book/:id', authenticateToken, authorizeRoles('student'), async (r
 
     if (cancel) {
       session.bookedBy = null;
+      session.student = null;
       await session.save();
       return res.json({ message: 'Session unbooked', session });
     }
@@ -64,6 +64,7 @@ router.patch('/book/:id', authenticateToken, authorizeRoles('student'), async (r
     }
 
     session.bookedBy = studentName;
+    session.student = studentName; 
     await session.save();
     res.json({ message: 'Session booked', session });
   } catch (err) {
