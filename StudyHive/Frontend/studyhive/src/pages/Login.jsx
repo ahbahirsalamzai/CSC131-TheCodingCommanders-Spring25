@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { login } from "../api/authService"; // you still need this for API call
+import { login } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,12 +9,26 @@ import union from "../assets/union.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { handleLogin } = useAuth();
+  const { user, loading, handleLogin } = useAuth();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (user?.role) {
+      const redirectPath =
+        user.role === "student"
+          ? "/student-dashboard"
+          : user.role === "tutor"
+          ? "/tutor-dashboard"
+          : user.role === "admin"
+          ? "/admin-dashboard"
+          : "/profile";
+      navigate(redirectPath);
+    }
+  }, [user, navigate]);
 
   const validateField = (name, value) => {
     if (!value) return `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
@@ -42,9 +56,25 @@ export default function Login() {
 
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-        const res = await login(formData); // 🔥 actually call API here
+        const res = await login(formData);
 
         if (res.token) {
+          const decoded = jwtDecode(res.token);
+
+          if (!decoded.role) {
+            console.error("No role found in decoded token");
+            return;
+          }
+
+          if (res.status === "pending") {
+            toast.info("Please verify your account to continue.", {
+              position: "top-center",
+              autoClose: 1500,
+            });
+            navigate("/verify-otp", { state: { email: formData.email } });
+            return;
+          }
+
           const userObject = {
             email: res.email,
             firstName: res.firstName,
@@ -54,20 +84,19 @@ export default function Login() {
             token: res.token,
           };
 
-          // Save to localStorage for navbar use
-              localStorage.setItem('token', res.token); // ✅ store token
-              localStorage.setItem('user', JSON.stringify(userObject)); // ✅ store us
+          // Save to localStorage
+          localStorage.setItem("token", res.token);
+          localStorage.setItem("user", JSON.stringify(userObject));
 
-          // 🔥 Save user to context AND localStorage
-              handleLogin(userObject);
+          // Save to context
+          handleLogin(userObject);
 
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,
           });
 
-          const decoded = jwtDecode(res.token);
-
+          // Redirect based on role
           setTimeout(() => {
             if (decoded.role === "student") {
               navigate("/student-profile");
@@ -86,6 +115,14 @@ export default function Login() {
       }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <h2 className="text-xl font-semibold">Loading...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">
