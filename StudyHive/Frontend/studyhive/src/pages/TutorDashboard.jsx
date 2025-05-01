@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { ToastContainer, toast } from 'react-toastify';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSquareCheck, faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -13,7 +11,6 @@ const TutorDashboard = () => {
   const { user } = useAuth();
   const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
 
-  const [sessions, setSessions] = useState([]);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
   const [pastSessions, setPastSessions] = useState([]);
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
@@ -35,7 +32,6 @@ const TutorDashboard = () => {
         const upcoming = tutorSessions.filter(session => new Date(session.start) >= now);
         const past = tutorSessions.filter(session => new Date(session.start) < now);
 
-        setSessions(tutorSessions);
         setUpcomingSessions(upcoming);
         setPastSessions(past);
       } catch (err) {
@@ -65,7 +61,7 @@ const TutorDashboard = () => {
         <Sidebar />
       </div>
 
-      <div className="flex-1 px-8 space-y-8">
+      <div className="flex-1 p-8 space-y-8">
         {/* Stat Cards */}
         <div className="grid grid-cols-2 gap-6">
           <div className="bg-orange-50 p-5 rounded-xl flex items-center gap-4">
