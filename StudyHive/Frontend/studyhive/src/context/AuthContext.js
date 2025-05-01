@@ -1,102 +1,59 @@
-// Frontend/studyhive/src/context/AuthContext.js
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { signup } from "../api/authService"; //  import this
 
-import { createContext, useState, useContext, useEffect } from 'react';
-import { signup, login } from '../api/authService'; // Your signup and login API calls
-import { jwtDecode } from 'jwt-decode';
-
-
-const AuthContext = createContext(); // Create a new context
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Will hold { id, role, email }
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check if token exists on page reload (persistent login)
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      const decoded = jwtDecode(storedToken);
+    const token = localStorage.getItem("token");
 
-      setUser({
-        id: decoded.userId,
-        role: decoded.role,
-        email: decoded.email,
-      });
-      setToken(storedToken);
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser({ ...decoded, token });
+        console.log(" AuthContext initialized with user:", decoded);
+      } catch (error) {
+        console.error(" Invalid token:", error);
+        localStorage.removeItem("token");
+        setUser(null);
+      }
     }
+
+    setLoading(false);
   }, []);
 
-  // Handle signup
-  const handleSignup = async (formData) => {
-    try {
-      const data = await signup(formData); // { token: '...' }
-  
-      if (!data.token) {
-        throw new Error("Signup did not return a valid token.");
-      }
-  
-      localStorage.setItem('token', data.token); // Save token first
-      setToken(data.token);
-  
-    
-      const decoded = jwtDecode(data.token);
-  
-      
-      setUser({
-        id: decoded.userId,
-        role: decoded.role,
-        email: decoded.email,
-      });
-  
-    } catch (err) {
-      console.error(err.response?.data?.message || err.message || "SignUp Failed.");
-      throw new Error(err.response?.data?.message || err.message || "SignUp Failed.");
+  const handleLogin = (userObject) => {
+    if (userObject && userObject.token) {
+      localStorage.setItem("token", userObject.token);
+      setUser(userObject);
     }
   };
-  
 
-  // Handle login
-  const handleLogin = async (formData) => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
+  //  Add handleSignup for SignUp page to use
+  const handleSignup = async (formData) => {
     try {
-      const data = await login(formData); // { token: '...' }
-
-      if(!data.token){
-        throw new Error("Login failed: token missing.");
-      }
-
-      const decoded = jwtDecode(data.token);
-
-
-      setUser({
-        id: decoded.userId,
-        role: decoded.role,
-        email: decoded.email,
-      });
-
-      setToken(data.token);
-      localStorage.setItem('token', data.token); // Save token for persistence
-
-      return data;// Return the api response
-
+      const res = await signup(formData);
+      return res; // let the component handle toast & redirection
     } catch (err) {
-      console.error(err.message);
+      console.error(" Signup failed:", err);
       throw err;
     }
   };
 
-  // Handle logout
-  const handleLogout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('token');
-  };
-
   return (
-    <AuthContext.Provider value={{ user, token, handleSignup, handleLogin, handleLogout }}>
+    <AuthContext.Provider value={{ user, loading, handleLogin, handleLogout, handleSignup }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook for easier access
 export const useAuth = () => useContext(AuthContext);

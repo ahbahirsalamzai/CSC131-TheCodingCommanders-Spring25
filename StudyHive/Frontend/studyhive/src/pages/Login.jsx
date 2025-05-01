@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { login } from "../api/authService";
@@ -9,12 +9,26 @@ import union from "../assets/union.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { handleLogin } = useAuth();
+  const { user, loading, handleLogin } = useAuth();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [redirectRole, setRedirectRole] = useState(null);
+
+  useEffect(() => {
+    if (redirectRole) {
+      console.log("🚀 Redirecting to role dashboard:", redirectRole);
+      const timer = setTimeout(() => {
+        if (redirectRole === "student") navigate("/student-dashboard");
+        else if (redirectRole === "tutor") navigate("/tutor-dashboard");
+        else if (redirectRole === "admin") navigate("/admin-dashboard");
+        else navigate("/");
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [redirectRole, navigate]);
 
   const validateField = (name, value) => {
     if (!value) return `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
@@ -38,53 +52,66 @@ export default function Login() {
       password: validateField("password", formData.password),
     };
     setErrors(newErrors);
-    if (Object.values(newErrors).some(Boolean)) return;
 
-    try {
-      const res = await login(formData);
-      if (!res.token) throw new Error("No token returned");
+    if (Object.values(newErrors).every((error) => !error)) {
+      try {
+        const res = await login(formData);
 
-      // Save token
-      localStorage.setItem("token", res.token);
+        if (res.token) {
+          const decoded = jwtDecode(res.token);
+          console.log(" Decoded token:", decoded);
 
-      // Decode token once
-      const decoded = jwtDecode(res.token);
+          if (!decoded.role) {
+            console.error("No role found in decoded token");
+            return;
+          }
+          
 
-      // Build user object (prefer decoded values but fall back to API response)
-      const userObject = {
-        email: decoded.email || res.email,
-        firstName: decoded.firstName || res.firstName,
-        lastName: decoded.lastName || res.lastName,
-        role: decoded.role || res.role,
-        isVerified: decoded.isVerified || res.isVerified,
-        token: res.token,
-      };
-      localStorage.setItem("user", JSON.stringify(userObject));
-      handleLogin(userObject);
+          if (res.status === "pending") {
+            toast.info("Please verify your account to continue.", {
+              position: "top-center",
+              autoClose: 1500,
+            });
+            navigate("/otp", { state: { email: formData.email } });
 
-      toast.success("Login successful!", { position: "top-center", autoClose: 1500 });
+            return;
+          }
+          
+          
+          const userObject = {
+            email: res.email,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            role: res.role,
+            isVerified: res.isVerified,
+            token: res.token,
+          };
 
-      setTimeout(() => {
-        switch (userObject.role) {
-          case "student":
-            navigate("/student-dashboard");
-            break;
-          case "tutor":
-            navigate("/tutor-dashboard");
-            break;
-          case "admin":
-            navigate("/admin-dashboard");
-            break;
-          default:
-            navigate("/profile");
+          handleLogin(userObject);
+          setRedirectRole(decoded.role);
+          console.log("Login success — setting redirectRole:", decoded.role);
+
+          toast.success("Login successful!", {
+            position: "top-center",
+            autoClose: 1500,
+          });
         }
-      }, 1500);
-    } catch (err) {
-      const message = err.message || "Login failed.";
-      setErrorMessage(message);
-      toast.error(message, { position: "top-center" });
+      } catch (err) {
+        setErrorMessage(err.message || "Login failed.");
+        toast.error(err.message || "Login failed.", {
+          position: "top-center",
+        });
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <h2 className="text-xl font-semibold">Loading...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">

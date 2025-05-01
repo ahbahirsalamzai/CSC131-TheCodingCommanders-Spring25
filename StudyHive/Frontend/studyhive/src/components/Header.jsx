@@ -19,7 +19,7 @@ const Header = () => {
       isVisible ? "top-0" : "-top-9"
     }`}>
       <span>Email: studyhivehelpteam@gmail.com</span>
-      <span>Contact: +1 (220) 215-0466</span>
+      <span>Contact StudyHive: +1 (220) 215-0466</span>
     </div>
   );
 };
