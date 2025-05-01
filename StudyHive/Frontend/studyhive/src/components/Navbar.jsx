@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
+import { useAuth } from "../context/AuthContext.js";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const { user, handleLogout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,8 +24,7 @@ const Navbar = () => {
     let lastScrollTop = 0;
     const handleScroll = () => {
       const currentScroll = window.scrollY;
-      const isHeaderVisible = currentScroll <= lastScrollTop;
-      setHeaderVisible(isHeaderVisible);
+      setHeaderVisible(currentScroll <= lastScrollTop);
       setIsScrolled(currentScroll > 50);
       lastScrollTop = currentScroll;
     };
@@ -32,21 +33,16 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else {
-      setUser(null);
-    }
-  }, [location]);
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest(".dropdown-menu")) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDropdownOpen]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  const handleLogout = () => {
-    localStorage.clear();
-    setUser(null);
-    navigate("/login");
-  };
 
   const handleProfileClick = () => {
     navigate("/profile");
@@ -57,6 +53,8 @@ const Navbar = () => {
       navigate("/student-dashboard");
     } else if (user?.role === "tutor") {
       navigate("/tutor-dashboard");
+    } else if (user?.role === "admin") {
+      navigate("/admin-dashboard");
     } else {
       navigate("/profile");
     }
@@ -70,7 +68,6 @@ const Navbar = () => {
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
       const offsetPosition = elementPosition - offset;
-
       window.scrollTo({
         top: offsetPosition,
         behavior: "smooth",
@@ -99,7 +96,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Middle Section */}
+        {/* Middle Links */}
         <div className="hidden lg:flex lg:items-center lg:space-x-6">
           {navLinks.map((link, idx) => (
             <a
@@ -133,7 +130,8 @@ const Navbar = () => {
                 className="flex flex-col items-end text-black mr-4 cursor-pointer"
                 onClick={handleProfileClick}
               >
-                <span className="text-sm">{user.email}</span>
+                <span className="text-sm">{user?.email}</span>
+                <span className="text-xs text-gray-500">{user?.role}</span>
               </div>
               <button
                 onClick={handleLogout}
