@@ -73,7 +73,7 @@ export default function Login() {
               position: "top-center",
               autoClose: 1500,
             });
-            navigate("/otp", { state: { email: formData.email } });
+            navigate("/verify-otp", { state: { email: formData.email } });
 
             return;
           }
