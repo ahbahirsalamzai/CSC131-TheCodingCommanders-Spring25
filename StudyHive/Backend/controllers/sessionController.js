@@ -1,6 +1,6 @@
 import Session from '../models/Session.js';
 
-export const getAllSessions = async (req, res) => {
+export const getAllSessions = async (req, res) => { // Fetch the seesion in the data base
   try {
     const sessions = await Session.find();
     res.status(200).json(sessions);
@@ -9,7 +9,7 @@ export const getAllSessions = async (req, res) => {
   }
 };
 
-export const getSessionsByTutor = async (req, res) => {
+export const getSessionsByTutor = async (req, res) => { //Fetch only the seesions for the logged-in tutor
   try {
     const tutorName = req.user.name; // Assuming you store tutorName during login/session
     const sessions = await Session.find({ tutorName });

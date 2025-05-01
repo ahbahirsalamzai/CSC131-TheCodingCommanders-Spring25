@@ -23,13 +23,14 @@ const Header = () => {
       }`}
     >
       <span>
-        {user?.email 
-        ? `${user.email}` : "Email: info@domainname.com"}
+        {user?.email
+          ? user.email
+          : "Email: studyhivehelpteam@gmail.com"}
       </span>
       <span>
         {user?.phone
           ? `Contact: ${user.phone}`
-          : "Contact: +123 (456) 789"}
+          : "Contact StudyHive: +1 (220) 215-0466"}
       </span>
     </div>
   );

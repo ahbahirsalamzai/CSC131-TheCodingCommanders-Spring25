@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { login } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import "react-toastify/dist/ReactToastify.css";
@@ -8,12 +9,26 @@ import union from "../assets/union.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { handleLogin } = useAuth();
+  const { user, loading, handleLogin } = useAuth();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [redirectRole, setRedirectRole] = useState(null);
+
+  useEffect(() => {
+    if (redirectRole) {
+      console.log("🚀 Redirecting to role dashboard:", redirectRole);
+      const timer = setTimeout(() => {
+        if (redirectRole === "student") navigate("/student-dashboard");
+        else if (redirectRole === "tutor") navigate("/tutor-dashboard");
+        else if (redirectRole === "admin") navigate("/admin-dashboard");
+        else navigate("/");
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [redirectRole, navigate]);
 
   const validateField = (name, value) => {
     if (!value) return `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
@@ -41,31 +56,46 @@ export default function Login() {
 
     if (Object.values(newErrors).every((error) => !error)) {
       try {
-        console.log("🚀 Sending login request with:", formData);
-
-        // ✅ This now properly saves the token and user context
-        const res = await handleLogin(formData);
-        localStorage.setItem("user", JSON.stringify(res));
+        const res = await login(formData);
 
         if (res.token) {
+          const decoded = jwtDecode(res.token);
+          console.log(" Decoded token:", decoded);
+
+          if (!decoded.role) {
+            console.error("No role found in decoded token");
+            return;
+          }
+          
+
+          if (res.status === "pending") {
+            toast.info("Please verify your account to continue.", {
+              position: "top-center",
+              autoClose: 1500,
+            });
+            navigate("/verify-otp", { state: { email: formData.email } });
+
+            return;
+          }
+          
+          
+          const userObject = {
+            email: res.email,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            role: res.role,
+            isVerified: res.isVerified,
+            token: res.token,
+          };
+
+          handleLogin(userObject);
+          setRedirectRole(decoded.role);
+          console.log("Login success — setting redirectRole:", decoded.role);
+
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,
           });
-
-          const decoded = jwtDecode(res.token);
-
-          setTimeout(() => {
-            if (decoded.role === "student") {
-              navigate("/student-dashboard");
-            } else if (decoded.role === "tutor") {
-              navigate("/tutor-dashboard");
-            } else if (decoded.role === "admin") {
-              navigate("/admin-profile");
-            } else {
-              navigate("/profile");
-            }
-          }, 1500);
         }
       } catch (err) {
         setErrorMessage(err.message || "Login failed.");
@@ -75,6 +105,14 @@ export default function Login() {
       }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <h2 className="text-xl font-semibold">Loading...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -1,45 +1,38 @@
-import { createContext, useState, useContext, useEffect } from 'react';
-import { signup, login } from '../api/authService';
-import { jwtDecode } from 'jwt-decode';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { signup, login } from "../api/authService";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Check token in localStorage on page load
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
+    const token = localStorage.getItem("token");
+
+    if (token) {
       try {
-        const decoded = jwtDecode(storedToken);
-        setUser({
-          id: decoded.userId,
-          role: decoded.role,
-          email: decoded.email,
-        });
-        setToken(storedToken);
-      } catch (err) {
-        console.error("Invalid token in localStorage:", err.message);
-        localStorage.removeItem('token'); // Remove if corrupted
+        const decoded = jwtDecode(token);
+        setUser({ ...decoded, token });
+        console.log("AuthContext initialized with user:", decoded);
+      } catch (error) {
+        console.error("Invalid token:", error);
+        localStorage.removeItem("token");
+        setUser(null);
       }
     }
+
+    setLoading(false);
   }, []);
 
   // 🔐 Signup handler
   const handleSignup = async (formData) => {
     try {
-      const data = await signup(formData);
-
-      if (!data.token) throw new Error("Signup failed: token missing.");
-
-      localStorage.setItem('token', data.token); // ✅ Save first
-      const decoded = jwtDecode(data.token);
-      setUser({ id: decoded.userId, role: decoded.role, email: decoded.email });
-      setToken(data.token);
+      const res = await signup(formData);
+      return res; // Let the component handle toast & redirection
     } catch (err) {
-      console.error("Signup error:", err.message);
+      console.error("Signup failed:", err);
       throw err;
     }
   };
@@ -51,10 +44,9 @@ export const AuthProvider = ({ children }) => {
 
       if (!data.token) throw new Error("Login failed: token missing.");
 
-      localStorage.setItem('token', data.token); // ✅ Save first
+      localStorage.setItem("token", data.token);
       const decoded = jwtDecode(data.token);
-      setUser({ id: decoded.userId, role: decoded.role, email: decoded.email });
-      setToken(data.token);
+      setUser({ ...decoded, token: data.token });
 
       return data;
     } catch (err) {
@@ -63,15 +55,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🚪 Logout
+  // 🚪 Logout handler
   const handleLogout = () => {
+    localStorage.removeItem("token");
     setUser(null);
-    setToken(null);
-    localStorage.removeItem('token');
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, handleSignup, handleLogin, handleLogout }}>
+    <AuthContext.Provider value={{ user, loading, handleLogin, handleLogout, handleSignup }}>
       {children}
     </AuthContext.Provider>
   );

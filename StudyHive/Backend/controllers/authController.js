@@ -1,12 +1,12 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import sendOTPEmail from '../utils/emailSender.js';
+import bcrypt from 'bcryptjs'; // for hashing passwords and comparing hashes
+import jwt from 'jsonwebtoken'; // Creating the JWTs
+import User from '../models/User.js'; 
+import sendOTPEmail from '../utils/emailSender.js'; // Helps send OTP for acc verification
 
 // ---------------------------
 // Sign Up Controller
 // ---------------------------
-export const signup = async (req, res) => {
+export const signup = async (req, res) => { // Handle sign up - breaks down users input
   try {
     const { username, email, password, role } = req.body;
     const normalizedEmail = email.toLowerCase();
@@ -28,12 +28,12 @@ export const signup = async (req, res) => {
       email: normalizedEmail,
       password: hashedPassword,
       role,
-      status: "pending",
+      status: "pending", // auto set as pending - active once OTP verification is done
     });
 
     await newUser.save();
 
-    const token = jwt.sign({
+    const token = jwt.sign({ // Generating the Json web token - Valid 1 day
       userId: newUser._id,
       role: newUser.role,
       email: newUser.email,
@@ -49,7 +49,7 @@ export const signup = async (req, res) => {
 // ---------------------------
 // Verify OTP After Signup
 // ---------------------------
-export const verifyOTP = async (req, res) => {
+export const verifyOTP = async (req, res) => { // completes account activation - OTP Verification
   const { email, otp } = req.body;
 
   try {
@@ -78,7 +78,7 @@ export const verifyOTP = async (req, res) => {
 // ---------------------------
 // Standalone Send OTP Endpoint (for signup or manual resend)
 // ---------------------------
-export const sendOTP = async (req, res) => {
+export const sendOTP = async (req, res) => { // Send SignUp/Login OTP
   const { email } = req.body;
 
   try {
@@ -105,8 +105,8 @@ export const sendOTP = async (req, res) => {
 // ---------------------------
 // Login Controller
 // ---------------------------
-export const login = async (req, res) => {
-  console.log(" Received req.body:", req.body); //debug purpose
+export const login = async (req, res) => {  // Login - if pending send a new OTP verification code
+  console.log("Received req.body:", req.body); // debug purpose
   const { email, password } = req.body;
 
   try {
@@ -130,6 +130,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
+    // If account is still pending, re-send OTP but don't crash if email fails
     if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
@@ -138,12 +139,20 @@ export const login = async (req, res) => {
       try {
         await sendOTPEmail(normalizedEmail, otp);
       } catch (emailErr) {
-        console.error("❌ Failed to send OTP email during login:", emailErr.message);
+        console.error("Failed to send OTP email during login:", emailErr.message);
+        return res.status(500).json({ message: "Login successful, but OTP email failed to send." });
       }
     }
 
-    const token = jwt.sign(
-      { userId: user._id, role: user.role, email: user.email },
+    const token = jwt.sign( // Include role, userId, and more in JWT
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        status: user.status,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -185,7 +194,7 @@ export const forgotPassword = async (req, res) => {
     console.log("Generated OTP for reset:", otp);
     await user.save();
 
-    console.log("✅ OTP and expiry saved to user:", {
+    console.log("OTP and expiry saved to user:", {
       email: user.email,
       resetOtp: user.resetOtp,
       otpExpiry: user.otpExpiry,
@@ -206,7 +215,7 @@ export const forgotPassword = async (req, res) => {
 export const verifyForgotPasswordOTP = async (req, res) => {
   const { email, otp } = req.body;
 
-  console.log("🔐 Verifying OTP for reset:", { email, otp });
+  console.log("Verifying OTP for reset:", { email, otp });
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
