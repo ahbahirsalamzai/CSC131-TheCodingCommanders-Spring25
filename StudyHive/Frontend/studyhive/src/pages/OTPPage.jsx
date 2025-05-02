@@ -27,7 +27,6 @@ export default function OTPPage() {
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
 
-    // If pasted 6-digit code
     if (value.length === 6) {
       const digits = value.split("").slice(0, 6);
       setOtpDigits(digits);
@@ -190,7 +189,7 @@ export default function OTPPage() {
           </form>
 
           <div className="text-center mt-4 text-sm">
-            Remember your password?{" "}
+            Remember your password?{' '}
             <a href="/login" className="text-[#1f4d39] font-semibold hover:underline">
               Sign In
             </a>

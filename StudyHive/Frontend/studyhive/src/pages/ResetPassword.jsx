@@ -1,3 +1,4 @@
+// ResetPassword.jsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { resetPassword } from "../api/authService";
@@ -42,7 +43,7 @@ export default function ResetPassword() {
 
       setTimeout(() => {
         navigate("/login");
-      }, 3000); // delay so user can read the toast
+      }, 3000);
     } catch (err) {
       setMessage(err.message);
     } finally {

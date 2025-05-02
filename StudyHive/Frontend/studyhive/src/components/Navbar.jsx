@@ -1,3 +1,4 @@
+// Final Merged and Updated Navbar Component
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logoR.png";
@@ -45,7 +46,11 @@ const Navbar = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const handleProfileClick = () => {
-    navigate("/profile");
+    if (user?.role === "student") {
+      navigate("/student-profile");
+    } else {
+      navigate("/profile");
+    }
   };
 
   const handleDashboardClick = () => {
@@ -82,7 +87,6 @@ const Navbar = () => {
       } z-[999] transition-all duration-300 ${isScrolled ? "shadow-lg" : "shadow"}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
-        {/* Logo */}
         <div className="flex items-center -ml-8">
           <Link to="/" className="flex items-center group">
             <img
@@ -96,7 +100,6 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Middle Links */}
         <div className="hidden lg:flex lg:items-center lg:space-x-6">
           {navLinks.map((link, idx) => (
             <a
@@ -122,7 +125,6 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Right Section */}
         <div className="hidden lg:flex lg:items-center space-x-4">
           {user ? (
             <>
@@ -142,45 +144,25 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link
-                to="/signup"
-                className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-              >
+              <Link to="/signup" className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition">
                 Sign Up
               </Link>
-              <Link
-                to="/login"
-                className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition"
-              >
+              <Link to="/login" className="bg-[#1F4D39] text-white px-4 py-2 rounded-lg hover:bg-[#17382a] transition">
                 Login
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile Hamburger */}
         <div className="lg:hidden z-[999]">
           <button onClick={toggleMenu} className="relative w-8 h-8 focus:outline-none">
-            <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${
-                isMenuOpen ? "rotate-45 top-3.5" : "top-2"
-              }`}
-            />
-            <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] ${
-                isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"
-              }`}
-            />
-            <span
-              className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${
-                isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"
-              }`}
-            />
+            <span className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${isMenuOpen ? "rotate-45 top-3.5" : "top-2"}`} />
+            <span className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] ${isMenuOpen ? "opacity-0 top-3.5" : "top-3.5"}`} />
+            <span className={`absolute left-0 h-0.5 w-8 bg-[#1F4D39] transform transition-all ${isMenuOpen ? "-rotate-45 bottom-3.5" : "bottom-2"}`} />
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="lg:hidden flex flex-col items-center bg-white py-6 space-y-4">
           {navLinks.map((link, idx) => (
@@ -233,18 +215,10 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link
-                to="/signup"
-                onClick={() => setIsMenuOpen(false)}
-                className="border px-6 py-2 rounded-lg"
-              >
+              <Link to="/signup" onClick={() => setIsMenuOpen(false)} className="border px-6 py-2 rounded-lg">
                 Sign Up
               </Link>
-              <Link
-                to="/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition"
-              >
+              <Link to="/login" onClick={() => setIsMenuOpen(false)} className="bg-[#1F4D39] text-white px-6 py-2 rounded-lg hover:bg-[#17382a] transition">
                 Login
               </Link>
             </>

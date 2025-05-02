@@ -115,17 +115,23 @@ export const login = async (req, res) => {
 
   try {
     const normalizedEmail = email.toLowerCase();
+    console.log("LOGIN ATTEMPT for:", normalizedEmail);
+
     const user = await User.findOne({ email: normalizedEmail }).select('+password');
+    console.log("Found user:", user);
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
     if (!user.password) {
+      console.log("User has no password field");
       return res.status(400).json({ message: "User password is missing." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match:", isMatch);
+
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password." });
     }

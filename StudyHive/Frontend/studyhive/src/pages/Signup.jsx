@@ -1,4 +1,4 @@
-// FRONTEND: SignUp.jsx
+// SignUp.jsx (Resolved & Merged)
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -48,15 +48,8 @@ export default function SignUp() {
     const { name, value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: validateField(name, newValue),
-    }));
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, newValue) }));
   };
 
   const handleSubmit = async (e) => {
@@ -93,9 +86,7 @@ export default function SignUp() {
           autoClose: 2500,
         });
 
-        setTimeout(() => {
-          navigate("/login");
-        }, 2600);
+        setTimeout(() => navigate("/login"), 2600);
       } catch (err) {
         toast.error(err.message || "Signup failed.", {
           position: "top-center",
@@ -124,13 +115,7 @@ export default function SignUp() {
               <div className="flex gap-6">
                 {["tutor", "student"].map((role) => (
                   <label key={role} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="role"
-                      value={role}
-                      checked={formData.role === role}
-                      onChange={handleChange}
-                    />
+                    <input type="radio" name="role" value={role} checked={formData.role === role} onChange={handleChange} />
                     <span className="capitalize">{role}</span>
                   </label>
                 ))}

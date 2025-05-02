@@ -3,18 +3,12 @@ import express from 'express';
 import Session from '../models/Session.js';
 import authenticateToken from '../middleware/authMiddleware.js';
 import authorizeRoles from '../middleware/roleAuth.js';
+import { getAllSessions } from '../controllers/sessionController.js';
 
 const router = express.Router();
 
-// GET /api/sessions - Fetch all sessions
-router.get('/', authenticateToken, async (req, res) => {
-  try {
-    const sessions = await Session.find();
-    res.status(200).json(sessions);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// GET /api/sessions - Fetch all sessions (controller-based)
+router.get('/', authenticateToken, getAllSessions);
 
 // GET /api/sessions/availability - Fetch available sessions
 router.get('/availability', authenticateToken, async (req, res) => {

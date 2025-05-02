@@ -115,8 +115,7 @@ const TutorScheduling = () => {
               <h3 className="text-xl font-semibold mb-4">Post Availability</h3>
 
               <div className="text-sm mb-2 text-gray-600">
-                Availability as:{" "}
-                <span className="font-semibold text-black">{fullName}</span>
+                Availability as: <span className="font-semibold text-black">{fullName}</span>
               </div>
 
               <input
@@ -158,5 +157,5 @@ const TutorScheduling = () => {
     </div>
   );
 };
-a
+
 export default TutorScheduling;

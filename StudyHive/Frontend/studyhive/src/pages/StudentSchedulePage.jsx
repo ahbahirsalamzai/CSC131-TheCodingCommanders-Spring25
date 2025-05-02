@@ -1,3 +1,4 @@
+// StudentSchedulePage.jsx
 import React, { useState, useEffect } from "react";
 import { Calendar, momentLocalizer, Views } from "react-big-calendar";
 import moment from "moment";
@@ -35,13 +36,11 @@ const StudentSchedulePage = () => {
     if (user) fetchAvailability();
   }, [user]);
 
-  const fullName = `${user.firstName} ${user.lastName}`;
+  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
   const handleBookSession = async () => {
     try {
-      await api.patch(`/sessions/book/${selectedEvent._id}`, {
-        studentName: fullName,
-      });
+      await api.patch(`/sessions/book/${selectedEvent._id}`, { studentName: fullName });
       toast.success("Session booked!", { position: "top-center", autoClose: 1500 });
       setSelectedEvent(null);
       setTimeout(() => window.location.reload(), 1500);

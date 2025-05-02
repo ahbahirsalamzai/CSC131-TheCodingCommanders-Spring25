@@ -14,7 +14,7 @@ export const getStudentProfile = async (req, res) => {
     }
 
     res.status(200).json({
-      name: student.username,
+      username: student.username, // ✅ fixed key
       email: student.email,
       dob: student.dob || '',
       phone: student.phone || '',
@@ -26,6 +26,7 @@ export const getStudentProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // ==============================
 // Update Student Profile
@@ -60,28 +61,27 @@ export const updateStudentPassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
   try {
-    const student = await User.findById(req.user._id);
+    const student = await User.findById(req.user._id).select("+password");
     if (!student || student.role !== "student") {
-      return res.status(404).json({ message: "Student not found" });
+      return res.status(404).json({ message: "Student not found." });
     }
 
     const isMatch = await bcrypt.compare(currentPassword, student.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect current password" });
+      return res.status(400).json({ message: "Password update failed." }); // Generic
     }
 
     if (currentPassword === newPassword) {
-      return res.status(400).json({ message: "New password cannot be the same as the current password" });
+      return res.status(400).json({ message: "New password must differ from current." });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    student.password = await bcrypt.hash(newPassword, salt);
-
+    student.password = newPassword; // will be hashed by pre-save
     await student.save();
-    res.status(200).json({ message: "Password updated successfully" });
+
+    res.status(200).json({ message: "Password updated successfully." });
   } catch (err) {
     console.error("Error updating password:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error." });
   }
 };
 
@@ -148,7 +148,7 @@ export const updateTutorProfile = async (req, res) => {
 export const updateTutorPassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const tutor = await User.findOne({ _id: req.user._id, role: "tutor" });
+    const tutor = await User.findOne({ _id: req.user._id, role: "tutor" }).select("+password");
 
     if (!tutor) {
       return res.status(404).json({ message: "Tutor not found" });
@@ -156,14 +156,14 @@ export const updateTutorPassword = async (req, res) => {
 
     const isMatch = await bcrypt.compare(currentPassword, tutor.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect current password" });
+      return res.status(400).json({ message: "Password update failed." });
     }
 
     if (currentPassword === newPassword) {
-      return res.status(400).json({ message: "New password cannot be the same as current password" });
+      return res.status(400).json({ message: "New password must differ from current." });
     }
 
-    tutor.password = await bcrypt.hash(newPassword, 10);
+    tutor.password = newPassword;
     await tutor.save();
 
     res.json({ message: "Password updated successfully" });

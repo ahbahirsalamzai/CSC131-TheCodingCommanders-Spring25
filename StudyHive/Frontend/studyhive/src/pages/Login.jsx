@@ -15,20 +15,20 @@ export default function Login() {
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [redirectRole, setRedirectRole] = useState(null);
 
   useEffect(() => {
-    if (user?.role) {
-      const redirectPath =
-        user.role === "student"
-          ? "/student-dashboard"
-          : user.role === "tutor"
-          ? "/tutor-dashboard"
-          : user.role === "admin"
-          ? "/admin-dashboard"
-          : "/profile";
-      navigate(redirectPath);
+    if (redirectRole) {
+      console.log("🚀 Redirecting to role dashboard:", redirectRole);
+      const timer = setTimeout(() => {
+        if (redirectRole === "student") navigate("/student-dashboard");
+        else if (redirectRole === "tutor") navigate("/tutor-dashboard");
+        else if (redirectRole === "admin") navigate("/admin-dashboard");
+        else navigate("/");
+      }, 1500);
+      return () => clearTimeout(timer);
     }
-  }, [user, navigate]);
+  }, [redirectRole, navigate]);
 
   const validateField = (name, value) => {
     if (!value) return `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
@@ -60,11 +60,13 @@ export default function Login() {
 
         if (res.token) {
           const decoded = jwtDecode(res.token);
+          console.log(" Decoded token:", decoded);
 
           if (!decoded.role) {
             console.error("No role found in decoded token");
             return;
           }
+          
 
           if (res.status === "pending") {
             toast.info("Please verify your account to continue.", {
@@ -72,9 +74,11 @@ export default function Login() {
               autoClose: 1500,
             });
             navigate("/verify-otp", { state: { email: formData.email } });
+
             return;
           }
-
+          
+          
           const userObject = {
             email: res.email,
             firstName: res.firstName,
@@ -84,28 +88,14 @@ export default function Login() {
             token: res.token,
           };
 
-          // Save to localStorage
-          localStorage.setItem("token", res.token);
-          localStorage.setItem("user", JSON.stringify(userObject));
-
-          // Save to context
           handleLogin(userObject);
+          setRedirectRole(decoded.role);
+          console.log("Login success — setting redirectRole:", decoded.role);
 
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,
           });
-
-          // Redirect based on role
-          setTimeout(() => {
-            if (decoded.role === "student") {
-              navigate("/student-profile");
-            } else if (decoded.role === "tutor") {
-              navigate("/tutor-dashboard");
-            } else {
-              navigate("/profile");
-            }
-          }, 1500);
         }
       } catch (err) {
         setErrorMessage(err.message || "Login failed.");
