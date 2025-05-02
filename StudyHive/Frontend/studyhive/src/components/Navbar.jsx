@@ -130,7 +130,7 @@ const Navbar = () => {
                 className="flex flex-col items-end text-black mr-4 cursor-pointer"
                 onClick={handleProfileClick}
               >
-                <span className="text-sm">{user?.email}</span>
+                <span className="text-sm font-bold">{user.firstName} {user.lastName}</span>
                 <span className="text-xs text-gray-500">{user?.role}</span>
               </div>
               <button

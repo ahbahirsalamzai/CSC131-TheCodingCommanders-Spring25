@@ -1,6 +1,7 @@
+// models/User.js
+
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,7 +10,7 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     name: {
-      type: String, // Full display name
+      type: String, // Full display name (optional)
     },
     email: {
       type: String,
@@ -20,7 +21,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      select: false, // Exclude password field from query results by default
+      select: false, // Exclude password from queries by default
     },
     role: {
       type: String,
@@ -28,7 +29,7 @@ const userSchema = new mongoose.Schema(
       default: 'student',
     },
     dob: {
-      type: String, // formatted MM-DD-YYYY
+      type: String, // e.g., MM-DD-YYYY
     },
     phone: {
       type: String,
@@ -41,13 +42,13 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     otp: {
-      type: String, // for account activation/login
+      type: String, // For signup/login verification
     },
     resetOtp: {
-      type: String, // for forgot password flow
+      type: String, // For forgot password
     },
     otpExpiry: {
-      type: Date, // when reset OTP expires
+      type: Date, // Expiry time for reset OTP
     },
     status: {
       type: String,
@@ -57,12 +58,13 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-// Pre-save hook to hash the password before saving
+
+// Pre-save hook to hash password if modified
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); // Proceed if password is not modified
+  if (!this.isModified('password')) return next();
   try {
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt); // Hash the password
+    this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (err) {
     next(err);

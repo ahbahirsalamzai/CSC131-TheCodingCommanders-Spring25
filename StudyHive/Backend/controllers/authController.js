@@ -8,7 +8,7 @@ import sendOTPEmail from '../utils/emailSender.js';
 // ==============================
 export const signup = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { firstName, lastName, username, email, password, role } = req.body;
     const normalizedEmail = email.toLowerCase();
 
     const existingUser = await User.findOne({ email: normalizedEmail });
@@ -19,13 +19,15 @@ export const signup = async (req, res) => {
 
     if (existingUser && existingUser.status === "pending") {
       return res.status(400).json({
-        message: "Account already exists but is not activated. Please log in to receive OTP.",
+        message: "Account already exists but is not activated. Please log in to receive OTP."
       });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
+      firstName,
+      lastName,
       username,
       email: normalizedEmail,
       password: hashedPassword,
@@ -40,6 +42,8 @@ export const signup = async (req, res) => {
         userId: newUser._id,
         role: newUser.role,
         email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
@@ -188,7 +192,6 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     await sendOTPEmail(normalizedEmail, otp);
-
     res.status(200).json({ message: "OTP sent to your email.", email: normalizedEmail });
   } catch (err) {
     console.error("Forgot Password error:", err);
@@ -241,7 +244,7 @@ export const resetPassword = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json({ message: 'User not found.' });
 
-    user.password = newPassword; // Will trigger pre-save hook to hash it
+    user.password = newPassword;
     await user.save();
 
     res.status(200).json({ message: 'Password reset successful.' });
