@@ -17,15 +17,12 @@ export const signup = async (req, res) => {
     if (existingUser && existingUser.status === "pending") {
       return res.status(400).json({ message: "Account exists but is not activated." });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = new User({
       firstName,
       lastName,
       username,
       email: normalizedEmail,
-      password: hashedPassword,
+      password,
       role,
       status: "pending",
     });
@@ -99,6 +96,10 @@ export const sendOTP = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required." });
+  }
+
   try {
     const normalizedEmail = email.toLowerCase();
     const user = await User.findOne({ email: normalizedEmail });
@@ -126,19 +127,29 @@ export const login = async (req, res) => {
     );
 
     if (user.status === "pending") {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      user.otp = otp;
-      await user.save();
+      if (!user.otp || user.otpExpiry < Date.now()) {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpiry = Date.now() + 10 * 60 * 1000;
+        await user.save();
 
-      try {
-        await sendOTPEmail(normalizedEmail, otp);
-      } catch (emailErr) {
-        console.error("Failed to send OTP email during login:", emailErr.message);
-        return res.status(500).json({ message: "Login successful, but OTP email failed to send." });
+        try {
+          await sendOTPEmail(normalizedEmail, otp);
+        } catch (emailErr) {
+          console.error("Failed to send OTP email during login:", emailErr.message);
+          return res.status(500).json({ message: "Login successful, but OTP email failed to send." });
+        }
       }
+
+      return res.status(200).json({
+        message: "Account pending verification. OTP sent.",
+        status: user.status,
+        email: user.email,
+      });
     }
 
     res.status(200).json({
+      message: "Login successful.",
       token,
       status: user.status,
       username: user.username,
@@ -153,6 +164,7 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Server error during login." });
   }
 };
+
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -217,8 +229,9 @@ export const resetPassword = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json({ message: "User not found." });
 
-    const hashed = await bcrypt.hash(newPassword, 10);
-    user.password = hashed;
+    //const hashed = await bcrypt.hash(newPassword, 10);
+    //user.password = hashed;
+    user.password = newPassword; // ✅ Let schema handle hashing
     await user.save();
 
     res.status(200).json({ message: "Password reset successful." });

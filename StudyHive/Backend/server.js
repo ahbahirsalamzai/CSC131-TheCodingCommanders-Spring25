@@ -11,6 +11,7 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import testRoutes from './routes/testRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,18 +27,24 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 
+// ✅ API routes - these should come BEFORE serving frontend
 app.use('/api/test', testRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/sessions", sessionRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/users', userRoutes);
 
+// ✅ Serve frontend only in production
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, "../Frontend/studyhive/build")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/studyhive/build/index.html"));
-});
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, "../Frontend/studyhive/build")));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/studyhive/build/index.html"));
+  });
+}
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

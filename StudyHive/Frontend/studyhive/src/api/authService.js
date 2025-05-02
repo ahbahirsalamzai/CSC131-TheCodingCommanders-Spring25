@@ -21,9 +21,14 @@ export const signup = async (userData) => {
 // ----------------------
 export const login = async (userData) => {
   try {
+    console.log("🔐 Login payload:", userData); // 🧪 Log payload before request
+
     const response = await axios.post(`${API_URL}/auth/login`, userData);
+    console.log("✅ Login response:", response.data); // 🧪 Log success response
+
     return response.data;
   } catch (error) {
+    console.log("❌ Login error response:", error.response?.data); // 🧪 Log error from backend
     const errorMessage = error.response?.data?.message || "Login failed. Please try again.";
     throw new Error(errorMessage);
   }

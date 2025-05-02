@@ -46,58 +46,54 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const newErrors = {
       email: validateField("email", formData.email),
       password: validateField("password", formData.password),
     };
-
+  
     setErrors(newErrors);
-
+  
     if (Object.values(newErrors).every((error) => !error)) {
       try {
+        console.log("📤 Sending login formData:", formData);
         const res = await login(formData);
-
+  
+        // ✅ Handle pending accounts (OTP not verified yet)
+        if (res.status === "pending") {
+          toast.info("Please verify your account to continue.", {
+            position: "top-center",
+            autoClose: 1500,
+          });
+  
+          // Use returned email just in case casing is different
+          navigate("/verify-otp", { state: { email: res.email } });
+          return;
+        }
+  
+        // ✅ Handle successful login
         if (res.token) {
           const decoded = jwtDecode(res.token);
-          console.log(" Decoded token:", decoded);
-
-          if (!decoded.role) {
-            console.error("No role found in decoded token");
-            return;
-          }
-          
-
-          if (res.status === "pending") {
-            toast.info("Please verify your account to continue.", {
-              position: "top-center",
-              autoClose: 1500,
-            });
-            navigate("/verify-otp", { state: { email: formData.email } });
-
-            return;
-          }
-          
-          
           const userObject = {
+            token: res.token,
             email: res.email,
             firstName: res.firstName,
             lastName: res.lastName,
             role: res.role,
-            isVerified: res.isVerified,
-            token: res.token,
+            status: res.status,
+            username: res.username,
           };
-
+  
           handleLogin(userObject);
           setRedirectRole(decoded.role);
-          console.log("Login success — setting redirectRole:", decoded.role);
-
+  
           toast.success("Login successful!", {
             position: "top-center",
             autoClose: 1500,
           });
         }
       } catch (err) {
+        console.error("❌ Login error:", err.response?.data || err.message);
         setErrorMessage(err.message || "Login failed.");
         toast.error(err.message || "Login failed.", {
           position: "top-center",
@@ -105,7 +101,7 @@ export default function Login() {
       }
     }
   };
-
+  
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">

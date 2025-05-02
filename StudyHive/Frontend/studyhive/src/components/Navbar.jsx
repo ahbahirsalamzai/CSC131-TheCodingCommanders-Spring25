@@ -45,7 +45,8 @@ const Navbar = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const handleProfileClick = () => {
-    navigate("/profile");
+    if (user?.role === "admin") navigate("/admin-profile");
+    else navigate("/profile");
   };
 
   const handleDashboardClick = () => {

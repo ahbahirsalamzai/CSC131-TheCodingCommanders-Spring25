@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import AdminProfile from "./pages/AdminProfile";
 import Sessions from "./pages/Sessions";
 import Attendance from "./pages/Attendance";
 import Payroll from "./pages/Payroll";
@@ -55,6 +56,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["student", "tutor", "admin"]}>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin-profile"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminProfile />
                   </ProtectedRoute>
                 }
               />

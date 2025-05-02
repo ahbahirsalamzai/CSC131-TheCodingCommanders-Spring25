@@ -1,12 +1,21 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { getAllUsers } from '../controllers/userController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import {
+  updatePersonalInfo,
+  changePassword,
+  getAllUsers,
+  getMyProfile
+} from '../controllers/userController.js';
 import authenticateToken from '../middleware/authMiddleware.js';
 import authorizeRoles from '../middleware/roleAuth.js';
 
 const router = express.Router();
 
-// GET /api/users — Admin-only route
+// Get current admin's profile
+router.get("/me",  authMiddleware, getMyProfile);
+
+// Get all users (admin only)
 router.get("/", authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const users = await mongoose.connection.db
@@ -23,5 +32,11 @@ router.get("/", authenticateToken, authorizeRoles('admin'), async (req, res) => 
     res.status(500).json({ error: err.message });
   }
 });
+
+// Update personal info (name, email, phone, DOB)
+router.put("/update", authenticateToken,  updatePersonalInfo);
+
+// Change password securely
+router.put("/change-password", authenticateToken,  changePassword);
 
 export default router;

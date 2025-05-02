@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarAlt,
   faListAlt,
-} from "@fortawesome/free-solid-svg-icons";
+  faUserShield,
+} from "@fortawesome/free-solid-svg-icons"; // Added icon for profile
 
 function Sidebar() {
   const location = useLocation();
@@ -35,13 +36,11 @@ function Sidebar() {
     );
   }
 
-  const adminPreviewLink = "/admin-preview";
-
   return (
     <div className="w-64 min-h-screen ml-[10%] mt-[40%] px-5 flex flex-col justify-between overflow-y-auto">
       <div className="space-y-6 flex-1">
         <nav className="flex flex-col gap-4">
-          {/* Dashboard and Schedule links */}
+          {/* Common links */}
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.path;
             return (
@@ -60,20 +59,33 @@ function Sidebar() {
             );
           })}
 
-          {/* Admin only preview */}
+          {/* Admin only links */}
           {isAdmin && (
-            <Link
-              to={adminPreviewLink}
-              className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
-                location.pathname === adminPreviewLink
-                  ? "bg-[#1F4D39] text-white"
-                  : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
-              }`}
-              style={{ marginTop: "20px" }}
-            >
-              <FontAwesomeIcon icon={faListAlt} className="text-lg" />
-              <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
-            </Link>
+            <>
+              <Link
+                to="/admin-dashboard"
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
+                  location.pathname === "/admin-dashboard"
+                    ? "bg-[#1F4D39] text-white"
+                    : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
+                }`}
+              >
+                <FontAwesomeIcon icon={faListAlt} className="text-lg" />
+                <span className="text-[16px] font-[400] leading-6">Admin Preview</span>
+              </Link>
+
+              <Link
+                to="/admin-profile"
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-left transition-all duration-200 transform ${
+                  location.pathname === "/admin-profile"
+                    ? "bg-[#1F4D39] text-white"
+                    : "text-[#1F4D39] hover:bg-[#D9F4E6] hover:scale-105 hover:font-semibold hover:shadow-md"
+                }`}
+              >
+                <FontAwesomeIcon icon={faUserShield} className="text-lg" />
+                <span className="text-[16px] font-[400] leading-6">Admin Profile</span>
+              </Link>
+            </>
           )}
         </nav>
       </div>
