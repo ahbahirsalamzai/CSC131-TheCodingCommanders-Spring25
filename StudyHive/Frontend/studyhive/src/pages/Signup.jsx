@@ -1,6 +1,6 @@
+// FRONTEND: SignUp.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-//import { signup } from "../api/authService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Studs from "../assets/Studentswalk.jpg";
@@ -8,12 +8,12 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from "react-router-dom";
 
 export default function SignUp() {
-
   const { handleSignup } = useAuth();
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     username: "",
     email: "",
     password: "",
@@ -84,6 +84,8 @@ export default function SignUp() {
           email: formData.email,
           password: formData.password,
           role: formData.role,
+          firstName: formData.firstName,
+          lastName: formData.lastName
         });
 
         toast.success("Account created successfully!", {
@@ -107,11 +109,8 @@ export default function SignUp() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-[1440px] mb-[50px] flex justify-center items-center">
-        {/* Form Section */}
         <div className="w-full max-w-[500px] mt-[120px] ml-[30px] mr-[30px] bg-white rounded-[31px] outline outline-1 outline-[#eaeaea] p-6">
-          <div className="text-center text-black text-[40px] font-bold font-['Mulish'] mb-4">
-            Sign Up
-          </div>
+          <div className="text-center text-black text-[40px] font-bold mb-4">Sign Up</div>
 
           {Object.values(errors).some((e) => e) && (
             <div className="text-red-600 text-sm font-semibold mb-2 text-center">
@@ -120,7 +119,6 @@ export default function SignUp() {
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full items-center mt-2">
-            {/* Role */}
             <div className="w-full">
               <label className="block text-black text-base font-bold mb-2">Select Your Role:</label>
               <div className="flex gap-6">
@@ -139,137 +137,70 @@ export default function SignUp() {
               </div>
             </div>
 
-            {/* Username */}
             <div className="w-full">
-              <label className="block text-black text-base font-bold mb-1">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
-                placeholder="Enter your username"
-              />
-              {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-              )}
+              <label className="block font-bold mb-1">First Name</label>
+              <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" />
+              {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
             </div>
 
-            {/* Email */}
             <div className="w-full">
-              <label className="block text-black text-base font-bold mb-1">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
-                placeholder="email@example.com"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
+              <label className="block font-bold mb-1">Last Name</label>
+              <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" />
+              {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
             </div>
 
-            {/* Password */}
+            <div className="w-full">
+              <label className="block font-bold mb-1">Username</label>
+              <input type="text" name="username" value={formData.username} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" />
+              {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
+            </div>
+
+            <div className="w-full">
+              <label className="block font-bold mb-1">Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            </div>
+
             <div className="w-full relative">
-              <label className="block text-black text-base font-bold mb-1">Password</label>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Password"
-                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-sm text-[#1f4d39] font-semibold"
-              >
+              <label className="block font-bold mb-1">Password</label>
+              <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-9 text-sm text-[#1f4d39] font-semibold">
                 {showPassword ? "Hide" : "Show"}
               </button>
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-              )}
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
 
-            {/* Confirm Password */}
             <div className="w-full relative">
-              <label className="block text-black text-base font-bold mb-1">Confirm Password</label>
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm Password"
-                className="w-full px-4 py-3 bg-white rounded-lg border border-[#e0e0e0] text-black"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-9 text-sm text-[#1f4d39] font-semibold"
-              >
+              <label className="block font-bold mb-1">Confirm Password</label>
+              <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg" />
+              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-9 text-sm text-[#1f4d39] font-semibold">
                 {showConfirmPassword ? "Hide" : "Show"}
               </button>
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-              )}
+              {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
             </div>
 
-            {/* Terms */}
             <div className="flex items-center w-full text-sm mt-2">
-              <input
-                type="checkbox"
-                name="acceptedTerms"
-                checked={formData.acceptedTerms}
-                onChange={handleChange}
-                className="mr-2"
-              />
-              I accept{" "}
-              <button
-                type="button"
-                className="text-[#1f4d39] font-semibold hover:underline ml-1"
-                onClick={() => setShowTerms(true)}
-              >
-                Terms & Conditions
-              </button>
+              <input type="checkbox" name="acceptedTerms" checked={formData.acceptedTerms} onChange={handleChange} className="mr-2" />
+              I accept <button type="button" className="text-[#1f4d39] font-semibold hover:underline ml-1" onClick={() => setShowTerms(true)}>Terms & Conditions</button>
             </div>
-            {errors.acceptedTerms && (
-              <p className="text-red-500 text-sm mt-1">{errors.acceptedTerms}</p>
-            )}
+            {errors.acceptedTerms && <p className="text-red-500 text-sm mt-1">{errors.acceptedTerms}</p>}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full px-6 py-3 mt-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition"
-            >
+            <button type="submit" disabled={isSubmitting} className="w-full px-6 py-3 mt-2 bg-[#1f4d39] rounded-lg text-white text-base font-semibold hover:bg-[#163a2b] transition">
               {isSubmitting ? "Signing up..." : "Sign Up"}
             </button>
           </form>
 
-          {/* Link to Login */}
           <div className="flex justify-center items-center mt-4">
             <span className="text-black text-base">Already have an account?</span>
-            <Link to="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">
-          Sign In
-          </Link>
-
+            <Link to="/login" className="text-[#1f4d39] text-base font-bold ml-2 hover:underline">Sign In</Link>
           </div>
         </div>
 
-        {/* Image Section */}
         <div className="hidden xl:block w-[600px] h-[800px] mb-[20px] mt-[100px] overflow-hidden rounded-[31px] ml-12">
-          <img
-            className="w-full h-full object-cover filter brightness-50"
-            src={Studs}
-            alt="Illustration"
-          />
+          <img className="w-full h-full object-cover filter brightness-50" src={Studs} alt="Illustration" />
         </div>
       </div>
 
-      {/* Terms Modal */}
       {showTerms && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-[500px] p-6 rounded-lg relative">
@@ -278,10 +209,7 @@ export default function SignUp() {
               StudyHive is an educational platform. By signing up, you agree to use the platform respectfully,
               maintain academic honesty, and abide by all community guidelines.
             </p>
-            <button
-              onClick={() => setShowTerms(false)}
-              className="absolute bottom-4 right-6 text-sm font-semibold text-black hover:underline"
-            >
+            <button onClick={() => setShowTerms(false)} className="absolute bottom-4 right-6 text-sm font-semibold text-black hover:underline">
               Close
             </button>
           </div>

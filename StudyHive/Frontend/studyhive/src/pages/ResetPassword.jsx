@@ -34,7 +34,7 @@ export default function ResetPassword() {
 
     try {
       await resetPassword(email, password);
-      toast.success("🎉 Password reset successful!", {
+      toast.success("Password reset successful!", {
         position: "top-center",
         autoClose: 3000,
       });

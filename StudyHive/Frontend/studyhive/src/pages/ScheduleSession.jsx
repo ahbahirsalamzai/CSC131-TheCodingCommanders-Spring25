@@ -6,10 +6,14 @@ import Sidebar from "../components/Sidebar";
 import api from "../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../context/AuthContext";
 
 const localizer = momentLocalizer(moment);
 
 const ScheduleSession = () => {
+  const { user } = useAuth();
+  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+
   const [events, setEvents] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -17,7 +21,6 @@ const ScheduleSession = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState(Views.MONTH);
   const [formData, setFormData] = useState({
-    tutorName: "",
     startTime: "",
     endTime: "",
     subject: "",
@@ -31,7 +34,7 @@ const ScheduleSession = () => {
           ...event,
           start: new Date(event.start),
           end: new Date(event.end),
-          title: event.bookedBy ? "Booked" : event.tutorName || "Available Session",
+          title: event.bookedBy ? "Booked" : `${event.tutorName || "Available"}`,
         }));
         setEvents(formatted);
       } catch (err) {
@@ -51,8 +54,8 @@ const ScheduleSession = () => {
   };
 
   const handleSubmit = async () => {
-    const { tutorName, startTime, endTime, subject } = formData;
-    if (!tutorName || !startTime || !endTime) {
+    const { startTime, endTime, subject } = formData;
+    if (!startTime || !endTime || !subject) {
       toast.error("Please complete all fields", { position: "top-center" });
       return;
     }
@@ -62,14 +65,14 @@ const ScheduleSession = () => {
 
     try {
       await api.post("/sessions/availability", {
-        tutorName,
+        tutorName: fullName,
         start: startDateTime,
         end: endDateTime,
         subject,
       });
       toast.success("Availability posted!", { position: "top-center", autoClose: 1500 });
       setModalOpen(false);
-      setFormData({ tutorName: "", startTime: "", endTime: "", subject: "" });
+      setFormData({ startTime: "", endTime: "", subject: "" });
 
       setTimeout(() => {
         window.location.reload();
@@ -130,17 +133,14 @@ const ScheduleSession = () => {
           })}
         />
 
+        {/* Post Availability Modal */}
         {modalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
             <div className="bg-white p-6 rounded-md shadow-lg z-50 w-[300px]">
               <h3 className="text-xl font-semibold mb-4">Post Availability</h3>
-              <input
-                name="tutorName"
-                placeholder="Your name"
-                className="w-full border p-2 mb-2 rounded"
-                value={formData.tutorName}
-                onChange={handleChange}
-              />
+              <div className="text-sm mb-2 text-gray-600">
+                Availability as: <span className="font-semibold text-black">{fullName}</span>
+              </div>
               <input
                 type="time"
                 name="startTime"
@@ -180,15 +180,15 @@ const ScheduleSession = () => {
           </div>
         )}
 
-        {selectedEvent && (
+        {/* Cancel/Delete Modal */}
+        {selectedEvent && selectedEvent.tutorName === fullName && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
             <div className="bg-white p-6 rounded-md shadow-lg z-50 w-[300px]">
               <h3 className="text-xl font-semibold mb-4">Session Details</h3>
               <p><strong>Tutor:</strong> {selectedEvent.tutorName}</p>
               <p><strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}</p>
               <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
-              <p className="mb-3"><strong>Subject:</strong> {selectedEvent.subject || "None"}</p> {/* <-- Added spacing here */}
-
+              <p className="mb-3"><strong>Subject:</strong> {selectedEvent.subject || "None"}</p>
               <button
                 onClick={handleCancelSession}
                 className="w-full py-2 mb-2 bg-red-600 text-white rounded"

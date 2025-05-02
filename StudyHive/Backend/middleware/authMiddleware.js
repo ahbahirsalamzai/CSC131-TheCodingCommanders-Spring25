@@ -14,7 +14,9 @@ const authenticateToken = (req, res, next) => {
 
     req.user = {
       id: decoded.userId,
-      role: decoded.role, // still important for RBAC
+      role: decoded.role,
+      firstName: decoded.firstName,  
+      lastName: decoded.lastName,   
     };
 
     next();

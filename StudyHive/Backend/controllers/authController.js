@@ -1,13 +1,11 @@
-import bcrypt from 'bcryptjs'; // for hashing passwords and comparing hashes
-import jwt from 'jsonwebtoken'; // Creating the JWTs
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js'; 
-import sendOTPEmail from '../utils/emailSender.js'; // Helps send OTP for acc veification
+import sendOTPEmail from '../utils/emailSender.js';
 
-
-
-export const signup = async (req, res) => { // Handle sign up - breaks down users input
+export const signup = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { firstName, lastName, username, email, password, role } = req.body;
     const normalizedEmail = email.toLowerCase();
 
     const existingUser = await User.findOne({ email: normalizedEmail });
@@ -17,41 +15,43 @@ export const signup = async (req, res) => { // Handle sign up - breaks down user
     }
 
     if (existingUser && existingUser.status === "pending") {
-      return res.status(400).json({ message: "Account already exists but is not activated. Please log in to receive OTP." });
+      return res.status(400).json({ message: "Account exists but is not activated." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
+      firstName,
+      lastName,
       username,
       email: normalizedEmail,
       password: hashedPassword,
       role,
-      status: "pending", // auto set as pending - active once OTP verifcation is done
+      status: "pending",
     });
 
     await newUser.save();
 
-    const token = jwt.sign({ // Generating the Json web token  - Valid 1 day
-      userId: newUser._id,
-      role: newUser.role,
-      email: newUser.email,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '1d' }
-  );
+    const token = jwt.sign(
+      {
+        userId: newUser._id,
+        role: newUser.role,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-  res.status(201).json({ token });
-  
-    // res.status(201).json({ message: "Signup successful. Please log in to receive your OTP.", email: normalizedEmail });
+    res.status(201).json({ token });
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ message: "Server error during signup." });
   }
 };
 
-
-export const verifyOTP = async (req, res) => { // commpletes account activation - OTP Verification
+export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
@@ -77,10 +77,7 @@ export const verifyOTP = async (req, res) => { // commpletes account activation 
   }
 };
 
-
-
-
-export const sendOTP = async (req, res) => { // Send SignUp/Login OTP
+export const sendOTP = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -99,10 +96,7 @@ export const sendOTP = async (req, res) => { // Send SignUp/Login OTP
   }
 };
 
-
-
-
-export const login = async (req, res) => {  // Login - if pending send a new OTP verification code
+export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -118,8 +112,7 @@ export const login = async (req, res) => {  // Login - if pending send a new OTP
       return res.status(400).json({ message: "Invalid email or password." });
     }
 
-    
-    const token = jwt.sign(//  Include role,UserId,email,and full name in fields in JWT
+    const token = jwt.sign(
       {
         userId: user._id,
         email: user.email,
@@ -132,8 +125,7 @@ export const login = async (req, res) => {  // Login - if pending send a new OTP
       { expiresIn: "1d" }
     );
 
-    
-    if (user.status === "pending") {// If account is still pending, re-send OTP but don't crash if email fails
+    if (user.status === "pending") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       user.otp = otp;
       await user.save();
@@ -162,11 +154,7 @@ export const login = async (req, res) => {  // Login - if pending send a new OTP
   }
 };
 
-
-
-
-
-export const forgotPassword = async (req, res) => {// Forgot Password - Send OTP - This will protect the user account 
+export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -180,18 +168,9 @@ export const forgotPassword = async (req, res) => {// Forgot Password - Send OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetOtp = otp;
     user.otpExpiry = Date.now() + 10 * 60 * 1000;
-
-    console.log("Generated OTP for reset:", otp);
     await user.save();
 
-    console.log(" OTP and expiry saved to user:", {
-      email: user.email,
-      resetOtp: user.resetOtp,
-      otpExpiry: user.otpExpiry,
-    });
-
     await sendOTPEmail(normalizedEmail, otp);
-
     res.status(200).json({ message: "OTP sent to your email.", email: normalizedEmail });
   } catch (err) {
     console.error("Forgot Password error:", err);
@@ -199,13 +178,8 @@ export const forgotPassword = async (req, res) => {// Forgot Password - Send OTP
   }
 };
 
-
-
-
-export const verifyForgotPasswordOTP = async (req, res) => {// Verify OTP for Forgot Password
+export const verifyForgotPasswordOTP = async (req, res) => {
   const { email, otp } = req.body;
-
-  console.log(" Verifying OTP for reset:", { email, otp });
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -213,10 +187,6 @@ export const verifyForgotPasswordOTP = async (req, res) => {// Verify OTP for Fo
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-
-    console.log("Stored OTP:", user.resetOtp);
-    console.log("Entered OTP:", otp);
-    console.log("Expiry:", user.otpExpiry, "Now:", Date.now());
 
     const storedOtp = user.resetOtp?.toString();
     const enteredOtp = otp?.toString();
@@ -240,10 +210,7 @@ export const verifyForgotPasswordOTP = async (req, res) => {// Verify OTP for Fo
   }
 };
 
-
-
-
-export const resetPassword = async (req, res) => {// Reset Password - create new password
+export const resetPassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
@@ -260,4 +227,3 @@ export const resetPassword = async (req, res) => {// Reset Password - create new
     res.status(500).json({ message: "Server error while resetting password." });
   }
 };
-
