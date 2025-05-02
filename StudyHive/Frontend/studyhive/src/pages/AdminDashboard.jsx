@@ -8,7 +8,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-50 pt-20">
-      <div className="w-80 min-h-screen ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
+      <div className="w-80 min-h-screen mt-[-8%] ml-[-10%] bg-[#E3EAE0] shadow-md border-r hidden md:flex">
         <Sidebar />
       </div>
 
