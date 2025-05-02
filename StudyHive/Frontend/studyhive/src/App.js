@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import AdminProfile from "./pages/AdminProfile";
+import AdminDashboard from "./pages/AdminDashboard";
 import Sessions from "./pages/Sessions";
 import Attendance from "./pages/Attendance";
 import Payroll from "./pages/Payroll";
@@ -40,7 +41,7 @@ function App() {
 
           <main className="flex-grow container mx-auto p-4">
             <Routes>
-              {/*  Public Routes */}
+              {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
@@ -50,7 +51,7 @@ function App() {
               <Route path="/otp" element={<OTPPage />} />
               <Route path="/reset-password" element={<ResetPassword />} />
 
-              {/*  Protected Routes */}
+              {/* Protected Routes */}
               <Route
                 path="/profile"
                 element={
@@ -64,6 +65,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
                     <AdminProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin-dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 }
               />
@@ -132,7 +141,7 @@ function App() {
                 }
               />
 
-              {/*  Forbidden & 404 */}
+              {/* Fallback Routes */}
               <Route path="/forbidden" element={<Forbidden />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
