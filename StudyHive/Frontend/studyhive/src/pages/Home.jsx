@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
+import parent from "../assets/DAD.jpg";
 
 const scrollToSection = (id) => {
   const element = document.getElementById(id);
@@ -244,8 +245,7 @@ export default function Home() {
         </h2>
         <figure>
             <blockquote className="text-xl italic text-gray-700">
-              “Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo expedita voluptas culpa sapiente alias
-              molestiae. Numquam corrupti in laborum sed rerum et corporis.”
+              “StudyHive has completely changed the way I learn! The tutors are supportive, scheduling is super easy, and I finally feel confident in my classes. Highly recommend it to anyone who needs help!”
             </blockquote>
             <figcaption className="mt-8 flex items-center justify-center gap-4">
               <img
@@ -256,8 +256,29 @@ export default function Home() {
               <div className="text-left">
                   <p className="font-semibold">Jacob Lake</p>
                   <p className="text-gray-600">STUDENT</p>
+                  
               </div>
-            </figcaption>
+              </figcaption>
+              {/*Parent */}
+
+              <blockquote className="text-xl italic text-gray-700 mt-5">
+              “StudyHive has been an absolute game-changer for my child. The tutors are not only knowledgeable but also incredibly patient and supportive. I’ve seen a huge boost in my child’s confidence and grades since joining!”
+            </blockquote>
+            <figcaption className="mt-8 flex items-center justify-center gap-4">
+              <img
+                  src={parent}
+                  alt="parent"
+                  className="w-16 h-16 rounded-full object-cover" // Use object-cover to maintain aspect ratio
+                  />
+              <div className="text-left">
+                  <p className="font-semibold">Manuel Garcia Lopez</p>
+                  <p className="text-gray-600">PARENT</p>
+                  
+              </div>
+              </figcaption>
+
+                  
+            
         </figure>
       </div>
   </section>
