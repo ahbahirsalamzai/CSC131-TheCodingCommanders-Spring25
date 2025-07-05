@@ -34,19 +34,29 @@ const ScheduleSession = () => {
           ...event,
           start: new Date(event.start),
           end: new Date(event.end),
-          title: event.bookedBy ? "Booked" : `${event.tutorName || "Available"}`,
+          title: event.bookedBy
+            ? event.user === user?.id
+              ? "Your Booking"
+              : "Booked"
+            : `${event.tutorName || "Available"}`,
         }));
         setEvents(formatted);
       } catch (err) {
         console.error("Failed to fetch availability:", err);
       }
     };
-    fetchAvailability();
-  }, []);
+    if (user) fetchAvailability();
+  }, [user]);
 
   const handleSelectSlot = ({ start }) => {
-    setSelectedDate(start);
-    setModalOpen(true);
+    if (user?.role === "tutor") {
+      setSelectedDate(start);
+      setModalOpen(true);
+    } else {
+      toast.info("Only tutors can post availability.", {
+        position: "top-center",
+      });
+    }
   };
 
   const handleChange = (e) => {
@@ -60,8 +70,12 @@ const ScheduleSession = () => {
       return;
     }
 
-    const startDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${startTime}`);
-    const endDateTime = new Date(`${selectedDate.toISOString().split("T")[0]}T${endTime}`);
+    const startDateTime = new Date(
+      `${selectedDate.toISOString().split("T")[0]}T${startTime}`
+    );
+    const endDateTime = new Date(
+      `${selectedDate.toISOString().split("T")[0]}T${endTime}`
+    );
 
     try {
       await api.post("/sessions/availability", {
@@ -70,13 +84,13 @@ const ScheduleSession = () => {
         end: endDateTime,
         subject,
       });
-      toast.success("Availability posted!", { position: "top-center", autoClose: 1500 });
+      toast.success("Availability posted!", {
+        position: "top-center",
+        autoClose: 1500,
+      });
       setModalOpen(false);
       setFormData({ startTime: "", endTime: "", subject: "" });
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       toast.error("Failed to post availability!", { position: "top-center" });
       console.error(err);
@@ -85,15 +99,35 @@ const ScheduleSession = () => {
 
   const handleCancelSession = async () => {
     try {
-      await api.delete(`/sessions/${selectedEvent._id}`);
-      toast.success("Session deleted!", { position: "top-center", autoClose: 1500 });
+      await api.patch(`/sessions/book/${selectedEvent._id}`, {
+        studentName: fullName,
+        cancel: true,
+      });
+      toast.success("Session canceled!", {
+        position: "top-center",
+        autoClose: 1500,
+      });
       setSelectedEvent(null);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
-      toast.error("Failed to delete session!", { position: "top-center" });
+      toast.error("Failed to cancel session!", { position: "top-center" });
+      console.error(err);
+    }
+  };
+
+  const handleBookSession = async () => {
+    try {
+      await api.patch(`/sessions/book/${selectedEvent._id}`, {
+        studentName: fullName,
+      });
+      toast.success("Session booked!", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+      setSelectedEvent(null);
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      toast.error("Failed to book session!", { position: "top-center" });
       console.error(err);
     }
   };
@@ -125,7 +159,11 @@ const ScheduleSession = () => {
           popup
           eventPropGetter={(event) => ({
             style: {
-              backgroundColor: event.bookedBy ? "#fcd9b6" : "#c3f7ca",
+              backgroundColor: event.bookedBy
+                ? event.user === user?.id
+                  ? "#cce5ff"
+                  : "#fcd9b6"
+                : "#c3f7ca",
               color: "#333",
               borderRadius: "6px",
               padding: "2px 4px",
@@ -133,13 +171,14 @@ const ScheduleSession = () => {
           })}
         />
 
-        {/* Post Availability Modal */}
+        {/* Modal for Posting Availability (TUTORS) */}
         {modalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
             <div className="bg-white p-6 rounded-md shadow-lg z-50 w-[300px]">
               <h3 className="text-xl font-semibold mb-4">Post Availability</h3>
               <div className="text-sm mb-2 text-gray-600">
-                Availability as: <span className="font-semibold text-black">{fullName}</span>
+                Availability as:{" "}
+                <span className="font-semibold text-black">{fullName}</span>
               </div>
               <input
                 type="time"
@@ -180,21 +219,56 @@ const ScheduleSession = () => {
           </div>
         )}
 
-        {/* Cancel/Delete Modal */}
-        {selectedEvent && selectedEvent.tutorName === fullName && (
+        {/* Modal for Viewing/Canceling/Booking Session */}
+        {selectedEvent && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
             <div className="bg-white p-6 rounded-md shadow-lg z-50 w-[300px]">
               <h3 className="text-xl font-semibold mb-4">Session Details</h3>
-              <p><strong>Tutor:</strong> {selectedEvent.tutorName}</p>
-              <p><strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}</p>
-              <p><strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}</p>
-              <p className="mb-3"><strong>Subject:</strong> {selectedEvent.subject || "None"}</p>
-              <button
-                onClick={handleCancelSession}
-                className="w-full py-2 mb-2 bg-red-600 text-white rounded"
-              >
-                Delete Session
-              </button>
+              <p>
+                <strong>Tutor:</strong> {selectedEvent.tutorName}
+              </p>
+              <p>
+                <strong>Start:</strong>{" "}
+                {new Date(selectedEvent.start).toLocaleString()}
+              </p>
+              <p>
+                <strong>End:</strong>{" "}
+                {new Date(selectedEvent.end).toLocaleString()}
+              </p>
+              <p className="mb-3">
+                <strong>Subject:</strong>{" "}
+                {selectedEvent.subject || "None"}
+              </p>
+
+              {user?.role === "student" &&
+                !selectedEvent.bookedBy && (
+                  <button
+                    onClick={handleBookSession}
+                    className="w-full py-2 mb-2 bg-green-600 text-white rounded"
+                  >
+                    Book This Session
+                  </button>
+              )}
+
+              {user?.role === "student" &&
+                selectedEvent.bookedBy &&
+                selectedEvent.user === user?.id && (
+                  <button
+                    onClick={handleCancelSession}
+                    className="w-full py-2 mb-2 bg-red-600 text-white rounded"
+                  >
+                    Cancel Your Booking
+                  </button>
+              )}
+
+              {user?.role === "student" &&
+                selectedEvent.bookedBy &&
+                selectedEvent.user !== user?.id && (
+                  <div className="text-red-600 text-sm font-medium">
+                    This session is already booked by another student.
+                  </div>
+              )}
+
               <button
                 onClick={() => setSelectedEvent(null)}
                 className="w-full mt-2 py-2 bg-gray-300 rounded"

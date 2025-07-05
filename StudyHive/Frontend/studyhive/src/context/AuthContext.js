@@ -14,10 +14,10 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({ ...decoded, token });
-        console.log(" AuthContext initialized with user:", decoded);
+        setUser({ ...decoded, token }); // ✅ include token in user object
+        console.log("AuthContext initialized with user:", decoded);
       } catch (error) {
-        console.error(" Invalid token:", error);
+        console.error("Invalid token:", error);
         localStorage.removeItem("token");
         setUser(null);
       }
@@ -29,7 +29,8 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = (userObject) => {
     if (userObject && userObject.token) {
       localStorage.setItem("token", userObject.token);
-      setUser(userObject);
+      const decoded = jwtDecode(userObject.token);
+      setUser({ ...decoded, token: userObject.token }); // ✅ decoded and saved
     }
   };
 
@@ -38,13 +39,15 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  //  Add handleSignup for SignUp page to use
   const handleSignup = async (formData) => {
     try {
       const res = await signup(formData);
-      return res; // let the component handle toast & redirection
+      const decoded = jwtDecode(res.token);
+      localStorage.setItem("token", res.token);
+      setUser({ ...decoded, token: res.token }); // ✅ decoded and saved after signup
+      return res; // Let the calling component handle the rest
     } catch (err) {
-      console.error(" Signup failed:", err);
+      console.error("Signup failed:", err);
       throw err;
     }
   };

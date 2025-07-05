@@ -9,6 +9,13 @@ const sessionSchema = new mongoose.Schema({
   student: { type: String, default: null },
   date: { type: String, default: null },
   time: { type: String, default: null },
+
+  // ✅ New field: associate session with user who booked it
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
 });
 
 const Session = mongoose.model('Session', sessionSchema, 'sessions');

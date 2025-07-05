@@ -13,10 +13,12 @@ const authenticateToken = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = {
-      id: decoded.userId,
+      id: decoded.userId,          // ✅ Unique identifier
+      email: decoded.email,        // ✅ Useful for auditing or context
+      username: decoded.username,  // ✅ Optional, but may be helpful
       role: decoded.role,
-      firstName: decoded.firstName,  
-      lastName: decoded.lastName,   
+      firstName: decoded.firstName,
+      lastName: decoded.lastName,
     };
 
     next();

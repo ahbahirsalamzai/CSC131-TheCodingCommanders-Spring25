@@ -15,24 +15,22 @@ const StudentDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchSessions = async () => {
+    const fetchMySessions = async () => {
       try {
-        const res = await api.get('/sessions/availability');
-        const fullName = `${user.firstName} ${user.lastName}`;
-        const userSessions = res.data.filter(session => session.bookedBy === fullName);
+        const res = await api.get('/sessions/my-sessions');
         const now = new Date();
 
-        const upcoming = userSessions.filter(session => new Date(session.start) > now);
-        const past = userSessions.filter(session => new Date(session.start) <= now);
+        const upcoming = res.data.filter(session => new Date(session.start) > now);
+        const past = res.data.filter(session => new Date(session.start) <= now);
 
         setUpcomingSessions(upcoming);
         setPastSessions(past);
       } catch (err) {
-        console.error('Failed to fetch sessions:', err);
+        console.error('Failed to fetch your sessions:', err);
       }
     };
 
-    if (user) fetchSessions();
+    if (user) fetchMySessions();
   }, [user]);
 
   const openModal = (session) => {

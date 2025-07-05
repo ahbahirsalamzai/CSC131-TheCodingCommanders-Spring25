@@ -20,6 +20,26 @@ export const getAllSessions = async () => {
   }));
 };
 
+// 🧍‍♂️ For STUDENTS → get sessions booked by the current user
+export const getMySessions = async () => {
+  const res = await axios.get(`${API_URL}/sessions/my-sessions`, {
+    withCredentials: true,
+  });
+
+  const sessions = res.data;
+
+  return sessions.map(session => ({
+    _id: session._id,
+    tutorName: session.tutorName,
+    subject: session.subject,
+    date: new Date(session.start).toLocaleDateString(),
+    time: new Date(session.start).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  }));
+};
+
 // 🎯 For TUTORS → get sessions belonging to the logged-in tutor
 export const getTutorSessions = async () => {
   const res = await axios.get(`${API_URL}/sessions/tutor`, {

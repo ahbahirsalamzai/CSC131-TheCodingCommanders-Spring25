@@ -39,10 +39,19 @@ const userSchema = new mongoose.Schema(
       default: 'pending',
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true }, // ✅ include virtuals in JSON output
+    toObject: { virtuals: true }
+  }
 );
 
-// 🔐 Automatically hash the password before saving (if modified)
+// Add virtual field for `id` (string version of _id)
+userSchema.virtual('id').get(function () {
+  return this._id.toHexString();
+});
+
+// Automatically hash the password before saving (if modified)
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
